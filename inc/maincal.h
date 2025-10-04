@@ -34,6 +34,9 @@ struct DataRow {
     int J;       // 第6列
     double value; // 第7列
 };
+
+
+
 #include"maincal.cpp"
 std::vector<std::map<int, Matrix4D>> buildVValue(const std::vector<DataRow>& data,int num);
 
@@ -54,8 +57,7 @@ void decompose_right_tensor(const Eigen::Tensor<double, 4>& right_tensor,
 void getsvdresult(const std::map<int,Matrix4D>& vpnval,
                           std::vector<std::vector<Eigen::MatrixXd>>& q_pi,  // 输出: q_pi[i](j_alpha, j_beta)
                           std::vector<Eigen::MatrixXd>& V_it,               // 输出: V_it(i, t)
-                          std::vector<std::vector<Eigen::MatrixXd>>& q_nu,std::vector<double>& strengthvec);
-
+                          std::vector<std::vector<Eigen::MatrixXd>>& q_nu,const std::vector<double>& strengthvec);
 void printDiagonals(const std::vector<Eigen::MatrixXd>& V_it);
 
 std::vector<MatrixIndex> findNonZeroDiagonal(const std::vector<Eigen::MatrixXd>& V_it);
@@ -138,17 +140,18 @@ std::vector<Eigen::MatrixXd> qmatcalall_1(
 
 void calham(const int& nuculnum,
     const int& m1cal,
-    const int& alpha1,
+    const double& alpha1,
     const std::vector<double>& gvec,
     const std::vector<int>&qorderp1,
     const std::vector<double>& energyp,
     const std::vector<double>& strength,
     const std::vector<std::vector<double> >& ystrgetp,
-    const std::vector<int> &rorderp,
-    const std::vector<int> & rpar,
+    const std::vector<std::vector<int>> &rorderp,
     const std::vector<Eigen::MatrixXd>& V_it,
     const std::vector<std::map<int, Matrix4D>>& buildVValue2,
-    std::vector<std::vector<Eigen::MatrixXd>> q_pi,
+    const std::vector<std::vector<Eigen::MatrixXd>>& q_pi,
+    std::vector<basism>& mtest,
+    std::vector<basism>& mtest_1,
     Eigen::MatrixXd& schmitmat1,
     std::vector<basis>& allbasisp,
     std::vector<std::vector<double>>& hampcc,
@@ -157,7 +160,11 @@ void calham(const int& nuculnum,
     std::vector<int>& tvec,
     std::map<int,std::map<int,Eigen::MatrixXd>>& qmatpicha,
     std::vector<int>& jvecp,
-    std::vector<int>& parityvecp
+    std::vector<int>& parityvecp,
+    std::vector<std::vector<Eigen::MatrixXd>>& ystrm1,
+    std::vector<std::vector<Eigen::MatrixXd>>& ystrm1_1,
+    Eigen::MatrixXd & m1,
+    Eigen::MatrixXd & m1_1
     );
 
 

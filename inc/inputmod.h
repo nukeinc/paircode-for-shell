@@ -27,7 +27,7 @@
 #include"bcscal.h"
 #include <sstream>
 #include <utility>
-#include "maincal.h"
+#include "../inc/maincal.h"
 
 struct Data {
     std::vector<Nucleus> nucleus1;

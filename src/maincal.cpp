@@ -28,6 +28,7 @@
 #include <map>
 #include <utility>
 #include "getbasis.h"
+#include "inputmod.h"
 
 
 
@@ -394,7 +395,7 @@ void decompose_right_tensor(const Eigen::Tensor<double, 4>& right_tensor,
 void getsvdresult(const std::map<int,Matrix4D>& vpnval,
                           std::vector<std::vector<Eigen::MatrixXd>>& q_pi,  // 输出: q_pi[i](j_alpha, j_beta)
                           std::vector<Eigen::MatrixXd>& V_it,               // 输出: V_it(i, t)
-                          std::vector<std::vector<Eigen::MatrixXd>>& q_nu,std::vector<double>& strengthvec)
+                          std::vector<std::vector<Eigen::MatrixXd>>& q_nu,const std::vector<double>& strengthvec)
 {
     for (const auto& vpn : vpnval) {
         int t = vpn.first;
@@ -448,7 +449,7 @@ std::vector<MatrixIndex> findNonZeroDiagonal(const std::vector<Eigen::MatrixXd>&
 
         // 遍历对角线元素
         for (int i = 0; i < matrix.rows(); ++i) {
-            if (std::abs(matrix(i, i)) > 1e-7)
+            if (std::abs(matrix(i, i)) > 1e-17)
             { // 检查对角线元素是否非零
                 // 如果对角线元素非零，记录它的矩阵索引和行索引
                 nonZeroIndices.push_back(std::make_pair(matrixIndex, i));
@@ -967,7 +968,11 @@ void calham(const int& nuculnum,
     std::vector<int>& tvec,
     std::map<int,std::map<int,Eigen::MatrixXd>>& qmatpicha,
     std::vector<int>& jvecp,
-    std::vector<int>& parityvecp
+    std::vector<int>& parityvecp,
+    std::vector<std::vector<Eigen::MatrixXd>>& ystrm1,
+    std::vector<std::vector<Eigen::MatrixXd>>& ystrm1_1,
+    Eigen::MatrixXd & m1,
+    Eigen::MatrixXd & m1_1
     )
 {
     int size1=nucleus.size();
@@ -997,11 +1002,9 @@ void calham(const int& nuculnum,
     mtest_1=calculateBasisform_1(nuculnum,rorderrp);
     std::cout<<"mtestsize: "<<mtest.size()<<std::endl;
     std::cout<<"mtest1: "<<mtest_1.size()<<std::endl;
-    Eigen::MatrixXd m1;
-    Eigen::MatrixXd m1_1;
     m1=ComputeTransformationMatrix( mtest,allbasisp);
     m1_1=ComputeTransformationMatrix( mtest_1,allbasisp);
-    std::vector<std::vector<Eigen::MatrixXd>>ystrm1= computeystrm( mtest, ystrgetp);
+    ystrm1= computeystrm( mtest, ystrgetp);
     removeZeroRows(m1,mtest,ystrm1);
     m1=ComputeTransformationMatrixeven( mtest,allbasisp);
     Eigen::MatrixXd overlapm=caloverlapmmat(mtest,mtest,ystrm1,ystrm1);
@@ -1018,7 +1021,7 @@ void calham(const int& nuculnum,
     schmitmat1=convertToEigenMatrix(schmitmatp);
     std::cout<<" schmitmat1 = "<<"/n"<< schmitmat1<<std::endl;
     removeZeroRows(m1,mtest,ystrm1);
-    std::vector<std::vector<Eigen::MatrixXd>>ystrm1_1= computeystrm( mtest_1, ystrgetp);
+    ystrm1_1= computeystrm( mtest_1, ystrgetp);
     removeZeroRows(m1_1,mtest_1,ystrm1_1);
     m1=ComputeTransformationMatrixeven( mtest,allbasisp);
     m1_1=ComputeTransformationMatrixeven( mtest_1,allbasisp);
@@ -1122,6 +1125,7 @@ void calham(const int& nuculnum,
         qmatpicha[matrixIndex][rowIndex]= qmat[qmatpicha_size];
         ++qmatpicha_size;
     }
+
     for (int tnum=qmatpicha_size;tnum<qmat.size();++tnum)
     {
         bemematcal.push_back(qmat[tnum]);
@@ -1154,6 +1158,309 @@ void calham(const int& nuculnum,
     }
 }
 
+void calhamsingle(const int& nuculnum,
+    const int& m1cal,
+    const double& alpha1,
+    const std::vector<double>& gvec,
+    const std::vector<int>&qorderp1,
+    const std::vector<double>& energyp,
+    const std::vector<double>& strength,
+    const std::vector<std::vector<double> >& ystrgetp,
+    const std::vector<std::vector<int>> &rorderp,
+    const std::vector<std::map<int, Matrix4D>>& buildVValue2,
+    std::vector<basism>& mtest,
+    std::vector<basism>& mtest_1,
+    Eigen::MatrixXd& schmitmat1,
+    std::vector<basis>& allbasisp,
+    std::vector<std::vector<double>>& hampcc,
+    std::vector<Eigen::MatrixXd>& bemematcal,
+    std::vector<int>& singleindex,
+    std::vector<int>& tvec,
+    std::vector<int>& jvecp,
+    std::vector<int>& parityvecp,
+    std::vector<std::vector<Eigen::MatrixXd>>& ystrm1,
+    std::vector<std::vector<Eigen::MatrixXd>>& ystrm1_1,
+    Eigen::MatrixXd & m1,
+    Eigen::MatrixXd & m1_1,
+    std::vector<int>& blockform1,
+    std::vector<int>& jjv,
+    std::map<std::pair<int, int>, int>& myMap1,
+    std::map<int, std::vector<double>>& eigenre1,
+    std::map<std::pair<int, int>, std::vector<double>>& engre
+    )
+{
+    int size1=nucleus.size();
+    //构造正交基矢
+    std::vector<std::vector<int>>rorderrp=rorderp;
+    rorderrp.pop_back();
+    rvecall=rorderp[0];
+    rparityvec=rorderp.back();
+    std::vector<std::pair<std::vector<int>, std::vector<int>>> catchpair1;
+    catchpair1=generateValidPairs(nuculnum,rorderrp,51);
+    allbasisp=calculateBasisWithRange(nuculnum, catchpair1);
+    printBasisVectorOneLine(allbasisp);
+    int sizep=allbasisp.size();
+    int sizepr=allbasisp[0].r.size();
+    std::vector<std::vector<std::vector<std::vector<double>>>> ystrallp(
+        sizep,  // 第一维：大小为 sizep
+        std::vector<std::vector<std::vector<double>>>(
+            sizepr,  // 第二维：大小为 sizepr
+            std::vector<std::vector<double>>(
+                size1,  // 第三维：大小为 size1
+                std::vector<double>(size1, 0.0)  // 第四维：大小为 size1，元素初始化为 0.0
+            )
+        )
+    );
+    calculateystr(ystrallp,ystrgetp,allbasisp);
+    mtest=calculateBasisform(nuculnum,rorderrp);
+    mtest_1=calculateBasisform_1(nuculnum,rorderrp);
+    std::cout<<"mtestsize: "<<mtest.size()<<std::endl;
+    std::cout<<"mtest1: "<<mtest_1.size()<<std::endl;
+    m1=ComputeTransformationMatrix( mtest,allbasisp);
+    m1_1=ComputeTransformationMatrix( mtest_1,allbasisp);
+    ystrm1= computeystrm( mtest, ystrgetp);
+    removeZeroRows(m1,mtest,ystrm1);
+    m1=ComputeTransformationMatrixeven( mtest,allbasisp);
+    Eigen::MatrixXd overlapm=caloverlapmmat(mtest,mtest,ystrm1,ystrm1);
+    std::cout << overlapm << std::endl;
+    std::vector<std::vector<double> > overlapmch=overlapchange(overlapm,m1);
+    printMatrix(overlapmch);
+    updateMatrices(allbasisp, overlapmch,ystrallp);
+    std::vector<std::vector<double>>schmitmatp;
+    std::vector<std::pair<int, int>> blocksnum=findblocks(allbasisp);
+    schmitmatp=gramSchmidtInOverlap(overlapmch,allbasisp,ystrallp,blocksnum);
+    m1=ComputeTransformationMatrix( mtest,allbasisp);
+    m1_1=ComputeTransformationMatrix( mtest_1,allbasisp);
+    std::vector<std::vector<double> > overlapmch1=overlapchange(overlapm,m1);
+    schmitmat1=convertToEigenMatrix(schmitmatp);
+    std::cout<<" schmitmat1 = "<<"/n"<< schmitmat1<<std::endl;
+    removeZeroRows(m1,mtest,ystrm1);
+    ystrm1_1= computeystrm( mtest_1, ystrgetp);
+    removeZeroRows(m1_1,mtest_1,ystrm1_1);
+    m1=ComputeTransformationMatrixeven( mtest,allbasisp);
+    m1_1=ComputeTransformationMatrixeven( mtest_1,allbasisp);
+    if (!outfile.is_open())
+    {
+        // 如果文件未打开，则尝试打开文件
+        outfile.open("basis_output.txt",std::ios::app);
+    }
+    outfile<<"m1" << std::endl;
+    outfile<<m1<<std::endl;
+    outfile<<"m1_1" << std::endl;
+    outfile<<m1_1<<std::endl;
+    //正交基矢构造完成
+    if (!outfile.is_open())
+    {
+        // 如果文件未打开，则尝试打开文件
+        outfile.open("basis_output.txt",std::ios::app);
+    }
+    outfile << "allbasism01" << std::endl;
+    writeBasismvecToFile(mtest);
+    if (!outfile.is_open())
+    {
+        // 如果文件未打开，则尝试打开文件
+        outfile.open("basis_output.txt",std::ios::app);
+    }
+    outfile << "allbasism11" << std::endl;
+    writeBasismvecToFile(mtest_1);
+
+
+    //计算单体矩阵元
+
+    std::vector<Eigen::MatrixXd> allqti;
+
+    std::vector<std::vector<double> > qstrgetp1;
+    qstrgetp1=qstrall(qorderp1,alpha1);
+    int sizeq1=qorderp1.size();
+    std::vector<std::vector<std::vector<double>>> qstrallp1(sizeq1, std::vector<std::vector<double>>(size1,
+    std::vector<double>(size1, 0)));
+
+    getystrbasis(qstrallp1, qstrgetp1, {0,1});
+
+    for (int tnum=0;tnum<qstrallp1.size();++tnum)
+    {
+        Eigen::MatrixXd qti=convertToEigenMatrix(qstrallp1[tnum]);
+        allqti.push_back(qti);
+        tvec.push_back(qorderp1[tnum]);
+        singleindex.push_back(1);
+
+    }
+
+    if (m1cal==1)
+    {
+        double gl=gvec[0];
+        double gs=gvec[1];
+        std::vector<std::vector<double> >m1qget=m1qstrall(gl,gs);
+        std::vector<std::vector<std::vector<double>>> m1strallp1(1, std::vector<std::vector<double>>(size1,
+        std::vector<double>(size1, 0)));
+        getystrbasis(m1strallp1, m1qget, {0});
+        Eigen::MatrixXd m1strallp1mat=convertToEigenMatrix(m1strallp1[0]);
+        allqti.push_back(m1strallp1mat);
+        tvec.push_back(2);
+        singleindex.push_back(2);
+    }
+    std::vector<Eigen::MatrixXd>qmmat=qmatcalall(allqti,m1,allbasisp,mtest,
+    ystrm1,tvec);
+    std::vector<Eigen::MatrixXd>qmmat_1=qmatcalall_1(allqti,m1,m1_1,allbasisp,
+        mtest,mtest_1,ystrm1,ystrm1_1,tvec);
+    std::vector<Eigen::MatrixXd>qmat={};
+    for (int tnum=0;tnum<qmmat.size();++tnum)
+    {
+        int t=tvec[tnum];
+        if (t!=0)
+        {
+            for (int i=0;i<allbasisp.size();++i)
+            {
+                int j1=allbasisp[i].sj.back();
+                for (int j=0;j<allbasisp.size();++j)
+                {
+                    int j2=allbasisp[j].sj.back();
+                    int num=(j1+j2+t)/2;
+                    if ((num & 1) != 0)
+                    {
+                        qmmat[tnum](i,j)=qmmat_1[tnum](i,j);
+                    }
+                }
+            }
+        }
+
+        qmat.push_back(schmitmat1*qmmat[tnum]* schmitmat1.transpose());
+    }
+    int qmatpicha_size = 0;
+
+    for (int tnum=qmatpicha_size;tnum<qmat.size();++tnum)
+    {
+        bemematcal.push_back(qmat[tnum]);
+    }
+    Eigen::MatrixXd ham1cal=ham1( mtest,ystrm1,buildVValue2,strength);
+    if (!outfile.is_open())
+    {
+        // 如果文件未打开，则尝试打开文件
+        outfile.open("basis_output.txt",std::ios::app);
+    }
+    outfile<<"ham1cal"<<std::endl;
+    outfile<<ham1cal<<std::endl;
+    Eigen::MatrixXd changeham1=hamchange(mtest,allbasisp,m1, 0, 0, ham1cal);
+    Eigen::MatrixXd hamsige1= hamsige(mtest,ystrm1,energyp);
+    if (!outfile.is_open())
+    {
+        // 如果文件未打开，则尝试打开文件
+        outfile.open("basis_output.txt",std::ios::app);
+    }
+    outfile<<"hamsige1"<<std::endl;
+    outfile<<hamsige1<<std::endl;
+    Eigen::MatrixXd hamchangesig1=hamchange(mtest,allbasisp,m1, 0, 0, hamsige1);
+    Eigen::MatrixXd hamp=changeham1+ hamchangesig1;
+    Eigen::MatrixXd hampchange=schmitmat1*hamp* schmitmat1.transpose();
+    hampcc=eigenToNestedVector(hampchange);
+    for (int i=0;i<allbasisp.size();++i)
+    {
+        parityvecp.push_back(allbasisp[i].parity);
+    }
+
+    for (int i=0;i<allbasisp.size();++i)
+    {
+        int ii;
+        if (i==0)
+        {
+            ii=0;
+        }
+        jvecp.push_back(allbasisp[i].sj.back()*allbasisp[i].parity);
+        if (i>0)
+        {
+            if (jvecp[i]!=jvecp[i-1]||allbasisp[i].parity!=allbasisp[i-1].parity)
+            {
+                blockform1.push_back(i-ii);
+                ii=i;
+                jjv.push_back(allbasisp[i-1].sj.back()*allbasisp[i-1].parity);
+            }
+        }
+        if (i==allbasisp.size()-1)
+        {
+            blockform1.push_back(i+1-ii);
+            jjv.push_back(allbasisp[i].sj.back());
+
+        }
+
+    }
+    std::vector<std::vector<std::vector<double>> > blockh;
+    blockh=splitBlockDiagonalMatrix(hampcc,blockform1);
+
+    for (size_t num=0;num<blockh.size();++num)
+    {
+        int key=jjv[num];
+        std::vector<std::vector<double> > ham3=blockh[num];
+        int nmat=ham3.size();
+        auto mv_mul1 = [&](const std::vector<double>& in, std::vector<double>& out) {
+            for(int i = 0; i < nmat; ++i) {
+                for(int j = 0; j < nmat; ++j) {
+                    out[i] +=ham3[i][j]*in[j];
+                }
+            }
+        };
+
+        LambdaLanczos<double> engine1(mv_mul1, nmat, false, 2); // true means to calculate the largest eigenvalue.
+        std::vector<double> eigenvalues1;
+        std::vector<std::vector<double>> eigenvectors1;
+        engine1.run(eigenvalues1, eigenvectors1);
+        eigenre1[key]=eigenvectors1[0];
+        for (size_t lever=0;lever<eigenvectors1.size();++lever)
+        {
+            engre[{key,lever}]=eigenvectors1[lever];
+        }
+        std::cout << "J= " <<key<< std::endl;
+        std::cout << "Eigenvalues: " << std::endl;
+        for (size_t i = 0; i < eigenvalues1.size(); ++i) {
+            std::cout << "Eigenvalue " << i + 1 << ": " << eigenvalues1[i] << std::endl;
+        }
+
+        // 输出特征向量
+        std::cout << "Eigenvectors: " << std::endl;
+        for (size_t i = 0; i < eigenvectors1.size(); ++i) {
+            std::cout << "Eigenvector " << i + 1 << ": [ ";
+            for (size_t j = 0; j < eigenvectors1[i].size(); ++j) {
+                std::cout << eigenvectors1[i][j] << " ";
+            }
+            std::cout << "]" << std::endl;
+        }
+    }
+
+    for (size_t num=0;num<blockh.size();++num)
+    {
+        int mapn;
+        for(int i=0;i<blockh[num].size();++i)
+        {
+            if (num==0 && i==0)
+            {
+                mapn=0;
+            }
+            myMap1[{jjv[num],i}]=mapn;
+            mapn=mapn+1;
+        }
+    }
+}
+
+void printQmatpicha1(const std::map<int, std::map<int, Eigen::MatrixXd>>& qmatpicha1) {
+    // 设置输出格式：精度=4位小数，不使用科学计数法
+    Eigen::IOFormat fmt(4, 0, ", ", "\n", "[", "]");
+
+    outfile.open("basis_output.txt", std::ios::app);
+    outfile<<"------------------------------"<<std::endl;
+    for (const auto& outerPair : qmatpicha1) {
+        int outerKey = outerPair.first;
+        outfile << "Outer key: " << outerKey << std::endl;
+
+        for (const auto& innerPair : outerPair.second) {
+            int innerKey = innerPair.first;
+            const Eigen::MatrixXd& mat = innerPair.second;
+
+            outfile << "     Inner key: " << innerKey << std::endl;
+            outfile << "     Matrix (" << mat.rows() << "x" << mat.cols() << "):\n";
+            outfile<< mat.format(fmt) << std::endl << std::endl;
+        }
+    }
+}
+
 void calcouple(
     const std::vector<basis>& allbasisp1,
     const std::vector<basis>& allbasisp2,
@@ -1183,7 +1490,10 @@ void calcouple(
     coupleBasesall2.clear();
     coupleBasesall2=coupleBases2(jvecp2,jvecp1,parityvecp1,parityvecp2);
 
-    #pragma omp parallel for
+    // printQmatpicha1(qmatpicha2);
+    // printQmatpicha1(qmatpicha1);
+
+    // #pragma omp parallel for
     for (int idx = 0; idx < (int)coupleBasesall2.size(); ++idx) {
         std::map<int, std::vector<CoupledBasis>>::iterator it;
         it = std::next(coupleBasesall2.begin(), idx); // 普通 iterator
@@ -1226,19 +1536,24 @@ void calcouple(
                         int rownum=qmatcalsec.first;
                         double Vit=V_it[tnum](rownum,rownum);
                         int tt=2*tnum;
-                        std::vector<int> sigl={jpp,jn,std::abs(key),tt};
+                        std::vector<int> sigl={jpp,jn,std::abs(key)};
                         int sig=sign_func(sigl);
                         double c2=util::wigner_6j(jnp,jpp,std::abs(key),jp,jn,tt)*mysqrt(jnp+1)*mysqrt(jpp+1)*Vit;
                         Eigen::MatrixXd matsliqnch= qmatpicha2.at(tnum).at(rownum);
                         Eigen::MatrixXd matsliqpch= qmatpicha1.at(tnum).at(rownum);
                         double c3=matsliqnch(n1,n2)*matsliqpch(p1,p2);
                         ham2[i][j]+=c2*c3*sig;
+                        // if (tnum==5 && i==1 && j==1) {
+                        //     std::cout<< std::fixed << std::setprecision(7) <<c2*c3*sig<<std::endl;
+                        // }
                     }
                 }
 
                 ham3[i][j]=ham[i][j]+ham2[i][j];
             }
         }
+        // std::cout<<"---------"<<std::endl;
+        // std::cout<< std::fixed << std::setprecision(7) <<ham2[0][1]<<std::endl;
         Eigen::MatrixXd hammat=convertToMatrixFast(ham3);
         int nmat=ham3.size();
 //        auto mv_mul1 = [&](const std::vector<double>& in, std::vector<double>& out) {
@@ -1255,7 +1570,7 @@ void calcouple(
             eigen_out = hammat * eigen_in; // Easy version
             // eigen_out.noalias() += matrix * eigen_in; // Efficient version
         };
-        LambdaLanczos<double> engine1(mv_mul1, nmat, false, 2); // true means to calculate the largest eigenvalue.
+        LambdaLanczos<double> engine1(mv_mul1, nmat, false, 4); // true means to calculate the largest eigenvalue.
         std::vector<double> eigenvalues1;
         std::vector<std::vector<double>> eigenvectors1;
         engine1.run(eigenvalues1, eigenvectors1);
@@ -1395,6 +1710,161 @@ void calcouple(
     outfile<< bematrices[2] << std::endl;
     bematre=bematrices;
 }
+
+
+struct HamResult {
+    std::map<int, std::vector<CoupledBasis>> coupleBases;
+    std::map<int, std::vector<std::vector<double>>> eigenRe;
+    std::map<int, std::vector<double>> eigenValues;
+    std::vector<Eigen::MatrixXd> beMatrices;
+    std::vector<basism> allbasism01, allbasism11, allbasism02, allbasism12;
+    std::vector<std::vector<Eigen::MatrixXd>> ystrm01, ystrm11, ystrm02, ystrm12;
+    Eigen::MatrixXd schmitmat1,schmitmat2,changemat01,changemat11,changemat02,changemat12;
+    std::vector<basis> allbasisp1, allbasisp2;
+    std::vector<int> jvecp1, jvecp2;
+    std::vector<Nucleus> nucleus1, nucleus2;
+    std::vector<int> rvecall1, rvecall2;
+    // 构造函数
+
+};
+
+HamResult computeHamiltonians(const Data& data,
+                              std::ofstream& outfile)
+{
+    std::map<int,Matrix4D> vpnmat = getvpnval(data.pnData, data.efcstrength3);
+
+    std::vector<std::vector<Eigen::MatrixXd>> q_pi;
+    std::vector<Eigen::MatrixXd> V_it;
+    std::vector<std::vector<Eigen::MatrixXd>> q_nu;
+    getsvdresult(vpnmat, q_pi, V_it, q_nu, data.efcstrength3);
+    printDiagonals(V_it);
+
+    // ====== ham1 ======
+    auto rvecall   = data.rorder1[0];
+    auto rparityvec= data.rorder1.back();
+    std::vector<std::vector<int>> rorderp = data.rorder1;
+    rorderp.pop_back();
+
+    Eigen::MatrixXd schmitmat1;
+    std::vector<basis> allbasisp1;
+    std::vector<std::vector<double>> hampcc1;
+    std::vector<Eigen::MatrixXd> bemematcal1;
+    std::vector<int> singleindex1;
+    std::vector<int> tvec1;
+    std::map<int,std::map<int,Eigen::MatrixXd>> qmatpicha1;
+    std::vector<int> jvecp1;
+    std::vector<int> parityvecp1;
+    std::vector<double> gvec={data.eg1[1],data.eg1[2]};
+    std::vector<basism> allbasism01, allbasism11;
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm1;
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm1_1;
+    Eigen::MatrixXd changemat01;
+    Eigen::MatrixXd changemat11;
+
+    calham(data.num1, data.mcal, data.alpha1,
+           gvec, data.bej, data.energyp, data.efcstrength1, data.ystrget1, data.rorder1,
+           V_it, data.efc1, q_pi, allbasism01, allbasism11, schmitmat1,
+           allbasisp1, hampcc1, bemematcal1, singleindex1, tvec1,
+           qmatpicha1, jvecp1, parityvecp1,ystrm1,ystrm1_1,changemat01,changemat11);
+
+    outfile << "allbasisp1" << std::endl;
+    printBasisVectorOneLine(allbasisp1);
+    outfile << "hampcc1" << std::endl;
+    writeMatrixToFile(hampcc1, outfile);
+
+    // ====== ham2 ======
+    auto nucleustemp = nucleus;
+    nucleus = nucleus2;
+    auto rvecalltemp = rvecall;
+    rvecall   = data.rorder2[0];
+    rparityvec= data.rorder2.back();
+    std::vector<std::vector<int>> rorderp2 = data.rorder2;
+    rorderp2.pop_back();
+
+    Eigen::MatrixXd schmitmat2;
+    std::vector<basis> allbasisp2;
+    std::vector<std::vector<double>> hampcc2;
+    std::vector<Eigen::MatrixXd> bemematcal2;
+    std::vector<int> singleindex2;
+    std::vector<int> tvec2;
+    std::map<int,std::map<int,Eigen::MatrixXd>> qmatpicha2;
+    std::vector<int> jvecp2;
+    std::vector<int> parityvecp2;
+    std::vector<double> gvec2={data.eg2[1],data.eg2[2]};
+    std::vector<basism> allbasism02, allbasism12;
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm2;
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm2_1;
+    Eigen::MatrixXd changemat02;
+    Eigen::MatrixXd changemat12;
+
+    calham(data.num2, data.mcal, data.alpha2,
+           gvec2, data.bej, data.energyn, data.efcstrength2, data.ystrget2, data.rorder2,
+           V_it, data.efc2, q_nu, allbasism02, allbasism12, schmitmat2,
+           allbasisp2, hampcc2, bemematcal2, singleindex2, tvec2,
+           qmatpicha2, jvecp2, parityvecp2,ystrm2,ystrm2_1,changemat02,changemat12);
+
+    outfile << "allbasisp2" << std::endl;
+    printBasisVectorOneLine(allbasisp2);
+    outfile << "hampcc2" << std::endl;
+    writeMatrixToFile(hampcc2, outfile);
+
+    // ====== couple & eigen ======
+    std::map<int, std::vector<CoupledBasis>> coupleBasesall2;
+    std::map<int, std::vector<std::vector<double>>> eigenre;
+    std::map<int,std::vector<double>> eigenvalue;
+    std::vector<Eigen::MatrixXd> bematre;
+
+    calcouple(allbasisp1, allbasisp2, hampcc1, hampcc2,
+              jvecp1, jvecp2, parityvecp1, parityvecp2,
+              bemematcal1, bemematcal2, qmatpicha1, qmatpicha2,
+              data.eg1, data.eg2, V_it, data.bej,
+              coupleBasesall2, eigenre, eigenvalue, bematre);
+
+    // 打包结果
+    nucleus2 = nucleus;
+    nucleus=nucleustemp;
+    HamResult result;
+    result.coupleBases   = std::move(coupleBasesall2);
+    result.eigenRe       = std::move(eigenre);
+    result.eigenValues   = std::move(eigenvalue);
+    result.beMatrices    = std::move(bematre);
+
+    result.allbasism01   = std::move(allbasism01);
+    result.allbasism11   = std::move(allbasism11);
+    result.allbasism02   = std::move(allbasism02);
+    result.allbasism12   = std::move(allbasism12);
+
+    result.ystrm01       = std::move(ystrm1);
+    result.ystrm02       = std::move(ystrm2);
+    result.ystrm11       = std::move(ystrm1_1);
+    result.ystrm12       = std::move(ystrm2_1);
+
+    result.schmitmat1    = std::move(schmitmat1);
+    result.schmitmat2    = std::move(schmitmat2);
+
+    result.allbasisp1    = std::move(allbasisp1);
+    result.allbasisp2    = std::move(allbasisp2);
+
+    result.jvecp1        = std::move(jvecp1);
+    result.jvecp2        = std::move(jvecp2);
+
+    result.nucleus1      = nucleus;
+    result.nucleus2      = nucleus2;
+
+    result.rvecall1      =rvecalltemp;
+    result.rvecall2      = rvecall;
+
+    result.changemat01  =changemat01;
+    result.changemat02  =changemat02;
+    result.changemat11  =changemat11;
+    result.changemat12  =changemat12;
+
+
+
+    return result;
+}
+
+
 
 
 

@@ -11,12 +11,148 @@
 #include <cctype>
 #include <algorithm>
 // 辅助函数：转换为小写
-
+#include "maincal.h"
 std::string toLower(const std::string& str) {
     std::string lowerStr = str;
     std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
                    [](unsigned char c){ return std::tolower(c); });
     return lowerStr;
+}
+
+std::vector<std::map<int, Matrix4D>> buildVValue1(const std::vector<DataRow>& data, const int num=1) {
+    // 1. 找出最大的t值
+    int max_t = 0;
+    for (const auto& row : data) {
+        if (row.t > max_t) {
+            max_t = row.t;
+        }
+    }
+
+    // 2. 初始化V_value结构
+    std::vector<std::map<int, Matrix4D>> V_value(max_t + 1);
+
+    // 3. 遍历数据填充矩阵
+    for (const auto& row : data) {
+        int sizeab=nucleus.size();
+        if (num==2)
+        {
+            sizeab=nucleus2.size();
+        }
+
+        // 检查是否需要初始化该J对应的Matrix4D
+        if (V_value[row.t][row.J].empty()) {
+            // 获取所有数据的最大c和d值来确定Matrix4D的维度
+            int max_a = 0;
+            int max_b = 0;
+            for (const auto& r : data) {
+                if (r.t == row.t && r.J == row.J) {
+                    max_a = std::max(max_b, r.a);
+                    max_b = std::max(max_b, r.b);
+                }
+            }
+
+            // 初始化Matrix4D：c×d的矩阵，每个矩阵初始为0×0
+            V_value[row.t][row.J] = Matrix4D(
+                sizeab,
+                std::vector<Eigen::MatrixXd>(
+                    sizeab,
+                    Eigen::MatrixXd::Zero(sizeab, sizeab)
+                )
+            );
+        }
+        int j1=0;
+        int j2=0;
+        int j3=0;
+        int j4=0;
+        if (num==1)
+        {
+            j1=nucleus[row.a].j;
+            j2=nucleus[row.b].j;
+            j3=nucleus[row.c].j;
+            j4=nucleus[row.d].j;
+        }else if (num==2)
+        {
+            j1=nucleus2[row.a].j;
+            j2=nucleus2[row.b].j;
+            j3=nucleus2[row.c].j;
+            j4=nucleus2[row.d].j;
+
+        }
+
+        double f2134=-1*std::pow(-1,(j1+j2-row.J)/2);
+        double f1243=-1*std::pow(-1,(j3+j4-row.J)/2);
+        double f2143=std::pow(-1,(j1+j2+j3+j4)/2);
+
+        // 存入value
+        V_value[row.t][row.J][row.a][row.b](row.c,row.d) = row.value;
+        V_value[row.t][row.J][row.c][row.d](row.a,row.b) = row.value;
+        V_value[row.t][row.J][row.b][row.a](row.c,row.d) = f2134 * row.value;
+        V_value[row.t][row.J][row.c][row.d](row.b,row.a) = f2134 * row.value;
+        V_value[row.t][row.J][row.a][row.b](row.d,row.c) = f1243 * row.value;
+        V_value[row.t][row.J][row.d][row.c](row.a,row.b) = f1243 * row.value;
+        V_value[row.t][row.J][row.b][row.a](row.d,row.c) = f2143 * row.value;
+        V_value[row.t][row.J][row.d][row.c](row.b,row.a) = f2143 * row.value;
+    }
+
+    return V_value;
+}
+
+
+std::vector<std::map<int, Matrix4D>> buildVValuepn1(const std::vector<DataRow>& data) {
+    // 1. 找出最大的t值
+    int max_t = 0;
+    for (const auto& row : data) {
+        if (row.t > max_t) {
+            max_t = row.t;
+        }
+    }
+
+    // 2. 初始化V_value结构
+    std::vector<std::map<int, Matrix4D>> V_value(max_t + 1);
+
+    // 3. 遍历数据填充矩阵
+    for (const auto& row : data) {
+        int sizeab=nucleus.size();
+        int sizecd=nucleus2.size();
+        // 检查是否需要初始化该J对应的Matrix4D
+        if (V_value[row.t][row.J].empty()) {
+            // 获取所有数据的最大c和d值来确定Matrix4D的维度
+            int max_a = 0;
+            int max_b = 0;
+            int max_c = 0;
+            int max_d = 0;
+            for (const auto& r : data) {
+                if (r.t == row.t && r.J == row.J) {
+                    max_a = std::max(max_a, r.a);
+                    max_b = std::max(max_b, r.b);
+                    max_c = std::max(max_c, r.c);
+                    max_d = std::max(max_d, r.d);
+                }
+            }
+            // sizeab=std::max(max_a, max_b);
+            // sizecd=std::max(max_c, max_d);
+
+            // 初始化Matrix4D：c×d的矩阵，每个矩阵初始为0×0
+            V_value[row.t][row.J] = Matrix4D(
+                sizeab,
+                std::vector<Eigen::MatrixXd>(
+                    sizeab,
+                    Eigen::MatrixXd::Zero(sizecd, sizecd)
+                )
+            );
+        }
+        int j1=nucleus[row.a].j;
+        int j2=nucleus[row.b].j;
+        int j3=nucleus2[row.c].j;
+        int j4=nucleus2[row.d].j;
+
+
+        // 存入value
+        V_value[row.t][row.J][row.a][row.b](row.c,row.d) = row.value;
+        V_value[row.t][row.J][row.b][row.a](row.d,row.c) = row.value;
+    }
+
+    return V_value;
 }
 
 // 处理efc1数据行
@@ -39,6 +175,8 @@ void processystrgetRow(const std::vector<double>& row, Data& data,int f) {
         data.ystrget2.push_back(processedRow);
     }
 }
+
+
 
 // 主文件读取函数
 Data readMultipleArraysFromFile(const std::string& filename) {
@@ -578,13 +716,13 @@ Data readMultipleArraysFromFile(const std::string& filename) {
     allnucleus=result.allnucleus1;
     allnucleus2=result.allnucleus2;
     if (!pnRows.empty()) {
-        result.pnData = buildVValuepn(pnRows);
+        result.pnData = buildVValuepn1(pnRows);
     }
     if (!efc1.empty()) {
-        result.efc1 = buildVValue(efc1,1);
+        result.efc1 = buildVValue1(efc1,1);
     }
     if (!efc2.empty()) {
-        result.efc2 = buildVValue(efc2,2);
+        result.efc2 = buildVValue1(efc2,2);
     }
     file.close();  // 关闭文件
     return result; // 返回读取到的数据

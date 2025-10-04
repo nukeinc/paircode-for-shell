@@ -55,10 +55,14 @@ int main() {
     std::vector<double> gvec={data.eg1[1],data.eg1[2]};
     std::vector<basism> allbasism01;
     std::vector<basism> allbasism11;
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm1;
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm1_1;
+    Eigen::MatrixXd m01;
+    Eigen::MatrixXd m11;
     calham(data.num1,data.mcal,data.alpha1,
         gvec,data.bej,data.energyp,data.efcstrength1,data.ystrget1,data.rorder1,
         V_it,data.efc1,q_pi,allbasism01,allbasism11,schmitmat1,allbasisp1,hampcc1,bemematcal1,singleindex1,
-        tvec1,qmatpicha1,jvecp1,parityvecp1);
+        tvec1,qmatpicha1,jvecp1,parityvecp1,ystrm1,ystrm1_1,m01,m11);
     if (!outfile.is_open())
     {
         // 如果文件未打开，则尝试打开文件
@@ -95,10 +99,14 @@ int main() {
     std::vector<double> gvec2={data.eg2[1],data.eg2[2]};
     std::vector<basism> allbasism02={};
     std::vector<basism> allbasism12={};
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm2;
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm2_1;
+    Eigen::MatrixXd m1;
+    Eigen::MatrixXd m1_1;
     calham(data.num2,data.mcal,data.alpha2,
         gvec2,data.bej,data.energyn,data.efcstrength2,data.ystrget2,data.rorder2,
         V_it,data.efc2,q_nu,allbasism02,allbasism12,schmitmat2,allbasisp2,hampcc2,bemematcal2,singleindex2,
-        tvec2,qmatpicha2,jvecp2,parityvecp2);
+        tvec2,qmatpicha2,jvecp2,parityvecp2,ystrm2,ystrm2_1,m1,m1_1);
     if (!outfile.is_open())
     {
         // 如果文件未打开，则尝试打开文件

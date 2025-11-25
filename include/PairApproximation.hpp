@@ -16,11 +16,15 @@ struct SingleParticleState {
     double degeneracy;  // Degeneracy (2j+1) of the state
     int quantum_n;      // Principal quantum number
     int quantum_l;      // Orbital angular momentum
-    double quantum_j;   // Total angular momentum
+    double quantum_j;   // Total angular momentum (j = l ± 1/2)
 
-    SingleParticleState(double e = 0.0, double deg = 1.0, 
-                        int n = 0, int l = 0, double j = 0.5)
+    // Constructor with explicit parameters (no default for j to avoid physics errors)
+    SingleParticleState(double e, double deg, int n, int l, double j)
         : energy(e), degeneracy(deg), quantum_n(n), quantum_l(l), quantum_j(j) {}
+
+    // Convenience constructor for states where only energy and degeneracy matter
+    SingleParticleState(double e = 0.0, double deg = 1.0)
+        : energy(e), degeneracy(deg), quantum_n(0), quantum_l(0), quantum_j(0.5) {}
 };
 
 /**

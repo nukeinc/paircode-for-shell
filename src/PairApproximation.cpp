@@ -228,13 +228,9 @@ std::vector<SingleParticleState> generateWoodsSaxonStates(int A, int Z, bool is_
     // These are approximate values for illustration
     std::vector<SingleParticleState> states;
 
-    // Woods-Saxon depth and parameters
+    // Woods-Saxon parameters (for reference and potential future enhancement)
+    // V0: potential depth, hw: oscillator frequency derived from mass number
     double V0 = 51.0;  // MeV
-    double r0 = 1.27;  // fm
-    // Note: a and R would be used in full Woods-Saxon potential calculation
-    // double a = 0.67;   // fm (diffuseness)
-    // double R = r0 * std::pow(A, 1.0/3.0);  // nuclear radius
-    (void)r0;  // Suppress unused warning
 
     // Coulomb correction for protons
     double coulomb = is_proton ? 0.7 * Z / std::pow(A, 1.0/3.0) : 0.0;

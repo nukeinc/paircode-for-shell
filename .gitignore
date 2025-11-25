@@ -1,0 +1,29 @@
+# Build directory
+build/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Compiled objects
+*.o
+*.obj
+*.a
+*.lib
+
+# Executables
+paircode
+test_pair
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

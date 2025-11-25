@@ -27,3 +27,6 @@ test_pair
 # OS
 .DS_Store
 Thumbs.db
+
+# CodeQL artifacts
+_codeql_*

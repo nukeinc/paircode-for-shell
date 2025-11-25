@@ -287,44 +287,53 @@ std::map<int,Matrix4D>getvpnval(const std::vector<std::map<int, Matrix4D>>& V_va
 
     }
     max_t=max_jnu1+max_jnu2;
-    for (int tt=0;tt<V_value.size();++tt)
+    for (int t=0; t<=max_t; t+=2)
     {
-        std::map<int, Matrix4D>vvmatrix=V_value[tt];
-        for (int t=0;t<=max_t;t=t+2)
+        // 在 t 循环内初始化，用于累计所有 tt 的贡献
+        Matrix4D vpnmatrix(nucnu, std::vector<Eigen::MatrixXd>(nucnu,
+                          Eigen::MatrixXd::Zero(nucnu2, nucnu2)));
+
+        for (int tt=0; tt<V_value.size(); ++tt)
         {
-            Matrix4D vpnmatrix(nucnu, std::vector<Eigen::MatrixXd>(nucnu, Eigen::MatrixXd::Zero(nucnu2, nucnu2)));
-            for (int a=0;a<nucnu;++a)
+            const auto& vvmatrix = V_value[tt];
+
+            for (int a=0; a<nucnu; ++a)
             {
-                int ja=nucleus[a].j;
-                for (int b=0;b<nucnu;++b)
+                int ja = nucleus[a].j;
+                for (int b=0; b<nucnu; ++b)
                 {
-                    int jb=nucleus[b].j;
-                    for (int c=0;c<nucnu2;++c)
+                    int jb = nucleus[b].j;
+                    for (int c=0; c<nucnu2; ++c)
                     {
-                        int jc=nucleus2[c].j;
-                        for (int d=0;d<nucnu2;++d)
+                        int jc = nucleus2[c].j;
+                        for (int d=0; d<nucnu2; ++d)
                         {
-                            int jd=nucleus2[d].j;
+                            int jd = nucleus2[d].j;
+
                             for (const auto& v_pair : vvmatrix)
                             {
                                 int Jsum = v_pair.first;
                                 const Matrix4D& v_matrix = v_pair.second;
 
-                                if (v_matrix[a][b](c,d)!=0)
+                                if (v_matrix[a][b](c, d) != 0)
                                 {
-                                    double c1=std::pow(-1,(jc+jb+Jsum)/2);
-                                    double c2=(Jsum+1);
-                                    double c3=util::wigner_6j(ja,jc,Jsum,jd,jb,t);
-                                    vpnmatrix[a][b](c,d)+=v_matrix[a][b](c,d)*c1*c2*c3*1;
+                                    double c1 = std::pow(-1, (jc + jb + Jsum)/2);
+                                    double c2 = (Jsum + 1);
+                                    double c3 = util::wigner_6j(ja, jc, Jsum, jd, jb, t);
+
+                                    // 关键：这里是累加 +=
+                                    vpnmatrix[a][b](c,d) +=
+                                        v_matrix[a][b](c,d) * c1 * c2 * c3 * strengthvec[tt];
                                 }
                             }
                         }
                     }
                 }
             }
-            result[t]=vpnmatrix;
-
         }
+
+        // 所有 tt 都累加完后再存入 result
+        result[t] = vpnmatrix;
     }
     return result;
 }
@@ -1008,7 +1017,8 @@ void calham(const int& nuculnum,
     removeZeroRows(m1,mtest,ystrm1);
     m1=ComputeTransformationMatrixeven( mtest,allbasisp);
     Eigen::MatrixXd overlapm=caloverlapmmat(mtest,mtest,ystrm1,ystrm1);
-    std::cout << overlapm << std::endl;
+    outfile<<"overlapm"<<std::endl;
+    outfile << overlapm << std::endl;
     std::vector<std::vector<double> > overlapmch=overlapchange(overlapm,m1);
     printMatrix(overlapmch);
     updateMatrices(allbasisp, overlapmch,ystrallp);
@@ -1213,11 +1223,10 @@ void calhamsingle(const int& nuculnum,
     );
     calculateystr(ystrallp,ystrgetp,allbasisp);
     mtest=calculateBasisform(nuculnum,rorderrp);
-    mtest_1=calculateBasisform_1(nuculnum,rorderrp);
+
     std::cout<<"mtestsize: "<<mtest.size()<<std::endl;
     std::cout<<"mtest1: "<<mtest_1.size()<<std::endl;
     m1=ComputeTransformationMatrix( mtest,allbasisp);
-    m1_1=ComputeTransformationMatrix( mtest_1,allbasisp);
     ystrm1= computeystrm( mtest, ystrgetp);
     removeZeroRows(m1,mtest,ystrm1);
     m1=ComputeTransformationMatrixeven( mtest,allbasisp);
@@ -1301,31 +1310,47 @@ void calhamsingle(const int& nuculnum,
     }
     std::vector<Eigen::MatrixXd>qmmat=qmatcalall(allqti,m1,allbasisp,mtest,
     ystrm1,tvec);
-    std::vector<Eigen::MatrixXd>qmmat_1=qmatcalall_1(allqti,m1,m1_1,allbasisp,
-        mtest,mtest_1,ystrm1,ystrm1_1,tvec);
-    std::vector<Eigen::MatrixXd>qmat={};
-    for (int tnum=0;tnum<qmmat.size();++tnum)
+    std::vector<Eigen::MatrixXd>qmmat_1;
+    if (nuculnum % 2 == 0)
     {
-        int t=tvec[tnum];
-        if (t!=0)
+        qmmat_1=qmatcalall_1(allqti,m1,m1_1,allbasisp,
+        mtest,mtest_1,ystrm1,ystrm1_1,tvec);
+    }
+
+    std::vector<Eigen::MatrixXd>qmat={};
+    if (nuculnum % 2 == 0)
+    {
+        for (int tnum=0;tnum<qmmat.size();++tnum)
         {
-            for (int i=0;i<allbasisp.size();++i)
+            int t=tvec[tnum];
+            if (t!=0)
             {
-                int j1=allbasisp[i].sj.back();
-                for (int j=0;j<allbasisp.size();++j)
+                for (int i=0;i<allbasisp.size();++i)
                 {
-                    int j2=allbasisp[j].sj.back();
-                    int num=(j1+j2+t)/2;
-                    if ((num & 1) != 0)
+                    int j1=allbasisp[i].sj.back();
+                    for (int j=0;j<allbasisp.size();++j)
                     {
-                        qmmat[tnum](i,j)=qmmat_1[tnum](i,j);
+                        int j2=allbasisp[j].sj.back();
+                        int num=(j1+j2+t)/2;
+                        if ((num & 1) != 0)
+                        {
+                            qmmat[tnum](i,j)=qmmat_1[tnum](i,j);
+                        }
                     }
                 }
             }
-        }
 
-        qmat.push_back(schmitmat1*qmmat[tnum]* schmitmat1.transpose());
+            qmat.push_back(schmitmat1*qmmat[tnum]* schmitmat1.transpose());
+        }
+    }else
+    {
+        for (int tnum=0;tnum<qmmat.size();++tnum)
+        {
+            int t=tvec[tnum];
+            qmat.push_back(schmitmat1*qmmat[tnum]* schmitmat1.transpose());
+        }
     }
+
     int qmatpicha_size = 0;
 
     for (int tnum=qmatpicha_size;tnum<qmat.size();++tnum)
@@ -1489,69 +1514,167 @@ void calcouple(
     int sizeq2=bej.size();
     coupleBasesall2.clear();
     coupleBasesall2=coupleBases2(jvecp2,jvecp1,parityvecp1,parityvecp2);
+    outfile.open("basis_output.txt", std::ios::app);
+    outfile<<"------------------------------"<<std::endl;
+    outfile<<"Basis: "<<std::endl;
+    outfile<<coupleBasesall2<<std::endl;
 
     // printQmatpicha1(qmatpicha2);
     // printQmatpicha1(qmatpicha1);
+    std::cout<<"begin to diag"<<std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
 
     // #pragma omp parallel for
-    for (int idx = 0; idx < (int)coupleBasesall2.size(); ++idx) {
-        std::map<int, std::vector<CoupledBasis>>::iterator it;
-        it = std::next(coupleBasesall2.begin(), idx); // 普通 iterator
+    for (int idx = 0; idx < (int)coupleBasesall2.size(); ++idx)
+    {
+        auto it = std::next(coupleBasesall2.begin(), idx);
         int key = it->first;
-        auto& value = it->second;
-        int siz1=coupleBasesall2[key].size();
+        auto& bases = it->second;
+
+        int siz1 = bases.size();
+
+        // 预取基态量
+        std::vector<int> n_list(siz1), p_list(siz1);
+        std::vector<int> jn_list(siz1), jp_list(siz1);
+
+        for (int i = 0; i < siz1; i++) {
+            n_list[i] = bases[i].ni;
+            p_list[i] = bases[i].pi;
+            jn_list[i] = jvecp2[n_list[i]];
+            jp_list[i] = jvecp1[p_list[i]];
+        }
+
         std::vector<std::vector<double>> ham(siz1, std::vector<double>(siz1, 0));
         std::vector<std::vector<double>> ham2(siz1, std::vector<double>(siz1, 0));
         std::vector<std::vector<double>> ham3(siz1, std::vector<double>(siz1, 0));
-        std::vector<std::vector<double>> bemcal1(siz1, std::vector<double>(siz1, 0));
-        std::vector<std::vector<double>> bemcal2(siz1, std::vector<double>(siz1, 0));
-        for (int i=0;i< siz1;i++)
+
+        const auto& q1 = qmatpicha1;
+        const auto& q2 = qmatpicha2;
+
+        int abskey = std::abs(key);
+        std::vector<int> sig_vec(3);
+
+        for (int i = 0; i < siz1; i++)
         {
-            for (int j=0;j< siz1;j++)
+            int n1 = n_list[i];
+            int p1 = p_list[i];
+            int jn  = jn_list[i];
+            int jp  = jp_list[i];
+
+            for (int j = 0; j < siz1; j++)
             {
-                int n1=coupleBasesall2[key][i].ni;
-                int n2=coupleBasesall2[key][j].ni;
-                int p1=coupleBasesall2[key][i].pi;
-                int p2=coupleBasesall2[key][j].pi;
-                int jn=jvecp2[n1];
-                int jnp=jvecp2[n2];
-                int jp=jvecp1[p1];
-                int jpp=jvecp1[p2];
-                if (n1==n2)
+                int n2 = n_list[j];
+                int p2 = p_list[j];
+                int jnp = jn_list[j];
+                int jpp = jp_list[j];
+
+                double h = 0.0;
+                double h2 = 0.0;
+
+                if (n1 == n2) h += hampcc1[p1][p2];
+                if (p1 == p2) h += hampcc2[n1][n2];
+
+                h *= deltatwo(jn, jnp) * deltatwo(jp, jpp);
+
+                // ------- 对 (i,j,tnum) 只做一次 6j + sqrt -------
+                for (const auto& qmat_nu : q1)
                 {
-                    ham[i][j]= ham[i][j]+hampcc1[p1][p2];
-                }
-                if (p1==p2)
-                {
-                    ham[i][j]=ham[i][j]+hampcc2[n1][n2];
-                }
-                int deltann=deltatwo(jn,jnp);
-                int deltapp=deltatwo(jp,jpp);
-                ham[i][j]=ham[i][j]*deltann*deltapp;
-                for (auto qmatnuchat:qmatpicha1)
-                {
-                    int tnum=qmatnuchat.first;
-                    for (auto qmatcalsec:qmatnuchat.second)
+                    int tnum = qmat_nu.first;
+                    int tt = 2 * tnum;
+
+                    // ———— 只计算一次与 rownum 无关的部分 ————
+                    double w6j = util::wigner_6j(jnp, jpp, abskey, jp, jn, tt);
+                    double sqrt_term = mysqrt(jnp + 1) * mysqrt(jpp + 1);
+
+                    // ———— rownum 循环 ————
+                    for (const auto& sub : qmat_nu.second)
                     {
-                        int rownum=qmatcalsec.first;
-                        double Vit=V_it[tnum](rownum,rownum);
-                        int tt=2*tnum;
-                        std::vector<int> sigl={jpp,jn,std::abs(key)};
-                        int sig=sign_func(sigl);
-                        double c2=util::wigner_6j(jnp,jpp,std::abs(key),jp,jn,tt)*mysqrt(jnp+1)*mysqrt(jpp+1)*Vit;
-                        Eigen::MatrixXd matsliqnch= qmatpicha2.at(tnum).at(rownum);
-                        Eigen::MatrixXd matsliqpch= qmatpicha1.at(tnum).at(rownum);
-                        double c3=matsliqnch(n1,n2)*matsliqpch(p1,p2);
-                        ham2[i][j]+=c2*c3*sig;
-                        // if (tnum==5 && i==1 && j==1) {
-                        //     std::cout<< std::fixed << std::setprecision(7) <<c2*c3*sig<<std::endl;
-                        // }
+                        int rownum = sub.first;
+
+                        double Vit = V_it[tnum](rownum, rownum);
+
+                        sig_vec[0] = jpp;
+                        sig_vec[1] = jn;
+                        sig_vec[2] = abskey;
+                        int sig = sign_func(sig_vec);
+
+                        const Eigen::MatrixXd& m2 = q2.at(tnum).at(rownum);
+                        const Eigen::MatrixXd& m1 = q1.at(tnum).at(rownum);
+
+                        double c3 = m2(n1, n2) * m1(p1, p2);
+
+                        h2 += (w6j * sqrt_term * Vit) * c3 * sig;
                     }
                 }
 
-                ham3[i][j]=ham[i][j]+ham2[i][j];
+                ham[i][j]  = h;
+                ham2[i][j] = h2;
+                ham3[i][j] = h + h2;
             }
         }
+    //     for (int idx = 0; idx < (int)coupleBasesall2.size(); ++idx)
+    // {
+    //     std::map<int, std::vector<CoupledBasis>>::iterator it;
+    //     it = std::next(coupleBasesall2.begin(), idx); // 普通 iterator
+    //     int key = it->first;
+    //     auto& value = it->second;
+    //     int siz1=coupleBasesall2[key].size();
+    //     std::vector<std::vector<double>> ham(siz1, std::vector<double>(siz1, 0));
+    //     std::vector<std::vector<double>> ham2(siz1, std::vector<double>(siz1, 0));
+    //     std::vector<std::vector<double>> ham3(siz1, std::vector<double>(siz1, 0));
+    //     std::vector<std::vector<double>> bemcal1(siz1, std::vector<double>(siz1, 0));
+    //     std::vector<std::vector<double>> bemcal2(siz1, std::vector<double>(siz1, 0));
+    //     for (int i=0;i< siz1;i++)
+    //     {
+    //         for (int j=0;j< siz1;j++)
+    //         {
+    //             int n1=coupleBasesall2[key][i].ni;
+    //             int n2=coupleBasesall2[key][j].ni;
+    //             int p1=coupleBasesall2[key][i].pi;
+    //             int p2=coupleBasesall2[key][j].pi;
+    //             int jn=jvecp2[n1];
+    //             int jnp=jvecp2[n2];
+    //             int jp=jvecp1[p1];
+    //             int jpp=jvecp1[p2];
+    //             if (n1==n2)
+    //             {
+    //                 ham[i][j]= ham[i][j]+hampcc1[p1][p2];
+    //             }
+    //             if (p1==p2)
+    //             {
+    //                 ham[i][j]=ham[i][j]+hampcc2[n1][n2];
+    //             }
+    //             int deltann=deltatwo(jn,jnp);
+    //             int deltapp=deltatwo(jp,jpp);
+    //             ham[i][j]=ham[i][j]*deltann*deltapp;
+    //             for (auto qmatnuchat:qmatpicha1)
+    //             {
+    //                 int tnum=qmatnuchat.first;
+    //                 for (auto qmatcalsec:qmatnuchat.second)
+    //                 {
+    //                     int rownum=qmatcalsec.first;
+    //                     double Vit=V_it[tnum](rownum,rownum);
+    //                     int tt=2*tnum;
+    //                     std::vector<int> sigl={jpp,jn,std::abs(key)};
+    //                     int sig=sign_func(sigl);
+    //                     double c2=util::wigner_6j(jnp,jpp,std::abs(key),jp,jn,tt)*mysqrt(jnp+1)*mysqrt(jpp+1)*Vit;
+    //                     Eigen::MatrixXd matsliqnch= qmatpicha2.at(tnum).at(rownum);
+    //                     Eigen::MatrixXd matsliqpch= qmatpicha1.at(tnum).at(rownum);
+    //                     double c3=matsliqnch(n1,n2)*matsliqpch(p1,p2);
+    //                     ham2[i][j]+=c2*c3*sig;
+    //                     // if (tnum==5 && i==1 && j==1) {
+    //                     //     std::cout<< std::fixed << std::setprecision(7) <<c2*c3*sig<<std::endl;
+    //                     // }
+    //                 }
+    //             }
+    //
+    //             ham3[i][j]=ham[i][j]+ham2[i][j];
+    //         }
+    //     }
+        auto end = std::chrono::high_resolution_clock::now();
+        double elapsed = std::chrono::duration<double>(end - start).count();
+        std::cout << "Time: " << elapsed << " seconds" << std::endl;
+        start = std::chrono::high_resolution_clock::now();
         // std::cout<<"---------"<<std::endl;
         // std::cout<< std::fixed << std::setprecision(7) <<ham2[0][1]<<std::endl;
         Eigen::MatrixXd hammat=convertToMatrixFast(ham3);
@@ -1570,7 +1693,7 @@ void calcouple(
             eigen_out = hammat * eigen_in; // Easy version
             // eigen_out.noalias() += matrix * eigen_in; // Efficient version
         };
-        LambdaLanczos<double> engine1(mv_mul1, nmat, false, 4); // true means to calculate the largest eigenvalue.
+        LambdaLanczos<double> engine1(mv_mul1, nmat, false, 2); // true means to calculate the largest eigenvalue.
         std::vector<double> eigenvalues1;
         std::vector<std::vector<double>> eigenvectors1;
         engine1.run(eigenvalues1, eigenvectors1);
@@ -1579,11 +1702,16 @@ void calcouple(
             eigenre[key] = eigenvectors1;
             eigenvalue[key] = eigenvalues1;
         }
+        end = std::chrono::high_resolution_clock::now();
+        elapsed = std::chrono::duration<double>(end - start).count();
+        std::cout << "Time for diag: " << elapsed << " seconds" << std::endl;
+        start = std::chrono::high_resolution_clock::now();
 
         //computeEigenvaluesAndEigenvectors(matchange1);
     }
+
     // 后处理输出
-    outfile.open("basis_output.txt", std::ios::app);
+    // outfile.open("basis_output.txt", std::ios::app);
     for (const auto& [key, values] : eigenvalue) {
         outfile << "J= " << key << std::endl;
         outfile << "Eigenvalues: " << std::endl;
@@ -1702,12 +1830,12 @@ void calcouple(
         // 如果文件未打开，则尝试打开文件
         outfile.open("basis_output.txt",std::ios::app);
     }
-    outfile << "bematrices" << std::endl;
-    outfile<< bematrices[0] << std::endl;
-    outfile << "bematrices" << std::endl;
-    outfile<< bematrices[1] << std::endl;
-    outfile << "bematrices" << std::endl;
-    outfile<< bematrices[2] << std::endl;
+    // outfile << "bematrices" << std::endl;
+    // outfile<< bematrices[0] << std::endl;
+    // outfile << "bematrices" << std::endl;
+    // outfile<< bematrices[1] << std::endl;
+    // outfile << "bematrices" << std::endl;
+    // outfile<< bematrices[2] << std::endl;
     bematre=bematrices;
 }
 
@@ -1733,10 +1861,11 @@ HamResult computeHamiltonians(const Data& data,
 {
     std::map<int,Matrix4D> vpnmat = getvpnval(data.pnData, data.efcstrength3);
 
+
     std::vector<std::vector<Eigen::MatrixXd>> q_pi;
     std::vector<Eigen::MatrixXd> V_it;
     std::vector<std::vector<Eigen::MatrixXd>> q_nu;
-    getsvdresult(vpnmat, q_pi, V_it, q_nu, data.efcstrength3);
+    getsvdresult(vpnmat, q_pi, V_it, q_nu, {1.0});
     printDiagonals(V_it);
 
     // ====== ham1 ======

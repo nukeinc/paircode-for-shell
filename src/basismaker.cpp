@@ -21,6 +21,8 @@
 #include <mutex>
 #include <memory>
 #include <functional>
+
+// #include "maincal.h"
 #include "../inc/moe.h"
 // 生成所有合法的粒子对组合，并跟踪每个 r 的序号
 
@@ -1128,8 +1130,8 @@ std::map<int, std::vector<CoupledBasis>> coupleBases2(
             // 计算耦合后的 sj 最后一个值的范围
             int minSj = std::abs(sj_neutron - sj_proton);
             int maxSj = sj_neutron + sj_proton;
-            int mx = std::max(minSj,-20); // 最大值
-            int mn = std::min(maxSj, 20); // 最小值
+            int mx = std::max(minSj,-4); // 最大值
+            int mn = std::min(maxSj, 4); // 最小值
             // 遍历可能的耦合结果，步长为 2
             for (int sj_coupled = mx; sj_coupled <= mn; sj_coupled += 2) {
                 // 创建新的 CoupledBasis
@@ -1206,7 +1208,7 @@ void writeTensor3ToFile(const Eigen::Tensor<double, 3>& tensor) {
             for (int k = 0; k < tensor.dimension(2); ++k) {
                 if (tensor(i,j,k)!=0)
                 {
-                    outfile <<"i,j,k="<<i<<","<<j<<","<<k<<","<< tensor(i,j,k) <<"\n";
+                    outfile <<"i,j,k="<<i<<","<<j<<","<<k<<","<< tensor(i,j,k) <<"\n"<<std::endl;
                 }
             }
             // outfile << "\n";
@@ -6097,6 +6099,41 @@ Eigen::MatrixXd caloverlapmmat(const std::vector<basism>& bas1,const std::vector
     return result;
 }
 
+Eigen::MatrixXd caloverlapmmatdif(const std::vector<basism>& bas1,const std::vector<basism>& bas2,
+    const std::vector<std::vector<Eigen::MatrixXd>>& ystrm1,const std::vector<std::vector<Eigen::MatrixXd>>& ystrm2)
+{
+    int nucnum=bas1.size();
+    int nucnum2=bas2.size();
+
+    Eigen::MatrixXd result=Eigen::MatrixXd::Zero(nucnum, nucnum);
+
+
+
+    // 第二阶段：并行计算非零行的非对角元素
+    #pragma omp parallel for schedule(dynamic)  // dynamic适用于负载不均衡的情况
+    for (int a = 0; a < nucnum; ++a)
+    {
+
+        basism bas11 = bas1[a];
+        std::vector<Eigen::MatrixXd> ystrm11 = ystrm1[a];
+
+        // 只计算上三角部分（b > a），利用对称性
+        for (int b = 0; b < nucnum2; ++b)
+        {
+            basism bas22 = bas2[b];
+            std::vector<Eigen::MatrixXd> ystrm22 = ystrm2[b];
+
+            if (bas11.parity != bas22.parity) {
+                result(a,b) = 0.0;
+            } else {
+                double val = caloverlapm(bas11, bas22, ystrm11, ystrm22);
+                result(a,b) = val;
+            }
+        }
+    }
+    return result;
+}
+
 std::vector<std::vector<double>> eigenToNestedVector(const Eigen::MatrixXd& mat) {
     std::vector<std::vector<double>> result(mat.rows());
     for (int i = 0; i < mat.rows(); ++i) {
@@ -6106,6 +6143,14 @@ std::vector<std::vector<double>> eigenToNestedVector(const Eigen::MatrixXd& mat)
         }
     }
     return result;
+}
+Eigen::MatrixXd overlapdifchange(const std::vector<basism>& basm1,const std::vector<basis>&bas1,
+    const std::vector<basism>& basm2,const std::vector<basis>&bas2,
+    Eigen::MatrixXd transfermat1,Eigen::MatrixXd transfer2mat,Eigen::MatrixXd sfmat,int t)
+{
+    Eigen::MatrixXd transfer1t=transfermat1.transpose();
+    Eigen::MatrixXd result1=transfer1t*sfmat*transfer2mat;
+    return result1;
 }
 
 std::vector<std::vector<double> > overlapchange(Eigen::MatrixXd overm,Eigen::MatrixXd transjm)
@@ -6236,12 +6281,12 @@ Eigen::MatrixXd convertToEigenMatrix(const std::vector<std::vector<double>>& dat
 
 
 
-std::vector<size_t> findMminus1PositionsSTL(const std::vector<Nucleusm>& nuclei) {
+std::vector<size_t> findMminus1PositionsSTL(const std::vector<Nucleusm>& nuclei,int i) {
     std::vector<size_t> positions;
     auto it = nuclei.begin();
 
     while ((it = std::find_if(it, nuclei.end(),
-            [](const Nucleusm& n) { return n.m == 1; })) != nuclei.end()) {
+            [i](const Nucleusm& n) { return n.m == i; })) != nuclei.end()) {
         positions.push_back(std::distance(nuclei.begin(), it));
         ++it;
             }
@@ -6458,15 +6503,17 @@ Eigen::VectorXd calsvec
     bas22.r.pop_back();
     Eigen::Tensor<double, 3> t1=calt(bas1,bas22,ystrm1,ystrm22);
     Eigen::Tensor<double, 3> t2=tchange(t1);
+    // writeTensor3ToFile(t2);
 
     for (int i=0;i<nucnum;++i)
     {
         Eigen::MatrixXd stcal=tensorSliceToMatrix(t2,0,i);
         Eigen::MatrixXd mat1=pnp*stcal;
+
         double re1=-6* mat1.trace();
-        result(re1);
+        result(i)=re1;
     }
-    std::cout<<"calsvec="<<result<<std::endl;
+    // std::cout<<"calsvec="<<result<<std::endl;
     return result;
 }
 
@@ -6509,19 +6556,35 @@ double sigsfcal(const basism& bas1,const basism& bas2,
     }
     else
     {
+        int nucnum=nucleusm.size();
         // std::cout<<"begincalsigsfcal"<<std::endl;
         double result=0;
         Eigen::VectorXd sp= ystrm1[0];
         for (int k=1;k<sizen;++k)
         {
             Eigen::MatrixXd pkp=ystrm2[k];
-            std::vector<Eigen::MatrixXd> ystrm22=ystrm2;
-            ystrm22.erase(ystrm22.begin()+k);
-            basism bas22=bas2;
-            bas22.r.erase(bas22.r.begin()+k);
-            Eigen::VectorXd svec=calsvec(bas1,bas22,ystrm1,ystrm22);
-            Eigen::MatrixXd term11=pkp*svec;
-            result+=term11(trannum);
+            for (int l=0;l<nucleusm.size();l++)
+            {
+                Eigen::VectorXd snew = Eigen::VectorXd::Zero(nucnum);
+                snew(l) = 1.0;
+                std::vector<Eigen::MatrixXd> ystrm22=ystrm2;
+                ystrm22[0]=snew;
+                ystrm22.erase(ystrm22.begin()+k);
+                basism bas22=bas2;
+                bas22.r.erase(bas22.r.begin()+k);
+                bas22.r[0]=nucleusm[l].j;
+                double overe=caloverlapm(bas1,bas22,ystrm1,ystrm22);
+                double tempm=pkp(trannum,l)*overe;
+                result+=tempm;
+            }
+
+            // std::vector<Eigen::MatrixXd> ystrm22=ystrm2;
+            // ystrm22.erase(ystrm22.begin()+k);
+            // basism bas22=bas2;
+            // bas22.r.erase(bas22.r.begin()+k);
+            // Eigen::VectorXd svec=calsvec(bas1,bas22,ystrm1,ystrm22);
+            // Eigen::MatrixXd term11=pkp*svec;
+            // result+=term11(trannum);
         }
         return 2*result;
     }
@@ -6540,6 +6603,9 @@ Eigen::MatrixXd sigsfmat(std::vector<basism> bas1,std::vector<basism> bas2,
             result(l,m)=sigsfcal(bas1[l],bas2[m],ystrm1[l],ystrm2[m],trannum);
         }
     }
+    std::cout<<"sigsfcal"<<std::endl;
+
+    std::cout<<result<<std::endl;
 
     return result;
 }
@@ -6577,6 +6643,186 @@ Eigen::MatrixXd sigsfmatchange(const std::vector<basism>& basm1,const std::vecto
     }
 
     return result;
+}
+
+std::vector<Eigen::MatrixXd>calsfmatall(
+    std::vector<basism> allbasism1,
+    std::vector<std::vector<Eigen::MatrixXd>> ystrm1,
+    Eigen::MatrixXd schmitmat1,
+    std::vector<basis> allbasisp1,
+    Eigen::MatrixXd changemat1,
+    std::vector<basism> allbasism2,
+    std::vector<std::vector<Eigen::MatrixXd>>ystrm2,
+    Eigen::MatrixXd schmitmat2,
+    std::vector<basis> allbasisp2,
+    Eigen::MatrixXd changemat2)
+{
+
+    auto nucmmin1=findMminus1PositionsSTL(nucleusm,-1);
+    std::vector<Eigen::MatrixXd> sfmatall;
+    for (int i=0;i<nucmmin1.size();++i)
+    {
+        Eigen::MatrixXd sfmat=sigsfmat(allbasism1, allbasism2, ystrm1, ystrm2, nucmmin1[i]);
+        Eigen::MatrixXd sfchange=sigsfmatchange(allbasism1,allbasisp1, allbasism2,allbasisp2,
+            changemat1, changemat2, sfmat,nucmmin1[i]);
+        Eigen::MatrixXd sfmatchsch= schmitmat1*sfchange* schmitmat2.transpose();
+        if (!outfile.is_open())
+        {
+            // 如果文件未打开，则尝试打开文件
+            outfile.open("basis_output.txt",std::ios::app);
+        }
+        outfile<< "sfmatchsch for nucleus " << i << ":\n";
+        outfile<<"sfmat"<<"\n"
+        <<sfmat << "\n"
+        << "sfchange"<<"\n"
+        << sfchange << "\n"
+        << "sfmatchsch"<<"\n"
+        << sfmatchsch << "\n"
+        << "------------------------" << std::endl;
+        sfmatall.push_back(sfmatchsch);
+    }
+    return sfmatall;
+}
+
+std::vector<Eigen::MatrixXd> getsfmatresult(
+    std::map<int, std::vector<CoupledBasis>> couplebasis1,
+    std::map<int,std::vector<CoupledBasis>> couplebasis2,
+    std::map<int, std::vector<std::vector<double>>> eigenre1,
+    std::map<int, std::vector<std::vector<double>>> eigenre2,
+    std::vector<int> jvecp1,
+    std::vector<int> jvecp2,
+    std::vector<int> jvecn1,
+    std::vector<int> jvecn2,
+    std::vector<int> tvec,
+    std::vector<Eigen::MatrixXd> transmat,
+    int norp,
+    std::vector<basis> pbas1,
+    std::vector<basism>pbasm01,
+    std::vector<basism>pbasm11,
+    std::vector<std::vector<Eigen::MatrixXd>> pystr1,
+    std::vector<std::vector<Eigen::MatrixXd>> pystr11,
+    Eigen::MatrixXd pchangmat1,
+    Eigen::MatrixXd pchangmat11,
+    Eigen::MatrixXd pschammit1,
+    std::vector<basis> pbas2,
+    std::vector<basism>pbasm02,
+    std::vector<basism>pbasm12,
+    std::vector<std::vector<Eigen::MatrixXd>> pystr2,
+    std::vector<std::vector<Eigen::MatrixXd>> pystr21,
+    Eigen::MatrixXd pchangmat2,
+    Eigen::MatrixXd pchangmat21,
+    Eigen::MatrixXd pschammit2
+    )
+{
+    Eigen::MatrixXd overlapp=caloverlapmmatdif(pbasm01,pbasm02,pystr1,pystr2);
+    Eigen::MatrixXd overlappch=overlapdifchange(pbasm01,pbas1,pbasm02,pbas2,
+        pchangmat1,pchangmat2,overlapp,0);
+    overlappch=pschammit1*overlappch* pschammit2.transpose();
+    int sizedft=transmat.size();
+    int totalStates1 = 0;
+    for (auto &[key, vec] : eigenre1) {
+        totalStates1 += vec.size();  // 每个key的本征态数
+    }
+    int totalStates2 = 0;
+    for (auto &[key, vec] : eigenre2) {
+        totalStates2 += vec.size();
+    }
+    std::vector<Eigen::MatrixXd> resultmat;
+    resultmat.resize(sizedft);
+    for (int tmatnum = 0; tmatnum < sizedft; ++tmatnum) {
+        resultmat[tmatnum] = Eigen::MatrixXd::Zero(totalStates1, totalStates2);
+    }
+    int offset1 = 0;
+    if (norp==2)
+    {
+
+        for (const auto &[key, value]: eigenre1)
+        {
+            int jisum = std::abs(key);
+            int siz1 = couplebasis1[key].size();
+            int vitnum = 0;
+            int sizeeigen1 = eigenre1[key].size();
+            for (int u = 0; u < sizeeigen1; u++)
+            {
+                int offset2 = 0;
+                int keynum2 = 0;
+                for (const auto &[key2, value2]: eigenre2)
+                {
+                    int jfsum = std::abs(key2);
+                    int siz2 = couplebasis2[key2].size();
+                    std::vector<std::vector<std::vector<double> > > transmatch
+                    (sizedft, std::vector<std::vector<double> >
+                     (siz1, std::vector<double>(siz2, 0.0)));
+                    for (int i = 0; i < siz1; i++)
+                    {
+                        for (int j = 0; j < siz2; j++)
+                        {
+                            int n1 = couplebasis1[key][i].ni;
+                            int n2 = couplebasis2[key2][j].ni;
+                            int p1 = couplebasis1[key][i].pi;
+                            int p2 = couplebasis2[key2][j].pi;
+                            int jn = jvecn1[n1];
+                            int jnp = jvecn2[n2];
+                            int jp = jvecp1[p1];
+                            int jpp = jvecp2[p2];
+
+
+                            int deltann = deltatwo(jn, jnp);
+                            int deltapp = deltatwo(jp, jpp);
+                            for (int tmatnum = 0; tmatnum < sizedft; ++tmatnum)
+                            {
+                                int t = tvec[tmatnum];
+                                Eigen::MatrixXd transmat1 = transmat[tmatnum];
+                                double calnu = deltapp * overlappch(p1, p2) * std::pow(-1, (jn - jnp + jfsum - jisum) / 2)
+                                               * ufrom6_j(jpp, jn, jfsum, t, jisum, jnp) * transmat1(n1, n2);
+                                transmatch[tmatnum][i][j] = calnu;
+                            }
+                        }
+                    }
+                    if (key==0)
+                    {
+                        if (key2==4)
+                        {
+                            std::cout<<"_______________________"<<std::endl;
+                            printMatrix(transmatch[1]);
+                        }
+                    }
+
+
+                    int sizeeigen2 = eigenre2[key2].size();
+
+                    for (int v = 0; v < sizeeigen2; v++)
+                    {
+                        std::vector<double> eigencal1 = eigenre1[key][u];
+                        std::vector<double> eigencal2 = eigenre2[key2][v];
+
+                        for (int tmatnum = 0; tmatnum < sizedft; ++tmatnum)
+                        {
+                            int t = tvec[tmatnum] / 2;
+                            int fact = 1;
+                            double sum = 0.0;
+                            Eigen::MatrixXd tranmatcal(eigencal1.size(), eigencal2.size());
+
+                            for (int i = 0; i < eigencal1.size(); ++i)
+                            {
+                                for (int j = 0; j < eigencal2.size(); ++j)
+                                {
+                                    double cal1 = eigencal1[i];
+                                    double cal2 = eigencal2[j];
+                                    sum += cal2 * transmatch[tmatnum][i][j] * cal1;
+                                }
+                            }
+                            sum = std::pow(sum, 2.0) ;
+                            resultmat[tmatnum](offset1 + u, offset2 + v) = sum;
+                        }
+                    }
+                    offset2 += sizeeigen2;
+                }
+            }
+            offset1 += sizeeigen1;
+        }
+    }
+    return resultmat;
 }
 
 
@@ -6618,6 +6864,7 @@ Eigen::MatrixXd doublesfmatchange(const std::vector<basism>& basm1,const std::ve
 Eigen::MatrixXd doublesfmatele(const basism& bas1,const basism& bas2,
     std::vector<Eigen::MatrixXd> ystrm1,std::vector<Eigen::MatrixXd> ystrm2)
 {
+    std::cout << std::fixed << std::setprecision(4);
     int sizen=ystrm2.size();
     int nunum=nucleusm.size();
     Eigen::MatrixXd result = Eigen::MatrixXd::Zero(nunum,nunum);
@@ -6636,8 +6883,10 @@ Eigen::MatrixXd doublesfmatele(const basism& bas1,const basism& bas2,
         basism bas222 = bas22;
         bas222.r.pop_back();
         Eigen::MatrixXd bmat = calb(bas1, bas222, ystrm1, ystrm222);
-        Eigen::MatrixXd pbmat = pnp * bmat;
+        Eigen::MatrixXd pbmat = pnp.transpose() * bmat;
         term1 += pkp12 * pbmat.trace();
+        // std::cout<<"term1"<<std::endl;
+        // std::cout<<term1<<std::endl;
     }
     for (int k = 2; k < sizen; ++k)
     {
@@ -6655,6 +6904,7 @@ Eigen::MatrixXd doublesfmatele(const basism& bas1,const basism& bas2,
             Eigen::MatrixXd midterm1 = pkp * bmat * pip;
             Eigen::MatrixXd midterm2 = pip * bmat * pkp;
             term2+=midterm1+midterm2;
+            // std::cout<<term2<<std::endl;
         }
     }
     result=4*term1+8*term2;
@@ -6796,6 +7046,48 @@ std::vector<std::vector<std::vector<double>>> transtr(
     return ystr;
 }
 
+void transtrnocouple(
+    std::vector<int>rget,std::vector<Eigen::MatrixXd> & qstrm0,
+    std::vector<Eigen::MatrixXd>& qstrm1,std::vector<std::vector<std::vector<double>>>& transtrvec, std::vector<int>& rvec)
+{
+    std::cout << std::fixed << std::setprecision(4);
+    int nucusize=nucleus.size();
+    int nucnumsize=nucleusm.size();
+    for (int i=0; i < rget.size(); ++i)
+    {
+
+        for (int j = 0; j < nucusize; ++j)
+        {
+            for (int k = 0; k < nucusize; ++k)
+            {
+                double fat=1;
+                if (j==k)
+                {
+                    fat=1/sqrt(2.0);
+                }
+                Eigen::MatrixXd ystrtemp=Eigen::MatrixXd::Zero(nucusize, nucusize);
+                ystrtemp(j,k) =fat*1;
+                // ystrtemp(k,j)=fat*1;
+                Eigen::MatrixXd ystrmtemp0=doubleftransqjtoqm(ystrtemp,rget[i],0);
+                Eigen::MatrixXd ystrmtemp1=doubleftransqjtoqm(ystrtemp,rget[i],-2);
+                qstrm0.push_back(ystrmtemp0);
+                qstrm1.push_back(ystrmtemp1);
+                std::cout<<"i,j,k"<<std::endl;
+                std::cout<<i<<","<<j<<","<<k<<std::endl;
+                std::cout<<"qstrm0"<<std::endl;
+                std::cout<<ystrmtemp0<<std::endl;
+                std::cout<<"qstrm1"<<std::endl;
+                std::cout<<ystrmtemp1<<std::endl;
+                std::vector<std::vector<double>>ystrr= eigenToNestedVector(ystrtemp);
+                transtrvec.push_back(ystrr);
+
+                rvec.push_back(rget[i]);
+            }
+        }
+    }
+    return;
+}
+
 std::vector<Eigen::MatrixXd> caldoublemat(
     std::vector<basis> bas1,
     std::vector<basism>basm01,
@@ -6815,8 +7107,10 @@ std::vector<Eigen::MatrixXd> caldoublemat(
     Eigen::MatrixXd schammit2,
     std::vector<int> tranvec,
     std::vector<std::vector<std::vector<double>>> transtr
+
     )
 {
+
     int sizedft=tranvec.size();
     std::vector<Eigen::MatrixXd> transtrmat={};
     std::vector<Eigen::MatrixXd> transtrmatm0={};
@@ -6837,6 +7131,7 @@ std::vector<Eigen::MatrixXd> caldoublemat(
     std::vector<Eigen::MatrixXd> matj0sch={};
     std::vector<Eigen::MatrixXd> matj1sch={};
 
+
     std::vector<Eigen::MatrixXd> mat0=doublesfmat(basm01,ystr1,
         basm02,ystr2,transtrmatm0,tranvec);
     for (int l = 0; l < sizedft; ++l)
@@ -6846,6 +7141,7 @@ std::vector<Eigen::MatrixXd> caldoublemat(
             changmat1,changmat2,
             mat0[l],tranvec[l]));
     }
+
 
     std::vector<Eigen::MatrixXd> mat1=doublesfmat(basm11,ystr11,
         basm02,ystr2,transtrmatm1,tranvec);
@@ -6873,6 +7169,7 @@ std::vector<Eigen::MatrixXd> caldoublemat(
                     {
                         matj0[tnum](i,j)=matj1[tnum](i,j);
                     }
+                    matj0[tnum](i,j)=matj0[tnum](i,j);
                 }
             }
         }
@@ -6896,9 +7193,29 @@ std::vector<Eigen::MatrixXd> getdoublematresult(
     std::vector<int> jvecn2,
     std::vector<int> tvec,
     std::vector<Eigen::MatrixXd> transmat,
-    int norp
+    int norp,
+    std::vector<basis> pbas1,
+    std::vector<basism>pbasm01,
+    std::vector<basism>pbasm11,
+    std::vector<std::vector<Eigen::MatrixXd>> pystr1,
+    std::vector<std::vector<Eigen::MatrixXd>> pystr11,
+    Eigen::MatrixXd pchangmat1,
+    Eigen::MatrixXd pchangmat11,
+    Eigen::MatrixXd pschammit1,
+    std::vector<basis> pbas2,
+    std::vector<basism>pbasm02,
+    std::vector<basism>pbasm12,
+    std::vector<std::vector<Eigen::MatrixXd>> pystr2,
+    std::vector<std::vector<Eigen::MatrixXd>> pystr21,
+    Eigen::MatrixXd pchangmat2,
+    Eigen::MatrixXd pchangmat21,
+    Eigen::MatrixXd pschammit2
     )
 {
+    Eigen::MatrixXd overlapp=caloverlapmmatdif(pbasm01,pbasm02,pystr1,pystr2);
+    Eigen::MatrixXd overlappch=overlapdifchange(pbasm01,pbas1,pbasm02,pbas2,
+        pchangmat1,pchangmat2,overlapp,0);
+    overlappch=pschammit1*overlappch* pschammit2.transpose();
     int sizedft=transmat.size();
     int totalStates1 = 0;
     for (auto &[key, vec] : eigenre1) {
@@ -6954,12 +7271,21 @@ std::vector<Eigen::MatrixXd> getdoublematresult(
                             {
                                 int t = tvec[tmatnum];
                                 Eigen::MatrixXd transmat1 = transmat[tmatnum];
-                                double calnu = deltapp * deltatwo(p1, p2) * std::pow(-1, (jn - jnp + jfsum - jisum) / 2)
+                                double calnu = deltapp * overlappch(p1, p2) * std::pow(-1, (jn - jnp + jfsum - jisum) / 2)
                                                * ufrom6_j(jpp, jn, jfsum, t, jisum, jnp) * transmat1(n1, n2);
                                 transmatch[tmatnum][i][j] = calnu;
                             }
                         }
                     }
+                    if (key==0)
+                    {
+                        if (key2==4)
+                        {
+                            std::cout<<"_______________________"<<std::endl;
+                            printMatrix(transmatch[1]);
+                        }
+                    }
+
 
                     int sizeeigen2 = eigenre2[key2].size();
 
@@ -6984,7 +7310,7 @@ std::vector<Eigen::MatrixXd> getdoublematresult(
                                     sum += cal2 * transmatch[tmatnum][i][j] * cal1;
                                 }
                             }
-                            sum = std::pow(sum, 2.0) * (jfsum + 1.0) / (jisum + 1.0);
+                            // sum = std::pow(sum, 2.0) * (jfsum + 1.0) / (jisum + 1.0);
                             resultmat[tmatnum](offset1 + u, offset2 + v) = sum;
                         }
                     }
@@ -7002,7 +7328,8 @@ void writeResultMatricesToFile(
     const std::vector<Eigen::MatrixXd> &resultmat,
     const std::map<int, std::vector<std::vector<double>>> &eigenre1,
     const std::map<int, std::vector<std::vector<double>>> &eigenre2,
-    const std::vector<int> &tvec
+    const std::vector<int> &tvec,
+    const std::vector<std::vector<std::vector<double> > > transtr
 ) {
     std::ofstream fout(filename);
     if (!fout.is_open()) {
@@ -7031,6 +7358,17 @@ void writeResultMatricesToFile(
     // 遍历每一个 tmatnum
     for (int tmatnum = 0; tmatnum < resultmat.size(); ++tmatnum) {
         fout << "==== Transition matrix for t = " << tvec[tmatnum] << " ====" << std::endl;
+        fout << "Transition strengths (transtr) for t = " << tvec[tmatnum] << ":" << std::endl;
+
+        for (int i = 0; i < transtr[tmatnum].size(); ++i) {
+            for (int j = 0; j < transtr[tmatnum][i].size(); ++j) {
+                fout << transtr[tmatnum][i][j] << " ";
+            }
+            fout << std::endl;
+        }
+
+        fout << std::endl;
+
 
         const Eigen::MatrixXd &mat = resultmat[tmatnum];
 

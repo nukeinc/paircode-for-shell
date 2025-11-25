@@ -31,22 +31,20 @@
 #include "inputmod.h"
 int main()
 {
-    std::string inputFile = "../inputfile_6_4";
+    std::string inputFile = "../inputfile";
     Data data = readMultipleArraysFromFile(inputFile);
     HamResult result1 = computeHamiltonians(data,outfile);
     int userInput = 0;
     std::cout << "请输入 1 以继续计算，其他键退出: ";
-    userInput = 1;
-    // std::cin >> userInput;
+    std::cin >> userInput;
     if (userInput == 1)
     {
-        std::string inputFile2 = "../inputfile_6_6";
+        std::string inputFile2 = "../inputfile2";
         Data data2 = readMultipleArraysFromFile(inputFile2);
         HamResult result2 = computeHamiltonians(data2,outfile);
         int transinput=0;
         std::cout<<"计算转移反应输入1质子，2中子，输入其他退出：";
-        transinput = 2;
-        // std::cin>>transinput;
+        std::cin>>transinput;
         if (transinput==1)
         {
             rvecall=result1.rvecall1;
@@ -73,45 +71,38 @@ int main()
 
             std::vector<int> trannumvec = {0, 1};
             std::vector<int> tranvec;
-            for (int i = 0; i < trannumvec.size(); i++) {
-                tranvec.push_back(rvecall[trannumvec[i]]);
+            for (int i = 0; i < nucleus.size(); i++) {
+                tranvec.push_back(nucleus[i].j);
             }
 
-            // std::vector<std::vector<std::vector<double>>> transtrvec;
-            // transtrvec = transtr(trannumvec, data2.ystrget2);
-            std::vector<int>rget={0,4};
-            std::vector<Eigen::MatrixXd>  qstrm0={};
-            std::vector<Eigen::MatrixXd> qstrm1={};
-            std::vector<int> rvec={};
-            std::vector<std::vector<std::vector<double>>> transtrvec={};
-            outfile << "allbasisp2" << std::endl;
-            transtrnocouple(rget, qstrm0, qstrm1, transtrvec,rvec);
-            tranvec=rvec;
+            std::vector<std::vector<std::vector<double>>> transtrvec;
 
-            std::vector<Eigen::MatrixXd> doublemat=
-                caldoublemat(
-                result1.allbasisp2, result1.allbasism02, result1.allbasism12,
-                result1.ystrm02, result1.ystrm12, result1.changemat02, result1.changemat12,
+            std::vector<Eigen::MatrixXd> singlemat=
+                calsfmatall(
+                result1.allbasism02,
+                result1.ystrm02,
                 result1.schmitmat2,
-                result2.allbasisp2, result2.allbasism02, result2.allbasism12,
-                result2.ystrm02, result2.ystrm12, result2.changemat02, result2.changemat12,
+                result1.allbasisp2,
+                result1.changemat02,
+                result2.allbasism02,
+                result2.ystrm02,
                 result2.schmitmat2,
-                rvec, transtrvec
+                result2.allbasisp2,
+                result2.changemat02
             );
-            std::cout<< doublemat[0]<<std::endl;
             std::vector<Eigen::MatrixXd> resultsf=
-                getdoublematresult(result1.coupleBases,result2.coupleBases,
+                getsfmatresult(result1.coupleBases,result2.coupleBases,
                 result1.eigenRe,result2.eigenRe,
                 result1.jvecp1,result2.jvecp1,
                 result1.jvecp2,result2.jvecp2,
-                tranvec,doublemat,transinput,
+                tranvec,singlemat,transinput,
                 result1.allbasisp1,result1.allbasism01,result1.allbasism11,
                 result1.ystrm01,result1.ystrm11,result1.changemat01,result1.changemat11,
                 result1.schmitmat1,result2.allbasisp1,result2.allbasism01,result2.allbasism11,
                 result2.ystrm01,result2.ystrm11,result2.changemat01,result2.changemat11,
                 result2.schmitmat1);
-            writeResultMatricesToFile("doublesfmat.txt",resultsf,
-                result1.eigenRe,result2.eigenRe,rvec,transtrvec);
+            writeResultMatricesToFile("singlesfmat.txt",resultsf,
+                result1.eigenRe,result2.eigenRe,tranvec);
 
         }
 

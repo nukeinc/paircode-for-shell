@@ -279,7 +279,7 @@ std::map<int,Matrix4D>getvpnval(const std::vector<std::map<int, Matrix4D>>& V_va
     }
     for (size_t i=0;i<nucleus2.size();++i)
     {
-        if (max_jnu1<nucleus2[i].j)
+        if (max_jnu2<nucleus2[i].j)
         {
             max_jnu2=nucleus2[i].j;
         }
@@ -1693,7 +1693,7 @@ void calcouple(
             eigen_out = hammat * eigen_in; // Easy version
             // eigen_out.noalias() += matrix * eigen_in; // Efficient version
         };
-        LambdaLanczos<double> engine1(mv_mul1, nmat, false, 2); // true means to calculate the largest eigenvalue.
+        LambdaLanczos<double> engine1(mv_mul1, nmat, false, 4); // true means to calculate the largest eigenvalue.
         std::vector<double> eigenvalues1;
         std::vector<std::vector<double>> eigenvectors1;
         engine1.run(eigenvalues1, eigenvectors1);

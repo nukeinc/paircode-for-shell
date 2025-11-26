@@ -31,7 +31,7 @@
 #include "inputmod.h"
 int main()
 {
-    std::string inputFile = "../inputfile_6_4";
+    std::string inputFile = "../inputfile_test1";
     Data data = readMultipleArraysFromFile(inputFile);
     HamResult result1 = computeHamiltonians(data,outfile);
     int userInput = 0;
@@ -40,7 +40,7 @@ int main()
     // std::cin >> userInput;
     if (userInput == 1)
     {
-        std::string inputFile2 = "../inputfile_6_6";
+        std::string inputFile2 = "../inputfile_test2";
         Data data2 = readMultipleArraysFromFile(inputFile2);
         HamResult result2 = computeHamiltonians(data2,outfile);
         int transinput=0;

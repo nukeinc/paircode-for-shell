@@ -7277,14 +7277,14 @@ std::vector<Eigen::MatrixXd> getdoublematresult(
                             }
                         }
                     }
-                    if (key==0)
-                    {
-                        if (key2==4)
-                        {
-                            std::cout<<"_______________________"<<std::endl;
-                            printMatrix(transmatch[1]);
-                        }
-                    }
+                    // if (key==0)
+                    // {
+                    //     if (key2==4)
+                    //     {
+                    //         std::cout<<"_______________________"<<std::endl;
+                    //         printMatrix(transmatch[1]);
+                    //     }
+                    // }
 
 
                     int sizeeigen2 = eigenre2[key2].size();

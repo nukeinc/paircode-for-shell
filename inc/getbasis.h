@@ -117,4 +117,5 @@ Eigen::MatrixXd ham1(const std::vector<basism>& bas,const std::vector<std::vecto
     std::vector<std::map<int, Matrix4D>> buildVValue1,
     std::vector<double>strength);
 std::vector<std::vector<double>> readAndConvertFile(const std::string& filename);
+std::vector<basis> removeNegativeParity(const std::vector<basis>& bases);
 #endif //GETBASIS_H

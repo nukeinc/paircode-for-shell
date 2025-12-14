@@ -24,5 +24,5 @@ foreach(file ${files})
     endif()
 endforeach()
 # 编译优化
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -flto")
+set(CMAKE_CXX_FLAGS_RELEASE "-Ofast -march=native -flto")
 #set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")

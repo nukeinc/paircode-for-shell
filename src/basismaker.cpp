@@ -86,6 +86,17 @@ std::vector<std::pair<std::vector<int>, std::vector<int>>> generateValidPairs(in
     backtrack(0, 0);
     return allResults;
 }
+std::vector<basis> removeNegativeParity(const std::vector<basis>& bases) {
+    std::vector<basis> result;
+    result.reserve(bases.size());
+
+    for (const auto& b : bases) {
+        if (b.parity >= 0) {   // 只保留宇称为 +1 的情况
+            result.push_back(b);
+        }
+    }
+    return result;
+}
 std::vector<basis> calculateBasisWithRange( int m,
     const std::vector<std::pair<std::vector<int>, std::vector<int>>>& validPairs) {
     std::set<basis> allBases;
@@ -7380,7 +7391,7 @@ void writeResultMatricesToFile(
                 if (std::abs(val) > 1e-12) { // 筛掉太小的数
                     fout << "(key1=" << key1 << ", state=" << u
                          << ") -> (key2=" << key2 << ", state=" << v
-                         << ") : " << val << std::endl;
+                         << ") : " << val*std::sqrt(key2+1)/std::sqrt(key1+1) << std::endl;
                 }
             }
         }

@@ -1,0 +1,56 @@
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.707107 0.000000 
+0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=0, state=0) : -0.150277
+(key1=0, state=0) -> (key2=0, state=1) : 0.000000
+(key1=0, state=0) -> (key2=0, state=2) : 0.020442
+(key1=0, state=0) -> (key2=0, state=3) : 0.000000
+(key1=0, state=1) -> (key2=0, state=0) : 0.692550
+(key1=0, state=1) -> (key2=0, state=1) : 0.106262
+(key1=0, state=1) -> (key2=0, state=2) : -0.094205
+(key1=0, state=1) -> (key2=0, state=3) : 0.014454
+(key1=0, state=2) -> (key2=0, state=0) : -0.692549
+(key1=0, state=2) -> (key2=0, state=1) : 0.106262
+(key1=0, state=2) -> (key2=0, state=2) : 0.094205
+(key1=0, state=2) -> (key2=0, state=3) : 0.014454
+(key1=0, state=3) -> (key2=0, state=0) : 0.000000
+(key1=0, state=3) -> (key2=0, state=1) : 0.979413
+(key1=0, state=3) -> (key2=0, state=2) : -0.000000
+(key1=0, state=3) -> (key2=0, state=3) : 0.133226
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 1.000000 
+0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 
+1.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 
+0.000000 0.707107 
+
+(key1=0, state=0) -> (key2=0, state=0) : -0.999855
+(key1=0, state=0) -> (key2=0, state=1) : 0.000000
+(key1=0, state=0) -> (key2=0, state=2) : -0.017051
+(key1=0, state=0) -> (key2=0, state=3) : -0.000000
+(key1=0, state=1) -> (key2=0, state=0) : -0.012057
+(key1=0, state=1) -> (key2=0, state=1) : 0.707004
+(key1=0, state=1) -> (key2=0, state=2) : 0.707004
+(key1=0, state=1) -> (key2=0, state=3) : -0.012057
+(key1=0, state=2) -> (key2=0, state=0) : 0.012057
+(key1=0, state=2) -> (key2=0, state=1) : 0.707004
+(key1=0, state=2) -> (key2=0, state=2) : -0.707004
+(key1=0, state=2) -> (key2=0, state=3) : -0.012057
+(key1=0, state=3) -> (key2=0, state=0) : -0.000000
+(key1=0, state=3) -> (key2=0, state=1) : -0.017051
+(key1=0, state=3) -> (key2=0, state=2) : 0.000000
+(key1=0, state=3) -> (key2=0, state=3) : -0.999855
+

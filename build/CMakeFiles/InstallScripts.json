@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/skyplane/gitdir/paircode-for-shell/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

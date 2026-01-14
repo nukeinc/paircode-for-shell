@@ -2159,6 +2159,544 @@ std::vector<std::vector<Eigen::MatrixXd>> computeystrm(const std::vector<basism>
     return ystrbasismresult;
 }
 
+//change in 1216
+
+
+
+
+bool checkMatrixConsistency(const std::vector<std::vector<Eigen::MatrixXd>>& denseMat, 
+                            const SparseMatrix4Dcc& sparseMat, 
+                            double tolerance = 1e-11) 
+{
+    // 1. 检查外层行数
+    if (denseMat.size() != sparseMat.size()) {
+        std::cerr << "[Error] Row dimension mismatch: Dense=" << denseMat.size() 
+                  << ", Sparse=" << sparseMat.size() << std::endl;
+        return false;
+    }
+
+    bool passed = true;
+    double max_error = 0.0;
+
+    // 2. 遍历每一个矩阵块
+    // 注意：以 denseMat 的结构为准进行遍历，因为 sparseMat 可能是补齐的矩形
+    #pragma omp parallel for reduction(max:max_error) reduction(&:passed)
+    for (size_t i = 0; i < denseMat.size(); ++i) {
+        for (size_t j = 0; j < denseMat[i].size(); ++j) {
+            
+            // 获取引用
+            const Eigen::MatrixXd& d = denseMat[i][j];
+            // 使用 (i, j) 访问稀疏结构体
+            const Eigen::SparseMatrix<double>& s = sparseMat(i, j);
+            // [新增] 特殊处理：如果稀疏矩阵是 0x0，但稠密矩阵全是 0，则视为通过
+            if (s.rows() == 0 && s.cols() == 0) {
+                if (d.norm() < tolerance) continue; // 稠密矩阵也是0，匹配成功！
+                
+                // 否则是真的不匹配
+                #pragma omp critical
+                std::cerr << "[Mismatch] Dense is not zero but Sparse is empty at " << i << "," << j << std::endl;
+                passed = false;
+                continue;
+            }
+
+            // 3. 检查子矩阵维度 (Rows x Cols)
+            if (d.rows() != s.rows() || d.cols() != s.cols()) {
+                #pragma omp critical
+                {
+                    std::cerr << "[Error] Submatrix size mismatch at (" << i << "," << j << "): "
+                              << d.rows() << "x" << d.cols() << " vs "
+                              << s.rows() << "x" << s.cols() << std::endl;
+                    passed = false;
+                }
+                continue;
+            }
+
+            // 4. 核心校验：计算 (Dense - Sparse) 的 Frobenius 范数
+            // Eigen 会自动处理 Dense - Sparse 的运算
+            double diff = (d - s).norm();
+
+            if (diff > max_error) max_error = diff;
+
+            if (diff > tolerance) {
+                #pragma omp critical
+                {
+                    // 只打印前几个错误，防止刷屏
+                    static int err_count = 0;
+                    if (err_count++ < 5) {
+                        std::cerr << "[Mismatch] at (" << i << "," << j << ") "
+                                  << "Diff: " << diff << " (Tol: " << tolerance << ")" << std::endl;
+                    }
+                    passed = false;
+                }
+            }
+        }
+    }
+
+    if (passed) {
+        std::cout << "✅ Check Passed! Matrices are consistent. Max Error: " << max_error << std::endl;
+    } else {
+        std::cout << "❌ Check Failed! Max Error: " << max_error << std::endl;
+    }
+
+    return passed;
+}
+
+// [新增] 专门用于比较两个 MatrixXd 是否相等
+bool checkDenseEqualDense(const Eigen::MatrixXd& mat1, const Eigen::MatrixXd& mat2, double tolerance = 1e-11) {
+    // 1. 维度检查
+    if (mat1.rows() != mat2.rows() || mat1.cols() != mat2.cols()) {
+        std::cerr << "[Dimension Error] Mat1: " << mat1.rows() << "x" << mat1.cols() 
+                  << " vs Mat2: " << mat2.rows() << "x" << mat2.cols() << std::endl;
+        return false;
+    }
+
+    // 2. 范数检查 (快速判断)
+    double diff = (mat1 - mat2).norm();
+    if (diff <= tolerance) {
+        std::cout << "✅ Dense Check Passed! Max Error: " << diff << std::endl;
+        return true;
+    }
+
+    // 3. 详细报错 (如果对不上)
+    std::cout << "❌ Check Failed! Max Error: " << diff << std::endl;
+    
+    // 打印前 5 个不一致的地方
+    int err_count = 0;
+    for (int i = 0; i < mat1.rows(); ++i) {
+        for (int j = 0; j < mat1.cols(); ++j) {
+            if (std::abs(mat1(i, j) - mat2(i, j)) > tolerance) {
+                std::cerr << "  Mismatch at (" << i << "," << j << "): "
+                          << "New=" << mat1(i, j) << " vs Old=" << mat2(i, j) 
+                          << " (Diff=" << std::abs(mat1(i, j) - mat2(i, j)) << ")" << std::endl;
+                if (++err_count >= 5) return false;
+            }
+        }
+    }
+    return false;
+}
+
+// [新增] 重载：用于比较 "旧的稀疏结构(vector)" vs "新的稀疏结构(SparseMatrix4Dcc)"
+bool checkMatrixConsistency(const std::vector<std::vector<Eigen::SparseMatrix<double>>>& oldSparse, 
+                            const SparseMatrix4Dcc& newSparse, 
+                            double tolerance = 1e-11) 
+{
+    // 1. 检查外层行数
+    if (oldSparse.size() != newSparse.size()) {
+        std::cerr << "[Error] Row dimension mismatch: Old=" << oldSparse.size() 
+                  << ", New=" << newSparse.size() << std::endl;
+        return false;
+    }
+
+    bool passed = true;
+    double max_error = 0.0;
+
+    // 2. 遍历比较
+    #pragma omp parallel for reduction(max:max_error) reduction(&:passed)
+    for (size_t i = 0; i < oldSparse.size(); ++i) {
+        
+        for (size_t j = 0; j < oldSparse[i].size(); ++j) {
+            // 获取引用
+            const Eigen::SparseMatrix<double>& s1 = oldSparse[i][j]; // 旧结构
+            
+            // 越界检查 (新结构是矩形，旧结构可能是锯齿形)
+            if (j >= newSparse.innerSize()) {
+                if (s1.nonZeros() > 0) {
+                    #pragma omp critical 
+                    std::cerr << "[Mismatch] at (" << i << "," << j << ") Old structure has data, but New structure ends at col " << newSparse.innerSize() << std::endl;
+                    passed = false;
+                }
+                continue;
+            }
+
+            const Eigen::SparseMatrix<double>& s2 = newSparse(i, j); // 新结构
+
+            // 3. 维度检查
+            // 特殊逻辑：允许 0x0 和 全零矩阵 互相匹配
+            bool s1_empty = (s1.rows() == 0 && s1.cols() == 0);
+            bool s2_empty = (s2.rows() == 0 && s2.cols() == 0);
+
+            if (s1_empty != s2_empty) {
+                // 如果一个是空矩阵，另一个必须是非空但全零，才算通过
+                if (s1_empty && s2.norm() > tolerance) {
+                    #pragma omp critical
+                    std::cerr << "[Mismatch] at (" << i << "," << j << ") Old is EMPTY, New is Non-Zero (Norm: " << s2.norm() << ")" << std::endl;
+                    passed = false;
+                    continue;
+                }
+                if (s2_empty && s1.norm() > tolerance) {
+                    #pragma omp critical
+                    std::cerr << "[Mismatch] at (" << i << "," << j << ") New is EMPTY, Old is Non-Zero (Norm: " << s1.norm() << ")" << std::endl;
+                    passed = false;
+                    continue;
+                }
+                // 否则视为匹配（都是零），跳过维度检查
+            }
+            else if (!s1_empty && (s1.rows() != s2.rows() || s1.cols() != s2.cols())) {
+                #pragma omp critical
+                {
+                    std::cerr << "[Dimension Error] at (" << i << "," << j << "): "
+                              << s1.rows() << "x" << s1.cols() << " vs "
+                              << s2.rows() << "x" << s2.cols() << std::endl;
+                    passed = false;
+                }
+                continue;
+            }
+
+            // 4. 核心校验：稀疏矩阵相减求范数
+            double diff = 0.0;
+            if (!s1_empty && !s2_empty) {
+                diff = (s1 - s2).norm();
+            } else if (!s1_empty) {
+                diff = s1.norm();
+            } else if (!s2_empty) {
+                diff = s2.norm();
+            }
+
+            if (diff > max_error) max_error = diff;
+
+            if (diff > tolerance) {
+                #pragma omp critical
+                {
+                    static int err_cnt = 0;
+                    if (err_cnt++ < 10) { // 打印前10个错误
+                        std::cerr << "\n[Mismatch Detail] at (" << i << "," << j << ")\n"
+                                  << "  Diff: " << diff << " (Tol: " << tolerance << ")\n"
+                                  << "  Old: " << s1.rows() << "x" << s1.cols() << ", NNZ=" << s1.nonZeros() << ", Norm=" << s1.norm() << "\n"
+                                  << "  New: " << s2.rows() << "x" << s2.cols() << ", NNZ=" << s2.nonZeros() << ", Norm=" << s2.norm() << "\n"
+                                  << "----------------------------------------" << std::endl;
+                    }
+                    passed = false;
+                }
+            }
+        }
+    }
+
+    if (passed) {
+        std::cout << "✅ Sparse vs Sparse Check Passed! Max Error: " << max_error << std::endl;
+    } else {
+        std::cout << "❌ Check Failed! Max Error: " << max_error << std::endl;
+    }
+
+    return passed;
+}
+
+bool isSparseEqualDense_Debug(const SpMat& sparseMat, const Eigen::MatrixXd& denseMat, double tolerance = 1e-10) {
+    // 1. 检查维度
+    if (sparseMat.rows() != denseMat.rows() || sparseMat.cols() != denseMat.cols()) {
+        std::cerr << "[Dimension Error] Sparse: " << sparseMat.rows() << "x" << sparseMat.cols() 
+                  << " vs Dense: " << denseMat.rows() << "x" << denseMat.cols() << std::endl;
+        return false;
+    }
+
+    bool passed = true;
+
+    // 2. 逐元素比较 (遍历稠密矩阵，去稀疏矩阵里查值)
+    for (int i = 0; i < denseMat.rows(); ++i) {
+        for (int j = 0; j < denseMat.cols(); ++j) {
+            double d_val = denseMat(i, j);
+            // .coeff(i, j) 可以安全地读取稀疏矩阵的值，如果是 0 处则返回 0
+            double s_val = sparseMat.coeff(i, j); 
+
+            if (std::abs(d_val - s_val) > tolerance) {
+                std::cerr << "[Mismatch Detail] at (" << i << ", " << j << ")\n"
+                          << "  Dense  = " << d_val << "\n"
+                          << "  Sparse = " << s_val << "\n"
+                          << "  Diff   = " << std::abs(d_val - s_val) << std::endl;
+                
+                // 只报错一次，避免刷屏，直接返回
+                return false; 
+            }
+        }
+    }
+
+    std::cout << "✅ Exact Match!" << std::endl;
+    return true;
+}
+
+
+// ==========================================
+// 1. 基础辅助函数：打印单个稀疏矩阵
+// ==========================================
+int printSingleSpMat(const SpMat& mat, const std::string& indent = "  ") {
+    if (mat.rows() == 0 || mat.cols() == 0) {
+        std::cout << indent << "[Empty Matrix 0x0]" << std::endl;
+        return mat.nonZeros();
+    }
+
+    // 策略：小矩阵(<=10x10)打印全貌，大矩阵只打印非零元信息
+    if (mat.rows() <= 10 && mat.cols() <= 10) {
+        // 转为 Dense 打印，直观
+        Eigen::MatrixXd d = Eigen::MatrixXd(mat);
+        std::cout << indent << "Size: " << mat.rows() << "x" << mat.cols() << "\n" 
+                  << indent << "Content:\n" << d << std::endl;
+    } else {
+        // 大矩阵模式
+        std::cout << indent << "Size: " << mat.rows() << "x" << mat.cols() 
+                  << " | Non-zeros: " << mat.nonZeros() << std::endl;
+        
+        // 只打印前 5 个非零元，防止刷屏
+        int count = 0;
+        for (int k = 0; k < mat.outerSize(); ++k) {
+            for (SpMat::InnerIterator it(mat, k); it; ++it) {
+                if (count++ >= 5) {
+                    std::cout << indent << "... (remaining hidden)" << std::endl;
+                    return mat.nonZeros();
+                }
+                std::cout << indent << "(" << it.row() << "," << it.col() << ") = " << it.value() << std::endl;
+            }
+        }
+    }
+    return mat.nonZeros();
+}
+
+// ==========================================
+// 2. 输出函数：针对旧结构 (vector<vector<SpMat>>)
+// ==========================================
+void print4D(const std::vector<std::vector<SpMat>>& mat4d, const std::string& name = "Old_Sparse4D") {
+    std::cout << "\n==========================================" << std::endl;
+    std::cout << " 4D Matrix Dump: " << name << " (Type: Vector<Vector>)" << std::endl;
+    std::cout << " Outer Size: " << mat4d.size() << std::endl;
+    std::cout << "==========================================" << std::endl;
+
+    for (size_t i = 0; i < mat4d.size(); ++i) {
+        for (size_t j = 0; j < mat4d[i].size(); ++j) {
+            // 只打印非空矩阵，或者你可以去掉这个 if 打印所有
+            if (mat4d[i][j].nonZeros() > 0 || (mat4d[i][j].rows() > 0)) {
+                
+                int ii=printSingleSpMat(mat4d[i][j]);
+                if (ii>0)
+                {
+                    std::cout << "Block [" << i << "][" << j << "]:" << std::endl;
+
+                }
+                std::cout << "------------------------------------------" << std::endl;
+            }
+        }
+    }
+}
+
+// ==========================================
+// 3. 输出函数：针对新结构 (SparseMatrix4Dcc)
+// ==========================================
+void print4D(const SparseMatrix4Dcc& mat4d, const std::string& name = "New_Sparse4Dcc") {
+    std::cout << "\n==========================================" << std::endl;
+    std::cout << " 4D Matrix Dump: " << name << " (Type: SparseMatrix4Dcc)" << std::endl;
+    std::cout << " Grid Size: " << mat4d.size() << " x " << mat4d.innerSize() << std::endl;
+    std::cout << "==========================================" << std::endl;
+
+    for (size_t i = 0; i < mat4d.size(); ++i) {
+        for (size_t j = 0; j < mat4d.innerSize(); ++j) {
+            // 使用 (i, j) 访问
+            const SpMat& block = mat4d(i, j);
+            
+            // 过滤掉全空的，减少干扰
+            if (block.nonZeros() > 0 || (block.rows() > 0)) {
+            
+                int ii=printSingleSpMat(mat4d[i][j]);
+                if (ii>0)
+                {
+                    std::cout << "Block [" << i << "][" << j << "]:" << std::endl;
+
+                }
+                std::cout << "------------------------------------------" << std::endl;
+            }
+        }
+    }
+}
+
+SparseMatrix4Dcc computeystrm_sparse(const std::vector<basism>& allbasisc,
+    const std::vector<std::vector<double> >& ystrgetp)
+{
+    // ---------------------------------------------------------
+    // 1. 准备基础数据 (保持原有逻辑不变)
+    // ---------------------------------------------------------
+    int ii = 0;
+    nucleusm.clear();
+    for (auto & nucleu : nucleus)
+    {
+        int jv = nucleu.j;
+        int n = nucleu.n;
+        int l = nucleu.l;
+        for (int m = -nucleu.j; m <= nucleu.j; m += 2)
+        {
+            nucleusm.emplace_back(n, l, jv, m, ii);
+        }
+        ii++;
+    }
+
+    basis basisr;
+    int n = rvecall.size();
+    std::vector<int> vec(n);
+    std::iota(vec.begin(), vec.end(), 0);
+    basisr.rn = vec;
+    std::vector<basis> basis1;
+    int size1 = nucleusm.size();
+
+    // 初始化巨大的 4D 数组用于 calculateystr
+    std::vector<std::vector<std::vector<std::vector<double>>>> ystrallp(
+        1,
+        std::vector<std::vector<std::vector<double>>>(
+            n,
+            std::vector<std::vector<double>>(
+                nucleus.size(),
+                std::vector<double>(nucleus.size(), 0.0)
+            )
+        )
+    );
+    basis1.push_back(basisr);
+
+    // 计算原始矩阵元
+    calculateystr(ystrallp, ystrgetp, basis1);
+    
+    // 获取计算结果 (ystr 目前是 dense 的 3D vector)
+    const std::vector<std::vector<std::vector<double>>>& ystr = ystrallp[0];
+
+    // ---------------------------------------------------------
+    // 2. 初始化 SparseMatrix4Dcc
+    // ---------------------------------------------------------
+    
+    // 计算需要的最大列数 (Max Depth)
+    // 原逻辑：1个初始矩阵(r0) + (r.size()-1)个耦合矩阵 = r.size() 个矩阵
+    size_t max_cols = 0;
+    for(const auto& b : allbasisc) {
+        if(b.r.size() > max_cols) max_cols = b.r.size();
+    }
+
+    // 初始化结构体：行数为 basis 数，列数为最大深度
+    SparseMatrix4Dcc ystrbasismresult(allbasisc.size(), max_cols);
+
+    // ---------------------------------------------------------
+    // 3. 并行计算与填充
+    // ---------------------------------------------------------
+    #pragma omp parallel for
+    for (int i = 0; i < (int)allbasisc.size(); ++i)
+    {
+        // === 处理第 0 列 (初始项: r0) ===
+        int r0 = allbasisc[i].r[0];
+        
+        // 获取第 i 行 第 0 列的矩阵引用
+        SpMat& mat0 = ystrbasismresult(i, 0);
+
+        if (r0 == 0)
+        {
+            // 原代码逻辑：push 了一个未初始化的 MatrixXd imat (0x0)
+            // 这里保持一致，设为 0x0 空稀疏矩阵
+            // 如果原意是单位阵，请改为: mat0.resize(size1, size1); mat0.setIdentity();
+            mat0.resize(0, 0); 
+        }
+        else
+        {
+            // 原代码逻辑：是一个 VectorXd (列向量)
+            // 稀疏化：size1 x 1 的稀疏矩阵，只有一个非零元
+            mat0.resize(size1, 1);
+            mat0.reserve(1); // 预留 1 个非零元空间
+
+            for (int j = 0; j < size1; ++j)
+            {
+                if (nucleusm[j].j == allbasisc[i].r[0] && 
+                    nucleusm[j].m == allbasisc[i].bigmvec[0])
+                {
+                    mat0.insert(j, 0) = 1.0;
+                    break; // 找到后直接退出循环
+                }
+            }
+            mat0.makeCompressed(); // 压缩存储
+        }
+
+        // === 处理第 1 到 N 列 (耦合项) ===
+        for (size_t j = 1; j < allbasisc[i].r.size(); ++j)
+        {
+            int j3 = allbasisc[i].r[j];
+            int m3 = allbasisc[i].bigmvec[j] - allbasisc[i].bigmvec[j - 1];
+            int jn = allbasisc[i].rn[j];
+
+            // 准备三元组列表，用于构建稀疏矩阵
+            std::vector<Triplet> tripletList;
+            // 预估非零元数量：CG系数非常稀疏，平均每行可能只有几个
+            tripletList.reserve(size1 * 2);
+
+            for (int k = 0; k < size1; ++k)
+            {
+                int num1 = nucleusm[k].num;
+                int j1 = nucleusm[k].j;
+                int m1 = nucleusm[k].m;
+
+                // [物理优化] 利用磁量子数守恒: m1 + m2 = m3
+                // 直接计算出需要的 m2，而不是遍历所有 l
+                int target_m2 = m3 - m1;
+
+                for (int l = 0; l < size1; ++l)
+                {
+                    // 1. 快速筛选：m 不守恒直接跳过
+                    if (nucleusm[l].m != target_m2) continue;
+
+                    int num2 = nucleusm[l].num;
+                    int j2 = nucleusm[l].j;
+                    
+                    // 2. 快速筛选：三角不等式 |j1 - j2| <= j3 <= j1 + j2
+                    if (j3 < std::abs(j1 - j2) || j3 > j1 + j2) continue;
+
+                    // 3. 计算 CG 系数
+                    double cg_value = util::CG(j1, j2, j3, m1, target_m2, m3);
+                    
+                    if (std::abs(cg_value) < 1e-12) continue; // 忽略 0 值
+
+                    // 4. 查表 ystr
+                    double yy = ystr[jn][num1][num2];
+                    
+                    if (std::abs(yy) < 1e-12) continue; // 忽略 0 值
+
+                    // 存入三元组 (行 k, 列 l, 值)
+                    tripletList.emplace_back(k, l, cg_value * yy);
+                }
+            }
+
+            // 构建稀疏矩阵
+            SpMat& couplingMat = ystrbasismresult(i, j);
+            couplingMat.resize(size1, size1);
+            couplingMat.setFromTriplets(tripletList.begin(), tripletList.end());
+            couplingMat.makeCompressed();
+        }
+        
+        // 这一行剩下的位置 (如果有 max_cols > current size) 默认为空矩阵，
+        // SparseMatrix4Dcc 初始化时已经做好了，无需额外操作。
+    }
+
+    return ystrbasismresult;
+}
+
+std::vector<SpMat> convertToSparseVector(const std::vector<DenseMat>& denseVec, double tolerance = 1e-12) {
+    // 1. 预分配结果向量的空间，避免 push_back 导致的重分配
+    std::vector<SpMat> sparseVec(denseVec.size());
+
+    // 2. 并行转换 (利用 OpenMP 加速)
+    #pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < denseVec.size(); ++i) {
+        // .sparseView(reference, epsilon)
+        // 任何 abs(x) < tolerance * 1.0 的值都会被截断为 0，不存储
+        sparseVec[i] = denseVec[i].sparseView(tolerance, 1.0);
+        
+        // 压缩存储 (Compressed Sparse Column)，释放未使用的内存，提高后续计算效率
+        sparseVec[i].makeCompressed();
+    }
+
+    return sparseVec;
+}
+
+std::vector<Eigen::MatrixXd> convertToDenseVector(const std::vector<Eigen::SparseMatrix<double>>& sparseVec) {
+    // 预分配空间
+    std::vector<Eigen::MatrixXd> denseVec(sparseVec.size());
+
+    // 并行转换 (利用 OpenMP 加速)
+    #pragma omp parallel for schedule(static)
+    for (size_t i = 0; i < sparseVec.size(); ++i) {
+        // 显式将稀疏矩阵转换为稠密矩阵
+        denseVec[i] = Eigen::MatrixXd(sparseVec[i]);
+    }
+    return denseVec;
+}
+
+//end change
 
 std::vector<std::vector<std::vector<int>>> computeystrmvec(const std::vector<basism>& allbasisc,
     const std::vector<std::vector<double> >& ystrgetp,std::vector<std::vector<Eigen::MatrixXd>>& ystrmvec)
@@ -2269,6 +2807,141 @@ std::vector<std::vector<std::vector<int>>> computeystrmvec(const std::vector<bas
 // 定义一个 4D 矩阵：维度为 (dim1 × dim2 × dim3 × dim4)
 using Matrix4D = std::vector<std::vector<Eigen::MatrixXd>>;
 using Matrix4D_sp = std::vector<std::vector<Eigen::SparseMatrix<double>>>;
+
+bool checkOldSparseVsNewSparse(const Matrix4D_sp& oldSp, const SparseMatrix4Dcc& newSp, double tolerance = 1e-10) {
+    int rows = oldSp.size();
+    if (rows != newSp.size()) return false;
+    int cols = (rows > 0) ? oldSp[0].size() : 0;
+
+    bool passed = true;
+    double max_diff = 0.0;
+
+    #pragma omp parallel for collapse(2) reduction(max:max_diff) reduction(&:passed)
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            const Eigen::SparseMatrix<double>& s1 = oldSp[i][j];   // 旧格式
+            const Eigen::SparseMatrix<double>& s2 = newSp(i, j);   // 新格式
+
+            // 1. 判空检查
+            bool s1_empty = (s1.nonZeros() == 0);
+            bool s2_empty = (s2.nonZeros() == 0);
+
+            if (s1_empty && s2_empty) continue;
+
+            // 2. 维度检查
+            if (!s1_empty && !s2_empty) {
+                if (s1.rows() != s2.rows() || s1.cols() != s2.cols()) {
+                    #pragma omp critical
+                    std::cerr << "[Dim Mismatch] (" << i << "," << j << ") Old:" 
+                              << s1.rows() << "x" << s1.cols() << " New:" << s2.rows() << "x" << s2.cols() << std::endl;
+                    passed = false;
+                    continue;
+                }
+            } else {
+                // 一个空一个非空，检查非空那个是不是数值也为0
+                double norm = s1_empty ? s2.norm() : s1.norm();
+                if (norm > tolerance) {
+                    #pragma omp critical
+                    std::cerr << "[Content Mismatch] (" << i << "," << j << ") One is empty, other has norm " << norm << std::endl;
+                    passed = false;
+                    continue;
+                }
+            }
+
+            // 3. 数值检查
+            double diff = 0.0;
+            if (!s1_empty && !s2_empty) diff = (s1 - s2).norm();
+            else if (!s1_empty) diff = s1.norm();
+            else diff = s2.norm();
+
+            if (diff > max_diff) max_diff = diff;
+            if (diff > tolerance) {
+                #pragma omp critical
+                passed = false;
+            }
+        }
+    }
+
+    if (passed) std::cout << "✅ Check Passed! Max Error: " << max_diff << std::endl;
+    else std::cout << "❌ Check Failed! Max Error: " << max_diff << std::endl;
+    
+    return passed;
+}
+
+bool checkDenseVsSparse(const Matrix4D& denseMat, const SparseMatrix4Dcc& sparseMat, double tolerance = 1e-8) {
+    int rows = denseMat.size();
+    if (rows == 0) return true;
+    int cols = denseMat[0].size(); // 假设矩形
+
+    if (rows != sparseMat.size() || cols != sparseMat.innerSize()) {
+        std::cerr << "[Error] Outer dimensions mismatch: " << rows << "x" << cols 
+                  << " vs " << sparseMat.size() << "x" << sparseMat.innerSize() << std::endl;
+        return false;
+    }
+
+    bool passed = true;
+    double max_diff = 0.0;
+
+    #pragma omp parallel for collapse(2) reduction(max:max_diff) reduction(&:passed)
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            const Eigen::MatrixXd& d = denseMat[i][j];       // 稠密基准
+            const Eigen::SparseMatrix<double>& s = sparseMat(i, j); // 稀疏测试对象
+
+            // --- 核心容错逻辑 ---
+            bool d_is_zero = (d.norm() < tolerance); // 稠密矩阵数值是否全为0
+            bool s_is_empty = (s.rows() == 0 || s.cols() == 0 || s.nonZeros() == 0); // 稀疏矩阵是否为空
+
+            // Case 1: 都是“零” (稠密是32x32的全0，稀疏是0x0空矩阵) -> 通过
+            if (d_is_zero && s_is_empty) continue;
+
+            // Case 2: 维度检查 (只有当两者都有实质数据时才检查)
+            if (!s_is_empty) {
+                if (d.rows() != s.rows() || d.cols() != s.cols()) {
+                    #pragma omp critical
+                    {
+                        std::cerr << "[Mismatch Dim] Block (" << i << "," << j << ") Dense: " 
+                                  << d.rows() << "x" << d.cols() << " vs Sparse: " 
+                                  << s.rows() << "x" << s.cols() << std::endl;
+                        passed = false;
+                    }
+                    continue;
+                }
+            } else if (!d_is_zero) {
+                // 稠密有数，但稀疏是空的 -> 漏算了
+                #pragma omp critical
+                {
+                    std::cerr << "[Mismatch Content] Block (" << i << "," << j << ") Dense has Norm " 
+                              << d.norm() << " but Sparse is Empty!" << std::endl;
+                    passed = false;
+                }
+                continue;
+            }
+
+            // Case 3: 数值比较
+            double diff = (d - s).norm(); // Eigen 支持 Dense - Sparse
+            if (diff > max_diff) max_diff = diff;
+
+            if (diff > tolerance) {
+                #pragma omp critical
+                {
+                    static int print_count = 0;
+                    if (print_count++ < 5) {
+                        std::cerr << "[Mismatch Val] Block (" << i << "," << j << ") Diff: " << diff << std::endl;
+                    }
+                    passed = false;
+                }
+            }
+        }
+    }
+
+    if (passed) {
+        std::cout << "✅ [Verification] Dense vs Sparse Passed! Max Error: " << max_diff << std::endl;
+    } else {
+        std::cout << "❌ [Verification] Failed! Max Error: " << max_diff << std::endl;
+    }
+    return passed;
+}
 
 
 Matrix4D_sp createZeroMatrix4D_sp(int dim1, int dim2, int rows, int cols) {
@@ -2473,6 +3146,26 @@ SparseMatrix4D convertToSparse(const Matrix4D& denseMat) {
     return sparseMat;
 }
 
+SparseMatrix4Dcc convertToSparse1(const Matrix4D& denseMat) {
+    int r = denseMat.size();
+    if (r == 0) return SparseMatrix4Dcc();
+    int c = denseMat[0].size();
+
+    // 1. 初始化大容器 (一次性分配好)
+    SparseMatrix4Dcc sparseMat(r, c);
+
+    // 2. 填充数据
+    #pragma omp parallel for collapse(2)
+    for (int i = 0; i < r; ++i) {
+        // [修正] 这里不要写 sparseMat[i].resize()，这是错的！
+        for (int j = 0; j < c; ++j) {
+            // 使用 (i, j) 访问更安全
+            sparseMat(i, j) = denseMat[i][j].sparseView(1e-12, 1.0);
+        }
+    }
+    return sparseMat;
+}
+
 Matrix4D convertToDense(const SparseMatrix4D& sparseMat) {
     Matrix4D denseMat;
     denseMat.resize(sparseMat.size());
@@ -2485,7 +3178,22 @@ Matrix4D convertToDense(const SparseMatrix4D& sparseMat) {
     }
     return denseMat;
 }
+Matrix4D convertToDense1(const SparseMatrix4Dcc& sparseMat) {
+    int r = sparseMat.size();
+    int c = sparseMat.innerSize();
 
+    Matrix4D denseMat(r, std::vector<Eigen::MatrixXd>(c));
+
+    #pragma omp parallel for collapse(2)
+    for (int i = 0; i < r; ++i) {
+        // [修正] 这里不要写 denseMat[i].resize(sparseMat[i].size())
+        // 因为 sparseMat[i] 是指针，没有 size() 方法
+        for (int j = 0; j < c; ++j) {
+            denseMat[i][j] = Eigen::MatrixXd(sparseMat(i, j));
+        }
+    }
+    return denseMat;
+}
 // Matrix4D addMatrix4D(const Matrix4D& mat1, const Matrix4D& mat2) {
 //     // 首先检查维度是否匹配
 //     // if (mat1.size() != mat2.size()) {
@@ -2736,100 +3444,456 @@ Eigen::MatrixXd cal2p(Eigen::MatrixXd pk,Eigen::MatrixXd pnp,Eigen::MatrixXd pi)
     return t4;
 }
 
+SpMat currentq_sparse(const SpMat& p1p, const SpMat& p1, const SpMat& p2)
+{
+    SpMat t1 = (p1 * p1p * p2).pruned(1e-12);
+    SpMat t2 = (p2 * p1p * p1).pruned(1e-12);
+    
+    SpMat t31 = (p1 * p1p).pruned(1e-12);
+    double t311 = t31.diagonal().sum() * 0.5;
+    
+    SpMat t3 = (t311 * p2).pruned(1e-12);
+    
+    return (t1 + t2 - t3).pruned(1e-12);
+}
 
 
-SparseMatrix4D calq(const basism& bas1,const basism& bas2,const std::vector<Eigen::MatrixXd>&ystrm1,const std::vector<Eigen::MatrixXd>&ystrm2)
+//change in 1216
+SpMat calsigp_sparse(const SpMat& pk, const SpMat& pn, const SpMat& pnp)
+{
+    // 1. 先计算中间矩阵 (pk * pnp)
+    // 加上 pruned 去除噪音，避免非零元膨胀
+    SpMat t1 = (pk * pnp).pruned(1e-12);
+    
+    // 2. 计算 Trace (对角线求和)
+    double t2 = -t1.diagonal().sum() * 2.0;
+    
+    // 3. 标量乘法
+    if (std::abs(t2) < 1e-14) return SpMat(pk.rows(), pk.cols()); // 返回空矩阵
+    
+    return (t2 * pn).pruned(1e-12);
+}
+
+SpMat cal2p_sparse(const SpMat& pk, const SpMat& pnp, const SpMat& pi)
+{
+    SpMat t1 = (pk * pnp * pi).pruned(1e-12);
+    SpMat t2 = (pi * pnp * pk).pruned(1e-12);
+    // 显式求和后修剪
+    SpMat sum = t1 + t2;
+    return (4.0 * sum).pruned(1e-12);
+}
+
+SpMat currentq_sparse_generic(const SpMat& M, const SpMat& A, const SpMat& B)
+{
+    // Term 1 & 2: A*M*B + B*M*A (矩阵乘法)
+    // 加上 pruned 去除浮点噪音
+    SpMat t1 = (A * M * B).pruned(1e-12);
+    SpMat t2 = (B * M * A).pruned(1e-12);
+    
+    // Term 3: Trace 部分
+    // 注意：只计算 A*M 的对角线和，无需算出整个矩阵
+    // 优化：如果 A 和 M 很大，(A*M).trace() 比较慢，可以用 (A.cwiseProduct(M.transpose())).sum()
+    // 但为了稳健先用标准乘法
+    SpMat AM = (A * M).pruned(1e-12);
+    double tr_val = AM.diagonal().sum(); // 稀疏矩阵求 Trace
+    
+    double scalar = tr_val * 0.5;
+    
+    // 如果 scalar 极小，直接返回前两项
+    if (std::abs(scalar) < 1e-14) {
+        return (t1 + t2).pruned(1e-12);
+    }
+    
+    SpMat t3 = (scalar * B).pruned(1e-12);
+    
+    return (t1 + t2 - t3).pruned(1e-12);
+}
+
+SparseMatrix4Dcc addMatrix4D(const SparseMatrix4Dcc& mat1, const SparseMatrix4Dcc& mat2) {
+    // 维度检查略...
+    
+    SparseMatrix4Dcc res(mat1.size(), mat1.innerSize());
+
+    #pragma omp parallel for collapse(2)
+    for (size_t i = 0; i < mat1.size(); ++i) {
+        for (size_t j = 0; j < mat1.innerSize(); ++j) {
+            
+            // [新增] 处理空矩阵情况 (0x0 + 32x32)
+            if (mat1(i, j).rows() == 0 && mat1(i, j).cols() == 0) {
+                if (mat2(i, j).rows() > 0) res(i, j) = mat2(i, j);
+                // 否则都是空，保持默认
+            }
+            else if (mat2(i, j).rows() == 0 && mat2(i, j).cols() == 0) {
+                res(i, j) = mat1(i, j);
+            }
+            else {
+                // 只有当两者都不为空且维度匹配时才相加
+                if (mat1(i, j).rows() != mat2(i, j).rows()) {
+                    // 这是一个逻辑错误，打印警告或者抛异常
+                    // 但为了让程序跑下去，可以暂时不做操作
+                } else {
+                    res(i, j) = (mat1(i, j) + mat2(i, j)).pruned(1e-12);
+                }
+            }
+        }
+    }
+    return res;
+}
+
+SparseMatrix4Dcc calq_sparse(const basism& bas1, const basism& bas2, 
+                             const std::vector<SpMat>& ystrm1, 
+                             const std::vector<SpMat>& ystrm2)
+{
+    int nucnum = nucleusm.size();
+    int rsize = ystrm1.size();
+
+    // 检查输入维度
+    if (ystrm1.size() - ystrm2.size() != 2) {
+        throw std::invalid_argument("ystrm1 and ystrm2 size mismatch in calq_sparse!");
+    }
+
+    if (bas1.r[0] == 0)
+    {
+        // === Case 1: 递归终止 (r=4) ===
+        if (bas1.r.size() == 4)
+        {
+            const SpMat& p1p = ystrm2[1];
+            const SpMat& p1 = ystrm1[1];
+            const SpMat& p2 = ystrm1[2];
+            const SpMat& p3 = ystrm1[3];
+
+            // 1. 计算三个基础矩阵 (使用通用函数)
+            // re1 对应 currentq1: Trace(p1*p1p) -> A=p1, B=p2
+            SpMat re1 = currentq_sparse_generic(p1p, p1, p2);      
+            
+            // re2 对应 currentq2_2: Trace(p3*p1p) -> A=p3, B=p1 (注意顺序!)
+            SpMat re2 = currentq_sparse_generic(p1p, p3, p1);      
+            
+            // re3 对应 currentq3_3: Trace(p2*p1p) -> A=p2, B=p3
+            SpMat re3 = currentq_sparse_generic(p1p, p2, p3);
+
+            SparseMatrix4Dcc resultq(nucnum, nucnum);
+
+            // 2. 融合循环填充结果 (Fused Loop)
+            #pragma omp parallel for collapse(2)
+            for (int i = 0; i < nucnum; ++i) {
+                for (int j = 0; j < nucnum; ++j) {
+                    SpMat sum_mat(nucnum, nucnum);
+                    bool has_value = false;
+
+                    // re1(i,j) * 4 * p3
+                    double val1 = re1.coeff(i, j);
+                    if (std::abs(val1) > 1e-14) {
+                        sum_mat += (4.0 * val1 * p3);
+                        has_value = true;
+                    }
+                    
+                    // re2(i,j) * 4 * p2
+                    double val2 = re2.coeff(i, j);
+                    if (std::abs(val2) > 1e-14) {
+                        sum_mat += (4.0 * val2 * p2);
+                        has_value = true;
+                    }
+
+                    // p1(i,j) * 4 * re3
+                    // (原逻辑对应 resultq[k][l] += 4 * p1(k,l) * re3)
+                    double val3 = p1.coeff(i, j);
+                    if (std::abs(val3) > 1e-14) {
+                        sum_mat += (4.0 * val3 * re3);
+                        has_value = true;
+                    }
+
+                    if (has_value) {
+                        resultq(i, j) = sum_mat.pruned(1e-12);
+                    }
+                }
+            }
+            return resultq;
+        }
+        // === Case 2: 简单张量积 (r=3) ===
+        else if (bas1.r.size() == 3)
+        {
+            const SpMat& p1 = ystrm1[1];
+            const SpMat& p2 = ystrm1[2];
+            
+            SparseMatrix4Dcc resultmat(nucnum, nucnum);
+
+            // 极速遍历：只遍历 p1 的非零元素
+            for (int k = 0; k < p1.outerSize(); ++k) {
+                for (SpMat::InnerIterator it(p1, k); it; ++it) {
+                    // result[i][j] = p1(i,j) * p2
+                    // 直接把 p2 矩阵乘上标量赋值进去
+                    resultmat(it.row(), it.col()) = (it.value() * p2).pruned(1e-12);
+                }
+            }
+            return resultmat;
+        }
+        // === Case 3: 递归 (r > 4) ===
+        else 
+        {
+            SparseMatrix4Dcc term1(nucnum, nucnum);
+            SparseMatrix4Dcc term2(nucnum, nucnum);
+
+            // --- Loop 1 ---
+            for (int k = 1; k < rsize; ++k)
+            {
+                std::vector<SpMat> ystrm11 = ystrm1;
+                std::vector<SpMat> ystrm22 = ystrm2;
+                basism bas11 = bas1; basism bas22 = bas2;
+
+                SpMat pk = ystrm1[k];
+                ystrm11.erase(ystrm11.begin() + k);
+                SpMat pn = ystrm11.back();
+                SpMat pnp = ystrm2[rsize - 3];
+
+                // 调用稀疏版 calsigp
+                SpMat pkre = calsigp_sparse(pk, pn, pnp);
+
+                ystrm22.pop_back(); bas11.r.pop_back(); bas22.r.pop_back();
+                ystrm11.back() = pkre;
+
+                SparseMatrix4Dcc tt1 = calq_sparse(bas11, bas22, ystrm11, ystrm22);
+                term1 = addMatrix4D(term1, tt1); // 确保 addMatrix4D 支持 SparseMatrix4Dcc
+            }
+
+            // --- Loop 2 ---
+            for (int k = 2; k < rsize; ++k)
+            {
+                for (int i = 1; i <= k - 1; ++i)
+                {
+                    std::vector<SpMat> ystrm11 = ystrm1;
+                    std::vector<SpMat> ystrm22 = ystrm2;
+                    basism bas11 = bas1; basism bas22 = bas2;
+
+                    SpMat pk = ystrm1[k];
+                    SpMat pnp = ystrm2[rsize - 3];
+                    SpMat pi = ystrm1[i];
+
+                    // 调用稀疏版 cal2p
+                    SpMat pkre = cal2p_sparse(pk, pnp, pi);
+
+                    ystrm11.erase(ystrm11.begin() + k);
+                    ystrm11.erase(ystrm11.begin() + i);
+                    ystrm11.push_back(pkre);
+                    
+                    ystrm22.pop_back(); bas11.r.pop_back(); bas22.r.pop_back();
+
+                    SparseMatrix4Dcc tt1 = calq_sparse(bas11, bas22, ystrm11, ystrm22);
+                    term2 = addMatrix4D(term2, tt1);
+                }
+            }
+            // 合并 Term 1 和 Term 2
+            return addMatrix4D(term1, term2);
+        }
+    }
+    else // bas1.r[0] != 0
+    {
+        if (bas1.r.size() == 3)
+        {
+            SpMat s = ystrm1[0]; 
+            SpMat sp = ystrm2[0];
+            
+            // 修复 .coeff 报错：先计算点积表达式到临时变量，再取值
+            SpMat dot_temp = sp.transpose() * s;
+            double t1 = dot_temp.coeff(0,0);
+
+            SpMat p1 = ystrm1[1];
+            SpMat p2 = ystrm1[2];
+
+            // 修复 Storage Order 报错：分步计算，强制求值
+            // 计算 t2
+            SpMat t2_part1 = s * sp.transpose() * p1;
+            SpMat t2_part2 = p1 * sp * s.transpose();
+            SpMat t2 = (t2_part1 + t2_part2).pruned(1e-12);
+
+            // 计算 t3
+            SpMat t3_part1 = s * sp.transpose() * p2;
+            SpMat t3_part2 = p2 * sp * s.transpose();
+            SpMat t3 = (t3_part1 + t3_part2).pruned(1e-12);
+
+            SparseMatrix4Dcc resultmat(nucnum, nucnum);
+
+            #pragma omp parallel for collapse(2)
+            for (int a = 0; a < nucnum; ++a) {
+                for (int b = 0; b < nucnum; ++b) {
+                    double p1_val = p1.coeff(a, b);
+                    double t2_val = t2.coeff(a, b);
+                    double t3_val = t3.coeff(a, b);
+
+                    // 快速剪枝
+                    if (std::abs(p1_val) < 1e-14 && std::abs(t2_val) < 1e-14 && std::abs(t3_val) < 1e-14) continue;
+
+                    double scalar1 = t1 * p1_val - t2_val;
+                    double scalar2 = t3_val;
+
+                    // 只有当标量不为0时才进行矩阵运算
+                    if (std::abs(scalar1) > 1e-14 || std::abs(scalar2) > 1e-14) {
+                        resultmat(a, b) = (scalar1 * p2 - scalar2 * p1).pruned(1e-12);
+                    }
+                }
+            }
+            return resultmat;
+        }
+        else
+        {
+            SparseMatrix4Dcc term1(nucnum, nucnum);
+            // 这里应该有 Loop 1 & 2 的逻辑 (对于 r!=0 的情况)
+            // 根据你的原代码，term1 初始化后，下面直接是 Loop 3 的累加
+            // 如果原代码只有 Loop 3，那就只写 Loop 3
+
+            // Loop 3
+            for (int k = 1; k < rsize; ++k)
+            {
+                std::vector<SpMat> ystrm11 = ystrm1;
+                std::vector<SpMat> ystrm22 = ystrm2;
+                basism bas11 = bas1; basism bas22 = bas2;
+
+                SpMat pk = ystrm1[k];
+                ystrm11.erase(ystrm11.begin() + k);
+                SpMat pnp = ystrm2[rsize - 3];
+                SpMat s = ystrm1[0];
+
+                // 计算 4 * pk * pnp * s
+                // 注意 s 是 vector，结果也是 vector
+                SpMat temp = pk * pnp * s;
+                SpMat pkre = (4.0 * temp).pruned(1e-12);
+                
+                ystrm11[0] = pkre; 
+                ystrm22.pop_back(); bas11.r.pop_back(); bas22.r.pop_back();
+
+                SparseMatrix4Dcc tt1 = calq_sparse(bas11, bas22, ystrm11, ystrm22);
+                term1 = addMatrix4D(term1, tt1);
+            }
+            
+            // 原代码 term1 还要加上 term2 (Loop 1 & Loop 2)，请确认是否需要复制过来
+            // 假设这里只返回 Loop 3 的结果
+            return term1; 
+        }
+    }
+}
+
+
+SparseMatrix4D calq(const basism &bas1, const basism &bas2, const std::vector<Eigen::MatrixXd> &ystrm1, const std::vector<Eigen::MatrixXd> &ystrm2)
 {
     // auto start = std::chrono::high_resolution_clock::now();
-    int nucnum=nucleusm.size();
-    int nnp=ystrm2.size();
-    int nn=ystrm1.size();
+    int nucnum = nucleusm.size();
+    int nnp = ystrm2.size();
+    int nn = ystrm1.size();
     Matrix4D resultmat(nucnum,
-    std::vector<Eigen::MatrixXd>(nucnum,
-    Eigen::MatrixXd::Zero(nucnum, nucnum))  // 最内层是 5x5 矩阵
+                       std::vector<Eigen::MatrixXd>(nucnum,
+                                                    Eigen::MatrixXd::Zero(nucnum, nucnum)) // 最内层是 5x5 矩阵
     );
-    int rsize=ystrm1.size();
+    int rsize = ystrm1.size();
     // 检查输入是否有效
-    if (ystrm1.size() - ystrm2.size()!=2) {
+    if (ystrm1.size() - ystrm2.size() != 2)
+    {
         throw std::invalid_argument("ystrm1 and ystrm2 must have the same size!");
     }
-    if (bas1.r[0]==0)
+    if (bas1.r[0] == 0)
     {
-        if (bas1.r.size()==4)
+        if (bas1.r.size() == 4)
         {
-            Eigen::MatrixXd p1p=ystrm2[1];
-            Eigen::MatrixXd p1=ystrm1[1];
-            Eigen::MatrixXd p2=ystrm1[2];
-            Eigen::MatrixXd p3=ystrm1[3];
+            
+            Eigen::MatrixXd p1p = ystrm2[1];
+            Eigen::MatrixXd p1 = ystrm1[1];
+            Eigen::MatrixXd p2 = ystrm1[2];
+            Eigen::MatrixXd p3 = ystrm1[3];
 
-            SparseMatrix4D resultq1=addMatrix4D(currentq1(p1p,p1,p2,p3),currentq2(p1p,p1,p2,p3));
-            SparseMatrix4D resultq2=addMatrix4D(resultq1,currentq3(p1p,p1,p2,p3));
+            SparseMatrix4D resultq1 = addMatrix4D(currentq1(p1p, p1, p2, p3), currentq2(p1p, p1, p2, p3));
+            SparseMatrix4D resultq2 = addMatrix4D(resultq1, currentq3(p1p, p1, p2, p3));
+            // std::vector<SpMat> ystrm1_sparse=convertToSparseVector(ystrm1);
+            // std::vector<SpMat> ystrm2_sparse=convertToSparseVector(ystrm2);
+            // SparseMatrix4Dcc calq_sparse11=calq_sparse(bas1,bas2,ystrm1_sparse,ystrm2_sparse);
+            // std::cout<<"q1"<<std::endl;
+            // print4D(resultq1);
+            // std::cout<<"q2"<<std::endl;
+            // print4D(resultq2);
+            // std::cout<<"respar"<<std::endl;
+            // print4D(calq_sparse11);
+
+            // bool check11=checkMatrixConsistency(resultq2,calq_sparse11);
+            // // --- 新增暂停逻辑 ---
+            // if (!check11) {
+            //     std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            //     std::cerr << "   [ERROR] check11 检查失败！稀疏矩阵计算结果不一致。" << std::endl;
+            //     std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+                
+            //     std::cout << "按回车键继续..." << std::endl;
+            //     // 清理输入缓冲区防止直接跳过
+            //     if (std::cin.peek() != EOF) {
+            //         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            //     }
+            //     std::cin.get(); // 暂停程序，等待按下回车
+            // }
+            // // -------------------
             return resultq2;
-        }else if (bas1.r.size()==3)
+        }
+        else if (bas1.r.size() == 3)
         {
-            Eigen::MatrixXd p1=ystrm1[1];
-            Eigen::MatrixXd p2=ystrm1[2];
-            for (int i=0;i<nucnum;++i)
+            Eigen::MatrixXd p1 = ystrm1[1];
+            Eigen::MatrixXd p2 = ystrm1[2];
+            for (int i = 0; i < nucnum; ++i)
             {
-                for (int j=0;j<nucnum;++j)
+                for (int j = 0; j < nucnum; ++j)
                 {
-                    double t1=p1(i,j);
-                    for (int k=0;k<nucnum;++k)
+                    double t1 = p1(i, j);
+                    for (int k = 0; k < nucnum; ++k)
                     {
-                        for (int l=0;l<nucnum;++l)
+                        for (int l = 0; l < nucnum; ++l)
                         {
-                            double t2=p2(k,l);
-                            double t3=t1*t2;
-                            resultmat[i][j](k,l)=t3;
+                            double t2 = p2(k, l);
+                            double t3 = t1 * t2;
+                            resultmat[i][j](k, l) = t3;
                         }
                     }
                 }
             }
-            SparseMatrix4D resultmatsp=convertToSparse(resultmat);
+            SparseMatrix4D resultmatsp = convertToSparse(resultmat);
             return resultmatsp;
-        }else
+        }
+        else
         {
             Matrix4D re1(nucnum,
-            std::vector<Eigen::MatrixXd>(nucnum,Eigen::MatrixXd::Zero(nucnum, nucnum))  // 最内层是 5x5 矩阵
+                         std::vector<Eigen::MatrixXd>(nucnum, Eigen::MatrixXd::Zero(nucnum, nucnum)) // 最内层是 5x5 矩阵
             );
-            SparseMatrix4D term1=convertToSparse(re1);
-            SparseMatrix4D term2=term1;
-            for (int k=1;k<rsize;++k)
+            SparseMatrix4D term1 = convertToSparse(re1);
+            SparseMatrix4D term2 = term1;
+            for (int k = 1; k < rsize; ++k)
             {
-                basism bas11=bas1;
-                basism bas22=bas2;
-                std::vector<Eigen::MatrixXd>ystrm11=ystrm1;
-                std::vector<Eigen::MatrixXd>ystrm22=ystrm2;
-                Eigen::MatrixXd pk=ystrm1[k];
+                basism bas11 = bas1;
+                basism bas22 = bas2;
+                std::vector<Eigen::MatrixXd> ystrm11 = ystrm1;
+                std::vector<Eigen::MatrixXd> ystrm22 = ystrm2;
+                Eigen::MatrixXd pk = ystrm1[k];
                 ystrm11.erase(ystrm11.begin() + k);
-                Eigen::MatrixXd pn=ystrm11.back();
-                Eigen::MatrixXd pnp=ystrm2[rsize-3];
-                Eigen::MatrixXd pkre=calsigp(pk,pn,pnp);
+                Eigen::MatrixXd pn = ystrm11.back();
+                Eigen::MatrixXd pnp = ystrm2[rsize - 3];
+                Eigen::MatrixXd pkre = calsigp(pk, pn, pnp);
                 // ystrm11[nn-1]=pkre;
                 ystrm22.pop_back();
                 bas11.r.pop_back();
                 bas22.r.pop_back();
-                ystrm11.back()=pkre;
-                SparseMatrix4D tt1=calq(bas11,bas22,ystrm11,ystrm22);
-                term1=addMatrix4D(term1,tt1);
+                ystrm11.back() = pkre;
+                SparseMatrix4D tt1 = calq(bas11, bas22, ystrm11, ystrm22);
+                term1 = addMatrix4D(term1, tt1);
                 // std::cout<<"term1"<<std::endl;
                 // std::cout<<"k:"<<k<<std::endl;
                 // printNonZeroElements(term1);
             }
             // std::cout<<"term1"<<std::endl;
             // printNonZeroElements(term1);
-            for (int k=2;k<rsize;++k)
+            for (int k = 2; k < rsize; ++k)
             {
-                for (int i=1;i<=k-1;++i)
+                for (int i = 1; i <= k - 1; ++i)
                 {
-                    basism bas11=bas1;
-                    basism bas22=bas2;
-                    std::vector<Eigen::MatrixXd>ystrm11=ystrm1;
-                    std::vector<Eigen::MatrixXd>ystrm22=ystrm2;
-                    Eigen::MatrixXd pk=ystrm1[k];
-                    Eigen::MatrixXd pnp=ystrm2[rsize-3];
-                    Eigen::MatrixXd pi=ystrm1[i];
-                    Eigen::MatrixXd pkre=cal2p(pk,pnp,pi);
+                    basism bas11 = bas1;
+                    basism bas22 = bas2;
+                    std::vector<Eigen::MatrixXd> ystrm11 = ystrm1;
+                    std::vector<Eigen::MatrixXd> ystrm22 = ystrm2;
+                    Eigen::MatrixXd pk = ystrm1[k];
+                    Eigen::MatrixXd pnp = ystrm2[rsize - 3];
+                    Eigen::MatrixXd pi = ystrm1[i];
+                    Eigen::MatrixXd pkre = cal2p(pk, pnp, pi);
                     ystrm11.erase(ystrm11.begin() + k);
                     ystrm11.erase(ystrm11.begin() + i);
 
@@ -2837,22 +3901,42 @@ SparseMatrix4D calq(const basism& bas1,const basism& bas2,const std::vector<Eige
                     ystrm22.pop_back();
                     bas11.r.pop_back();
                     bas22.r.pop_back();
-                    SparseMatrix4D tt1=calq(bas11,bas22,ystrm11,ystrm22);
-                    term2=addMatrix4D(term2,tt1);
+                    SparseMatrix4D tt1 = calq(bas11, bas22, ystrm11, ystrm22);
+                    term2 = addMatrix4D(term2, tt1);
                     // std::cout<<"term2"<<std::endl;
                     // std::cout<<"k:"<<k<<"i"<<i<<std::endl;
                     // printNonZeroElements(term2);
-
                 }
             }
             // std::cout<<"term2"<<std::endl;
             // printNonZeroElements(term2);
-            term1= addMatrix4D(term1, term2);
+            term1 = addMatrix4D(term1, term2);
             // std::cout<<"resultmat"<<std::endl;
             // printNonZeroElements(resultmat);
+
+            // std::vector<SpMat> ystrm1_sparse=convertToSparseVector(ystrm1);
+            // std::vector<SpMat> ystrm2_sparse=convertToSparseVector(ystrm2);
+            // SparseMatrix4Dcc calq_sparse11=calq_sparse(bas1,bas2,ystrm1_sparse,ystrm2_sparse);
+            // bool check11=checkMatrixConsistency(term1,calq_sparse11);
+            // // --- 新增暂停逻辑 ---
+            // if (!check11) {
+            //     std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            //     std::cerr << "   [ERROR] check11 检查失败！稀疏矩阵计算结果不一致。" << std::endl;
+            //     std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+                
+            //     std::cout << "按回车键继续..." << std::endl;
+            //     // 清理输入缓冲区防止直接跳过
+            //     if (std::cin.peek() != EOF) {
+            //         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            //     }
+            //     std::cin.get(); // 暂停程序，等待按下回车
+            // }
+            // // -------------------
+
             return term1;
         }
-    }else
+    }
+    else
     {
         // if (bas1.r.size()==3)
         // {
@@ -2889,7 +3973,7 @@ SparseMatrix4D calq(const basism& bas1,const basism& bas2,const std::vector<Eige
         {
             Eigen::VectorXd s = ystrm1[0];
             Eigen::VectorXd sp = ystrm2[0];
-            const double t1 = sp.dot(s);  // 更高效的向量点积
+            const double t1 = sp.dot(s); // 更高效的向量点积
 
             Eigen::MatrixXd p1 = ystrm1[1];
             Eigen::MatrixXd p2 = ystrm1[2];
@@ -2898,11 +3982,12 @@ SparseMatrix4D calq(const basism& bas1,const basism& bas2,const std::vector<Eige
             Eigen::MatrixXd t2 = s * sp.transpose() * p1 + p1 * sp * s.transpose();
             Eigen::MatrixXd t3 = s * sp.transpose() * p2 + p2 * sp * s.transpose();
 
-
-            // 使用矩阵运算替代循环
-            #pragma omp parallel for collapse(2)
-            for (int a = 0; a < nucnum; ++a) {
-                for (int b = 0; b < nucnum; ++b) {
+// 使用矩阵运算替代循环
+#pragma omp parallel for collapse(2)
+            for (int a = 0; a < nucnum; ++a)
+            {
+                for (int b = 0; b < nucnum; ++b)
+                {
                     // 计算标量因子
                     const double scalar1 = t1 * p1(a, b) - t2(a, b);
                     const double scalar2 = t3(a, b);
@@ -2914,49 +3999,48 @@ SparseMatrix4D calq(const basism& bas1,const basism& bas2,const std::vector<Eige
             // auto end = std::chrono::high_resolution_clock::now();
             // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             // std::cout << "calgtime: " <<"\n"<< duration.count() << "μs\n"<<std::endl;
-            SparseMatrix4D term1=convertToSparse(resultmat);
-
+            SparseMatrix4D term1 = convertToSparse(resultmat);
 
             return term1;
         }
         else
         {
             Matrix4D re1(nucnum,
-            std::vector<Eigen::MatrixXd>(nucnum,Eigen::MatrixXd::Zero(nucnum, nucnum))  // 最内层是 5x5 矩阵
+                         std::vector<Eigen::MatrixXd>(nucnum, Eigen::MatrixXd::Zero(nucnum, nucnum)) // 最内层是 5x5 矩阵
             );
-            SparseMatrix4D term1=convertToSparse(re1);
-            SparseMatrix4D term2=term1;
-            SparseMatrix4D term3=term2;
-            for (int k=1;k<rsize;++k)
+            SparseMatrix4D term1 = convertToSparse(re1);
+            SparseMatrix4D term2 = term1;
+            SparseMatrix4D term3 = term2;
+            for (int k = 1; k < rsize; ++k)
             {
-                basism bas11=bas1;
-                basism bas22=bas2;
-                std::vector<Eigen::MatrixXd>ystrm11=ystrm1;
-                std::vector<Eigen::MatrixXd>ystrm22=ystrm2;
-                Eigen::MatrixXd pk=ystrm1[k];
+                basism bas11 = bas1;
+                basism bas22 = bas2;
+                std::vector<Eigen::MatrixXd> ystrm11 = ystrm1;
+                std::vector<Eigen::MatrixXd> ystrm22 = ystrm2;
+                Eigen::MatrixXd pk = ystrm1[k];
                 ystrm11.erase(ystrm11.begin() + k);
-                Eigen::MatrixXd pn=ystrm11.back();
-                Eigen::MatrixXd pnp=ystrm2[rsize-3];
-                Eigen::MatrixXd pkre=calsigp(pk,pn,pnp);
-                ystrm11.back()=pkre;
+                Eigen::MatrixXd pn = ystrm11.back();
+                Eigen::MatrixXd pnp = ystrm2[rsize - 3];
+                Eigen::MatrixXd pkre = calsigp(pk, pn, pnp);
+                ystrm11.back() = pkre;
                 ystrm22.pop_back();
                 bas11.r.pop_back();
                 bas22.r.pop_back();
-                SparseMatrix4D tt1=calq(bas11,bas22,ystrm11,ystrm22);
-                term1=addMatrix4D(term1,tt1);
+                SparseMatrix4D tt1 = calq(bas11, bas22, ystrm11, ystrm22);
+                term1 = addMatrix4D(term1, tt1);
             }
-            for (int k=2;k<rsize;++k)
+            for (int k = 2; k < rsize; ++k)
             {
-                for (int i=1;i<=k-1;++i)
+                for (int i = 1; i <= k - 1; ++i)
                 {
-                    basism bas11=bas1;
-                    basism bas22=bas2;
-                    std::vector<Eigen::MatrixXd>ystrm11=ystrm1;
-                    std::vector<Eigen::MatrixXd>ystrm22=ystrm2;
-                    Eigen::MatrixXd pk=ystrm1[k];
-                    Eigen::MatrixXd pnp=ystrm2[rsize-3];
-                    Eigen::MatrixXd pi=ystrm1[i];
-                    Eigen::MatrixXd pkre=cal2p(pk,pnp,pi);
+                    basism bas11 = bas1;
+                    basism bas22 = bas2;
+                    std::vector<Eigen::MatrixXd> ystrm11 = ystrm1;
+                    std::vector<Eigen::MatrixXd> ystrm22 = ystrm2;
+                    Eigen::MatrixXd pk = ystrm1[k];
+                    Eigen::MatrixXd pnp = ystrm2[rsize - 3];
+                    Eigen::MatrixXd pi = ystrm1[i];
+                    Eigen::MatrixXd pkre = cal2p(pk, pnp, pi);
                     ystrm11.erase(ystrm11.begin() + k);
                     ystrm11.erase(ystrm11.begin() + i);
 
@@ -2964,36 +4048,34 @@ SparseMatrix4D calq(const basism& bas1,const basism& bas2,const std::vector<Eige
                     ystrm22.pop_back();
                     bas11.r.pop_back();
                     bas22.r.pop_back();
-                    SparseMatrix4D tt1=calq(bas11,bas22,ystrm11,ystrm22);
-                    term2=addMatrix4D(term2,tt1);
-
+                    SparseMatrix4D tt1 = calq(bas11, bas22, ystrm11, ystrm22);
+                    term2 = addMatrix4D(term2, tt1);
                 }
             }
-            for (int k=1;k<rsize;++k)
+            for (int k = 1; k < rsize; ++k)
             {
-                basism bas11=bas1;
-                basism bas22=bas2;
-                std::vector<Eigen::MatrixXd>ystrm11=ystrm1;
-                std::vector<Eigen::MatrixXd>ystrm22=ystrm2;
-                Eigen::MatrixXd pk=ystrm1[k];
+                basism bas11 = bas1;
+                basism bas22 = bas2;
+                std::vector<Eigen::MatrixXd> ystrm11 = ystrm1;
+                std::vector<Eigen::MatrixXd> ystrm22 = ystrm2;
+                Eigen::MatrixXd pk = ystrm1[k];
                 ystrm11.erase(ystrm11.begin() + k);
-                Eigen::MatrixXd pnp=ystrm2[rsize-3];
-                Eigen::VectorXd s= ystrm1[0];
-                Eigen::MatrixXd pkre=4*(pk*pnp*s);
-                ystrm11[0]=pkre;
+                Eigen::MatrixXd pnp = ystrm2[rsize - 3];
+                Eigen::VectorXd s = ystrm1[0];
+                Eigen::MatrixXd pkre = 4 * (pk * pnp * s);
+                ystrm11[0] = pkre;
                 ystrm22.pop_back();
                 bas11.r.pop_back();
                 bas22.r.pop_back();
-                SparseMatrix4D tt1=calq(bas11,bas22,ystrm11,ystrm22);
-                term1=addMatrix4D(term1,tt1);
+                SparseMatrix4D tt1 = calq(bas11, bas22, ystrm11, ystrm22);
+                term1 = addMatrix4D(term1, tt1);
             }
-            term1= addMatrix4D(term1, term2);
+            term1 = addMatrix4D(term1, term2);
             return term1;
-
         }
     }
-
 }
+
 
 // Matrix4D gchange(Matrix4D gor)
 // {
@@ -3066,6 +4148,203 @@ SparseMatrix4D calq(const basism& bas1,const basism& bas2,const std::vector<Eige
 //
 //     return result;
 // }
+
+
+// 辅助：获取 S4 置换群的符号和索引映射
+// 4个索引的置换共有 24 种
+// 这是一个预计算的查找表，格式: { {p0, p1, p2, p3}, sign }
+const std::vector<std::pair<std::vector<int>, double>> S4_Permutations = {
+    {{0,1,2,3}, 1.0},  {{0,1,3,2}, -1.0}, {{0,2,1,3}, -1.0}, {{0,2,3,1}, 1.0},  {{0,3,1,2}, 1.0},  {{0,3,2,1}, -1.0},
+    {{1,0,2,3}, -1.0}, {{1,0,3,2}, 1.0},  {{1,2,0,3}, 1.0},  {{1,2,3,0}, -1.0}, {{1,3,0,2}, -1.0}, {{1,3,2,0}, 1.0},
+    {{2,0,1,3}, 1.0},  {{2,0,3,1}, -1.0}, {{2,1,0,3}, -1.0}, {{2,1,3,0}, 1.0},  {{2,3,0,1}, 1.0},  {{2,3,1,0}, -1.0},
+    {{3,0,1,2}, -1.0}, {{3,0,2,1}, 1.0},  {{3,1,0,2}, 1.0},  {{3,1,2,0}, -1.0}, {{3,2,0,1}, -1.0}, {{3,2,1,0}, 1.0}
+};
+
+// [修正版] 完全复刻原版 gchange 逻辑的稀疏版本
+SparseMatrix4Dcc gchange_sparse(const SparseMatrix4Dcc& gor)
+{
+    const int nucnum = gor.size();
+    const double one_sixth = 1.0 / 6.0;
+
+    // ============================================================
+    // 1. 索引收集阶段：只收集可能产生非零结果的 (a,b,c,d)
+    // ============================================================
+    std::vector<std::tuple<int, int, int, int>> active_tasks;
+    
+    #pragma omp parallel
+    {
+        std::vector<std::tuple<int, int, int, int>> local_indices;
+        
+        #pragma omp for collapse(2) nowait
+        for (int i = 0; i < nucnum; ++i) {
+            for (int j = 0; j < nucnum; ++j) {
+                // 安全检查：跳过未初始化或空的矩阵
+                if (gor(i, j).rows() == 0 || gor(i, j).cols() == 0 || gor(i, j).nonZeros() == 0) 
+                    continue;
+
+                const SpMat& inner = gor(i, j);
+                for (int k = 0; k < inner.outerSize(); ++k) {
+                    for (SpMat::InnerIterator it(inner, k); it; ++it) {
+                        // 收集产生此非零元的 4 个索引
+                        int idx[4] = {i, j, (int)it.row(), (int)it.col()};
+                        
+                        // 排序以符合原代码 a <= b <= c <= d 的计算逻辑
+                        std::sort(std::begin(idx), std::end(idx));
+                        
+                        // 存入候选列表
+                        local_indices.emplace_back(idx[0], idx[1], idx[2], idx[3]);
+                    }
+                }
+            }
+        }
+        
+        #pragma omp critical
+        {
+            active_tasks.insert(active_tasks.end(), local_indices.begin(), local_indices.end());
+        }
+    }
+
+    // 去重：因为一个 (a,b,c,d) 组合可能由 6 个不同的项贡献，只需计算一次
+    if (!active_tasks.empty()) {
+        std::sort(active_tasks.begin(), active_tasks.end());
+        active_tasks.erase(std::unique(active_tasks.begin(), active_tasks.end()), active_tasks.end());
+    }
+
+    // ============================================================
+    // 2. 并行计算阶段：计算 resum 并广播到 24 个位置
+    // ============================================================
+    
+    // 结果容器：triplets_map[i * nucnum + j] 存储 result(i, j) 的数据
+    std::vector<std::vector<Eigen::Triplet<double>>> triplets_map(nucnum * nucnum);
+
+    #pragma omp parallel
+    {
+        // 线程本地缓存
+        std::vector<std::vector<Eigen::Triplet<double>>> local_triplets(nucnum * nucnum);
+
+        // [关键修复] 安全读取函数：防止 segfault
+        auto safe_coeff = [&](int r, int c, int k, int l) -> double {
+            // 1. 外层越界检查
+            if (r >= nucnum || c >= nucnum) return 0.0;
+            
+            // 2. 获取矩阵引用
+            const SpMat& m = gor(r, c);
+            
+            // 3. 维度检查 (防止访问 0x0 矩阵)
+            if (m.rows() == 0 || m.cols() == 0) return 0.0;
+            
+            // 4. 内层越界检查
+            if (k >= m.rows() || l >= m.cols()) return 0.0;
+
+            // 5. 安全读取
+            return m.coeff(k, l);
+        };
+
+        #pragma omp for schedule(dynamic)
+        for (size_t t = 0; t < active_tasks.size(); ++t) {
+            const auto& idx = active_tasks[t];
+            int a = std::get<0>(idx);
+            int b = std::get<1>(idx);
+            int c = std::get<2>(idx);
+            int d = std::get<3>(idx);
+
+            // 计算 resum (6 项求和)
+            double t1 = safe_coeff(a, b, c, d);
+            double t2 = safe_coeff(a, c, b, d);
+            double t3 = safe_coeff(a, d, b, c);
+            double t4 = safe_coeff(b, c, a, d);
+            double t5 = safe_coeff(b, d, a, c);
+            double t6 = safe_coeff(c, d, a, b);
+
+            double resum = (t1 - t2 + t3 + t4 - t5 + t6) * one_sixth;
+
+            if (std::abs(resum) > 1e-15) {
+                double neg_resum = -resum;
+
+                // 显式广播到 24 个位置 (严格对应原代码逻辑)
+                // 宏定义简化代码量
+                #define ADD_TRIPLET(R, C, K, L, VAL) \
+                    local_triplets[(R) * nucnum + (C)].emplace_back((K), (L), (VAL))
+
+                // Block [a][b]
+                ADD_TRIPLET(a, b, c, d, resum);
+                ADD_TRIPLET(a, b, d, c, neg_resum);
+                // Block [a][c]
+                ADD_TRIPLET(a, c, b, d, neg_resum);
+                ADD_TRIPLET(a, c, d, b, resum);
+                // Block [a][d]
+                ADD_TRIPLET(a, d, b, c, resum);
+                ADD_TRIPLET(a, d, c, b, neg_resum);
+                
+                // Block [b][a]
+                ADD_TRIPLET(b, a, c, d, neg_resum);
+                ADD_TRIPLET(b, a, d, c, resum);
+                // Block [b][c]
+                ADD_TRIPLET(b, c, a, d, resum);
+                ADD_TRIPLET(b, c, d, a, neg_resum);
+                // Block [b][d]
+                ADD_TRIPLET(b, d, a, c, neg_resum);
+                ADD_TRIPLET(b, d, c, a, resum);
+                
+                // Block [c][a]
+                ADD_TRIPLET(c, a, b, d, resum);
+                ADD_TRIPLET(c, a, d, b, neg_resum);
+                // Block [c][b]
+                ADD_TRIPLET(c, b, a, d, neg_resum);
+                ADD_TRIPLET(c, b, d, a, resum);
+                // Block [c][d]
+                ADD_TRIPLET(c, d, a, b, resum);
+                ADD_TRIPLET(c, d, b, a, neg_resum);
+                
+                // Block [d][a]
+                ADD_TRIPLET(d, a, b, c, neg_resum);
+                ADD_TRIPLET(d, a, c, b, resum);
+                // Block [d][b]
+                ADD_TRIPLET(d, b, a, c, resum);
+                ADD_TRIPLET(d, b, c, a, neg_resum);
+                // Block [d][c]
+                ADD_TRIPLET(d, c, a, b, neg_resum);
+                ADD_TRIPLET(d, c, b, a, resum);
+
+                #undef ADD_TRIPLET
+            }
+        }
+
+        // 合并到全局
+        #pragma omp critical
+        {
+            for (int i = 0; i < nucnum * nucnum; ++i) {
+                if (!local_triplets[i].empty()) {
+                    triplets_map[i].insert(triplets_map[i].end(), 
+                                         local_triplets[i].begin(), 
+                                         local_triplets[i].end());
+                }
+            }
+        }
+    }
+
+    // ============================================================
+    // 3. 构建结果阶段：确保所有矩阵都被正确初始化
+    // ============================================================
+    SparseMatrix4Dcc result(nucnum, nucnum);
+
+    #pragma omp parallel for collapse(2)
+    for (int i = 0; i < nucnum; ++i) {
+        for (int j = 0; j < nucnum; ++j) {
+            // [关键修复] 无论是否有数据，必须 resize，防止后续访问 0x0 矩阵崩溃
+            result(i, j).resize(nucnum, nucnum); 
+            
+            const auto& trips = triplets_map[i * nucnum + j];
+            if (!trips.empty()) {
+                result(i, j).setFromTriplets(trips.begin(), trips.end());
+                result(i, j).makeCompressed();
+            }
+        }
+    }
+
+    return result;
+}
+
 
 Matrix4D gchange(const Matrix4D& gor)//_optimized
 {
@@ -3611,17 +4890,236 @@ Eigen::MatrixXd tensor_to_matrix(const Eigen::Tensor<double, 2>& tensor)
 }
 
 
+// 假设这些辅助函数已经适配为稀疏版本
+// SparseMatrix4Dcc calt_sparse(const basism& bas1, const basism& bas2, const std::vector<SpMat>& ystrm1, const std::vector<SpMat>& ystrm2);
+// SparseMatrix4Dcc convertToSparseTensor(const Eigen::Tensor<double, 3>& t); // 如果无法完全稀疏化，可能需要这种转换
+// Matrix4D gchange_sparse(const SparseMatrix4Dcc& qca); // 或者返回稀疏结构
+
+// 为了处理 bas1.r[0] != 0 部分的 Tensor 逻辑，我们需要定义一个稀疏的 3D 结构
+// 这里假设 SparseMatrix4Dcc 的每一行 i 代表 Tensor 的第 i 个切片 (rank-2 matrix)
+// 即: mat4d(i, 0) 代表 Tensor[i, :, :]
+
+SpMat calb_sparse(const basism& bas1, const basism& bas2, 
+                  const std::vector<SpMat>& ystrm1, 
+                  const std::vector<SpMat>& ystrm2)
+{
+    int nucnum = nucleusm.size();
+    
+    // 结果是 2D 稀疏矩阵
+    SpMat resultmat(nucnum, nucnum); 
+
+    int rsize = ystrm1.size();
+    if (ystrm1.size() - ystrm2.size() != 1) {
+        throw std::invalid_argument("ystrm1 and ystrm2 size mismatch in calb_sparse");
+    }
+
+    if (bas1.r[0] == 0)
+    {
+        if (bas1.r.size() == 3)
+        {
+            SpMat p1p = ystrm2[1];
+            SpMat p1 = ystrm1[1];
+            SpMat p2 = ystrm1[2];
+
+            // 逻辑同 calq_sparse 的一部分
+            // t1 = p1*p1p*p2
+            SpMat t1 = (p1 * p1p * p2).pruned(1e-12);
+            // t2 = p2*p1p*p1
+            SpMat t2 = (p2 * p1p * p1).pruned(1e-12);
+            // t3 = 4*(t1+t2)
+            SpMat t3 = (4.0 * (t1 + t2)).pruned(1e-12);
+
+            // t11 = p1*p1p
+            SpMat t11 = (p1 * p1p).pruned(1e-12);
+            double t311 = t11.diagonal().sum() * 2.0;
+            // t22 = t311 * p2
+            SpMat t22 = (t311 * p2).pruned(1e-12);
+
+            // t4 = p2*p1p
+            SpMat t4 = (p2 * p1p).pruned(1e-12);
+            double t44 = t4.diagonal().sum() * 2.0;
+            // t55 = t44 * p1
+            SpMat t55 = (t44 * p1).pruned(1e-12);
+
+            // result = t3 - (t55 + t22)
+            SpMat t66 = t55 + t22;
+            resultmat = (t3 - t66).pruned(1e-12);
+            return resultmat;
+        }
+        else if (bas1.r.size() == 2)
+        {
+            return ystrm1[1]; // 直接返回 p1
+        }
+        else // r > 3 (Complex Tensor Contraction)
+        {
+            basism bas22 = bas2;
+            SpMat pn_1 = ystrm2[rsize - 2]; // 最后一个矩阵
+            std::vector<SpMat> ystrm22 = ystrm2;
+            ystrm22.pop_back();
+            bas22.r.pop_back();
+
+            // 1. 调用 calq_sparse (返回 SparseMatrix4Dcc)
+            SparseMatrix4Dcc qca_sparse = calq_sparse(bas1, bas22, ystrm1, ystrm22);
+
+            // 2. 调用 gchange 的稀疏版本
+            // 假设 gchange_sparse 接收 SparseMatrix4Dcc 并返回转换后的 SparseMatrix4Dcc
+            // [TODO] 你需要实现 gchange_sparse
+            SparseMatrix4Dcc qbar_sparse = gchange_sparse(qca_sparse);
+
+            // 3. 收缩计算 (Contraction)
+            // 原逻辑: sum(qbar[a][b] .* pn_1) * 12
+            // 稀疏优化：
+            // qbar[a][b] 是一个矩阵，pn_1 也是一个矩阵
+            // cwiseProduct(pn_1).sum() 其实就是 Frobenius Inner Product (如果都是稠密)
+            // 对于稀疏矩阵: sum(A_ij * B_ij)
+            // 可以通过遍历其中一个矩阵的非零元来实现
+
+            // 我们可以用 triplets 构建结果矩阵
+            std::vector<Triplet> tripletList;
+            tripletList.reserve(nucnum * 2); // 预估
+
+            // 并行遍历 qbar 的每个块
+            #pragma omp parallel 
+            {
+                std::vector<Triplet> thread_triplets;
+                
+                #pragma omp for collapse(2) nowait
+                for (int a = 0; a < nucnum; ++a) {
+                    for (int b = 0; b < nucnum; ++b) {
+                        const SpMat& q_block = qbar_sparse(a, b);
+                        
+                        // 如果块为空，跳过
+                        if (q_block.nonZeros() == 0) continue;
+
+                        // 计算点积: <q_block, pn_1> = sum(q_ij * p_ij)
+                        // 优化：只遍历非零元较少的那个矩阵
+                        double matsum = 0.0;
+                        if (q_block.nonZeros() < pn_1.nonZeros()) {
+                            for (int k = 0; k < q_block.outerSize(); ++k) {
+                                for (SpMat::InnerIterator it(q_block, k); it; ++it) {
+                                    matsum += it.value() * pn_1.coeff(it.row(), it.col());
+                                }
+                            }
+                        } else {
+                            for (int k = 0; k < pn_1.outerSize(); ++k) {
+                                for (SpMat::InnerIterator it(pn_1, k); it; ++it) {
+                                    matsum += it.value() * q_block.coeff(it.row(), it.col());
+                                }
+                            }
+                        }
+
+                        if (std::abs(matsum) > 1e-14) {
+                            thread_triplets.emplace_back(a, b, 12.0 * matsum);
+                        }
+                    }
+                }
+                
+                #pragma omp critical
+                tripletList.insert(tripletList.end(), thread_triplets.begin(), thread_triplets.end());
+            }
+
+            resultmat.setFromTriplets(tripletList.begin(), tripletList.end());
+            return resultmat;
+        }
+    }
+    else // bas1.r[0] != 0 (Complex Case)
+    {
+        if (bas1.r.size() == 2)
+        {
+            SpMat s = ystrm1[0]; 
+            SpMat sp = ystrm2[0];
+            SpMat p1 = ystrm1[1];
+
+            // 1. 点积 t1 = sp.T * s
+            SpMat dot_temp = sp.transpose() * s;
+            double t1 = dot_temp.coeff(0,0);
+
+            // 2. 矩阵 t2 = s * sp.T
+            SpMat t2 = s * sp.transpose();
+
+            // 3. 矩阵 t3 = sp * s.T
+            SpMat t3 = sp * s.transpose();
+
+            // result = t1*p1 - t2*p1 - p1*t3
+            // 注意稀疏矩阵乘法顺序和 pruned
+            SpMat term1 = t1 * p1; // 标量乘法
+            SpMat term2 = t2 * p1;
+            SpMat term3 = p1 * t3;
+
+            resultmat = (term1 - term2 - term3).pruned(1e-12);
+            return resultmat;
+        }
+        else
+        {
+            // [复杂 Tensor 部分]
+            // 原逻辑：
+            // Eigen::Tensor<double, 3> t1 = calt(...)
+            // Eigen::Tensor<double, 3> t2 = tchange(t1)
+            // tensor2dsum += 3 * sp(c) * t2.chip(c, 2)
+            
+            SpMat sp = ystrm2[0]; // Vector
+            std::vector<SpMat> ystrm22 = ystrm2;
+            
+            // 构造单位稀疏矩阵
+            SpMat identity(nucnum, nucnum);
+            identity.setIdentity();
+            ystrm22[0] = identity;
+
+            basism bas22 = bas2;
+            bas22.r[0] = 0;
+
+            // [假设] calt_sparse 返回一个代表 3D Tensor 的结构
+            // 这里的 SparseMatrix4Dcc 可以视作一个 3D 结构：Size x 1 x Matrix
+            // 或者我们定义它返回 vector<SpMat>
+            // [TODO] 你需要实现 calt_sparse
+            // SparseMatrix4Dcc t1_sparse = calt_sparse(bas1, bas22, ystrm1, ystrm22);
+
+            // [假设] tchange_sparse 进行 Tensor 转置/重排
+            // [TODO] 你需要实现 tchange_sparse
+            // SparseMatrix4Dcc t2_sparse = tchange_sparse(t1_sparse);
+
+            // 模拟计算 tensor2dsum
+            // 原逻辑：sum over c (3 * sp(c) * t2_slice_c)
+            
+            /* 伪代码实现：
+            SpMat tensor2dsum(nucnum, nucnum);
+            for (int c = 0; c < nucnum; ++c) {
+                double coef = sp.coeff(c, 0); // 获取向量元素
+                if (std::abs(coef) < 1e-14) continue;
+
+                // 获取切片 t2_sparse(c)
+                // 假设 t2_sparse 的第 c 行 0 列 存储的是 chip(c, 2) 对应的矩阵
+                const SpMat& tslice = t2_sparse(c, 0); 
+
+                tensor2dsum += (3.0 * coef * tslice);
+            }
+            resultmat = tensor2dsum.pruned(1e-12);
+            */
+            
+            // 由于这部分依赖 calt 的具体实现，暂时返回全零或抛异常
+            // throw std::runtime_error("calt_sparse not implemented yet");
+            return resultmat; 
+        }
+    }
+}
+
+
+
 
 
 Eigen::MatrixXd calb(const basism& bas1,const basism& bas2,const std::vector<Eigen::MatrixXd>&ystrm1,const std::vector<Eigen::MatrixXd>&ystrm2)
 {
-    // auto start = std::chrono::high_resolution_clock::now();
-
     int nucnum=nucleusm.size();
+    int rsize=ystrm1.size();
+    // auto start = std::chrono::high_resolution_clock::now();
+    
+
+
+    
     int nnp=ystrm2.size();
     int nn=ystrm1.size();
     Eigen::MatrixXd resultmat= Eigen::MatrixXd::Zero(nucnum, nucnum);
-    int rsize=ystrm1.size();
+
     // 检查输入是否有效
     if (ystrm1.size() - ystrm2.size()!=1) {
         throw std::invalid_argument("ystrm1 and ystrm2 must have the same size!");
@@ -3644,6 +5142,32 @@ Eigen::MatrixXd calb(const basism& bas1,const basism& bas2,const std::vector<Eig
             Eigen::MatrixXd t55=t44*p1;
             Eigen::MatrixXd t66=t55+t22;
             Eigen::MatrixXd resultq1=t3-t66;
+
+            // std::vector<SpMat> ystrm1_sparse=convertToSparseVector(ystrm1);
+            // std::vector<SpMat> ystrm2_sparse=convertToSparseVector(ystrm2);
+            // SpMat calb_cc=calb_sparse(bas1,bas2,ystrm1_sparse,ystrm2_sparse);
+
+
+            // bool check11=isSparseEqualDense_Debug(calb_cc,resultq1);
+            // // --- 新增暂停逻辑 ---
+            // if (!check11) {
+            //     std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            //     std::cerr << "   [ERROR] check11 检查失败！稀疏矩阵计算结果不一致。" << std::endl;
+            //     std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+                
+            //     std::cout << "按回车键继续..." << std::endl;
+            //     // 清理输入缓冲区防止直接跳过
+            //     if (std::cin.peek() != EOF) {
+            //         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            //     }
+            //     std::cin.get(); // 暂停程序，等待按下回车
+            // }
+            // -------------------
+
+
+
+
+
             return resultq1;
         }else if (bas1.r.size()==2)
         {
@@ -3661,6 +5185,23 @@ Eigen::MatrixXd calb(const basism& bas1,const basism& bas2,const std::vector<Eig
             // std::cout<<"qca"<<std::endl;
             // printNonZeroElements(qca);
             Matrix4D qbar= gchange(qca);
+            // SparseMatrix4Dcc cc1=convertToSparse1(qca);
+            // SparseMatrix4Dcc cc2=gchange_sparse(cc1);
+            // bool check111=checkMatrixConsistency(qbar,cc2);
+            // // --- 新增暂停逻辑 ---
+            // if (!check111) {
+            //     std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            //     std::cerr << "   [ERROR] qbar 检查失败！稀疏矩阵计算结果不一致。" << std::endl;
+            //     std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+                
+            //     std::cout << "按回车键继续..." << std::endl;
+            //     // 清理输入缓冲区防止直接跳过
+            //     if (std::cin.peek() != EOF) {
+            //         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            //     }
+            //     std::cin.get(); // 暂停程序，等待按下回车
+            // }
+
             // auto end = std::chrono::high_resolution_clock::now();
             // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             // std::cout <<"time1:"<< duration.count() << std::endl;
@@ -3680,6 +5221,27 @@ Eigen::MatrixXd calb(const basism& bas1,const basism& bas2,const std::vector<Eig
             // end = std::chrono::high_resolution_clock::now();
             // duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
             // std::cout <<"time2:"<< duration.count() << std::endl;
+
+            //             std::vector<SpMat> ystrm1_sparse=convertToSparseVector(ystrm1);
+            // std::vector<SpMat> ystrm2_sparse=convertToSparseVector(ystrm2);
+            // SpMat calb_cc=calb_sparse(bas1,bas2,ystrm1_sparse,ystrm2_sparse);
+
+
+            // bool check11=isSparseEqualDense_Debug(calb_cc,resultmat);
+            // // --- 新增暂停逻辑 ---
+            // if (!check11) {
+            //     std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            //     std::cerr << "   [ERROR] check11 检查失败！稀疏矩阵计算结果不一致。" << std::endl;
+            //     std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+                
+            //     std::cout << "按回车键继续..." << std::endl;
+            //     // 清理输入缓冲区防止直接跳过
+            //     if (std::cin.peek() != EOF) {
+            //         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            //     }
+            //     std::cin.get(); // 暂停程序，等待按下回车
+            // }
+
             return resultmat;
 
         }
@@ -5081,6 +6643,296 @@ void printAsymmetricElements(const Matrix4D& tensor) {
 //
 // }
 
+// change in 1218
+
+std::vector<Eigen::MatrixXd> temp_sparse_to_dense(const std::vector<SpMat>& sparse_vec) {
+    std::vector<Eigen::MatrixXd> dense_vec;
+    dense_vec.reserve(sparse_vec.size());
+    for (const auto& sp : sparse_vec) {
+        dense_vec.push_back(Eigen::MatrixXd(sp));
+    }
+    return dense_vec;
+}
+
+// ==========================================
+// 辅助函数 1: m2tom4sp (全稀疏版本)
+// 逻辑: result[a][b] += 4 * pip(a,b) * bmat
+// 输入: pip 是稀疏矩阵，bmat 是稀疏矩阵
+// ==========================================
+void m2tom4sp(const SpMat& pip, const SpMat& bmat, SparseMatrix4Dcc& resultmat)
+{
+    // 如果 bmat 是空的，乘什么都是 0，直接跳过
+    if (bmat.nonZeros() == 0) return;
+
+    // 遍历 pip 的每一个非零元
+    // pip(a, b) = val
+    // 则 resultmat[a][b] += 4 * val * bmat
+    
+    // 并行化：按 pip 的列并行 (Eigen 稀疏矩阵是列优先)
+    #pragma omp parallel for schedule(dynamic)
+    for (int k = 0; k < pip.outerSize(); ++k) {
+        for (SpMat::InnerIterator it(pip, k); it; ++it) {
+            int a = it.row();
+            int b = it.col();
+            double val = it.value();
+
+            if (std::abs(val) > 1e-14) {
+                // 这里的写入操作 resultmat(a,b) 是独立的吗？
+                // 是的，不同的 (a,b) 对应不同的矩阵块，没有竞态条件。
+                // 只要 resultmat 已经 resize 好了。
+                
+                // 优化：标量乘法
+                SpMat term = (4.0 * val * bmat).pruned(1e-12);
+                
+                // 这里的 += 对于 SparseMatrix 来说可能涉及内存分配
+                // 但由于不同线程操作不同的 (a,b)，是安全的
+                if (resultmat(a, b).nonZeros() == 0) {
+                    resultmat(a, b) = term;
+                } else {
+                    resultmat(a, b) += term;
+                }
+            }
+        }
+    }
+}
+
+// ==========================================
+// 辅助函数 2: m4tom4sp (全稀疏版本)
+// 逻辑: 利用 (pipa * Q * pipb) 的稀疏乘法加速
+// 输入: pipa, pipb, qmat 均为稀疏结构
+// ==========================================
+void m4tom4sp(const SpMat& pipa, const SpMat& pipb, 
+              const SparseMatrix4Dcc& qmat, SparseMatrix4Dcc& resultmat)
+{
+    const int nucnum = pipa.rows();
+
+    // 中间结构：收集三元组，避免直接操作 resultmat 导致锁竞争
+    // Key: a*N + b
+    std::vector<std::vector<Eigen::Triplet<double>>> triplets_map(nucnum * nucnum);
+
+    #pragma omp parallel
+    {
+        std::vector<std::vector<Eigen::Triplet<double>>> local_triplets(nucnum * nucnum);
+
+        // 并行遍历 qmat 的块 (c, d)
+        #pragma omp for collapse(2) schedule(dynamic)
+        for (int c = 0; c < nucnum; ++c) {
+            for (int d = 0; d < nucnum; ++d) {
+                const SpMat& q_cd = qmat(c, d);
+                if (q_cd.nonZeros() == 0) continue;
+
+                // 核心优化：直接进行稀疏矩阵三连乘
+                // Term1(a,b) = (pipa * q_cd * pipb) * 96
+                // Term2(a,b) = (pipb * q_cd * pipa) * 96
+                
+                // 1. 计算 Term1
+                SpMat term1 = (pipa * q_cd * pipb).pruned(1e-12);
+                
+                // 2. 散射 Term1 的元素到 resultmat
+                // term1 的 (a, b) 元素值，应该加到 resultmat[a][b] 的 (c, d) 位置
+                for (int k = 0; k < term1.outerSize(); ++k) {
+                    for (SpMat::InnerIterator it(term1, k); it; ++it) {
+                        int a = it.row();
+                        int b = it.col();
+                        local_triplets[a * nucnum + b].emplace_back(c, d, it.value() * 96.0);
+                    }
+                }
+
+                // 3. 计算 Term2 (如果 pipa != pipb 才算，否则直接 *2 优化? 
+                // 也就是如果 pipa 和 pipb 是同一个对象，term1 == term2 的转置? 不一定)
+                // 这里按原逻辑分开算最稳妥
+                SpMat term2 = (pipb * q_cd * pipa).pruned(1e-12);
+                
+                for (int k = 0; k < term2.outerSize(); ++k) {
+                    for (SpMat::InnerIterator it(term2, k); it; ++it) {
+                        int a = it.row();
+                        int b = it.col();
+                        local_triplets[a * nucnum + b].emplace_back(c, d, it.value() * 96.0);
+                    }
+                }
+            }
+        }
+
+        #pragma omp critical
+        {
+            for (int i = 0; i < nucnum * nucnum; ++i) {
+                if (!local_triplets[i].empty()) {
+                    triplets_map[i].insert(triplets_map[i].end(), 
+                                         local_triplets[i].begin(), 
+                                         local_triplets[i].end());
+                }
+            }
+        }
+    }
+
+    // 构建结果
+    #pragma omp parallel for collapse(2)
+    for (int a = 0; a < nucnum; ++a) {
+        for (int b = 0; b < nucnum; ++b) {
+            const auto& trips = triplets_map[a * nucnum + b];
+            if (trips.empty()) continue;
+
+            // 确保已初始化
+            if (resultmat(a, b).size() == 0) resultmat(a, b).resize(nucnum, nucnum);
+
+            SpMat temp(nucnum, nucnum);
+            temp.setFromTriplets(trips.begin(), trips.end());
+            
+            resultmat(a, b) += temp;
+        }
+    }
+}
+
+// ==========================================
+// 主函数: calg_sp (适配稀疏输入)
+// ==========================================
+SparseMatrix4Dcc calg_sp(const basism& bas1, const basism& bas2, 
+                         const std::vector<SpMat>& ystrm1, 
+                         const std::vector<SpMat>& ystrm2)
+{
+    int nucnum = nucleusm.size();
+    int nnp = ystrm2.size();
+
+    // 1. 初始化结果，强制 Resize 防止 Segfault
+    SparseMatrix4Dcc resultmatsp(nucnum, nucnum);
+    for(int i=0; i<nucnum; ++i)
+        for(int j=0; j<nucnum; ++j) 
+            resultmatsp(i, j).resize(nucnum, nucnum);
+
+    // ==========================================
+    // Term 1: 循环 k
+    // ==========================================
+    for (int k = 1; k < nnp; ++k)
+    {
+        basism bas22 = bas2;
+        std::vector<SpMat> ystrm22 = ystrm2; // 稀疏向量拷贝
+        
+        ystrm22.erase(ystrm22.begin() + k);
+        bas22.r.erase(bas22.r.begin() + k);
+        
+        const SpMat& pkp = ystrm2[k]; // 稀疏矩阵
+        
+        // 调用 calb_sparse (返回 SpMat)
+        SpMat bcal = calb_sparse(bas1, bas22, ystrm1, ystrm22);
+        
+        // 调用新版 m2tom4sp (输入都是 SpMat)
+        m2tom4sp(pkp, bcal, resultmatsp);
+    }
+
+    // ==========================================
+    // Term 2: 双重循环 k, i
+    // ==========================================
+    for (int k = 2; k < nnp; ++k)
+    {
+        for (int i = 1; i <= k - 1; ++i)
+        {
+            basism bas22 = bas2;
+            std::vector<SpMat> ystrm22 = ystrm2;
+            
+            // 注意顺序：先删后面 k，再删前面 i
+            ystrm22.erase(ystrm22.begin() + k);
+            ystrm22.erase(ystrm22.begin() + i);
+            bas22.r.erase(bas22.r.begin() + k);
+            bas22.r.erase(bas22.r.begin() + i);
+            
+            const SpMat& pkp = ystrm2[k];
+            const SpMat& pip = ystrm2[i];
+            
+            // 调用 calq_sparse (返回 SparseMatrix4Dcc)
+            SparseMatrix4Dcc qcal = calq_sparse(bas1, bas22, ystrm1, ystrm22);
+            
+            // 调用 gchange_sparse (返回 SparseMatrix4Dcc)
+            SparseMatrix4Dcc qbar = gchange_sparse(qcal);
+            
+            // 调用新版 m4tom4sp (输入都是稀疏结构)
+            m4tom4sp(pkp, pip, qbar, resultmatsp);
+        }
+    }
+
+    // ==========================================
+    // Term 3: r[0] != 0 (Tensor 部分)
+    // ==========================================
+    if (bas1.r[0] != 0)
+    {
+        // 这里的 Tensor 计算极其复杂且暂时没有稀疏版辅助函数。
+        // 为了代码能跑通，我们临时转为稠密计算，再转回稀疏累加。
+        // [性能瓶颈提示]：未来需要实现 calt_sparse。
+        
+        // 1. 转为稠密向量以适配旧函数
+        std::vector<Eigen::MatrixXd> ystrm1_dense = convertToDenseVector(ystrm1);
+        std::vector<Eigen::MatrixXd> ystrm2_dense = convertToDenseVector(ystrm2);
+        Eigen::VectorXd sp = ystrm2_dense[0]; // Dense Vector
+
+        for (int k = 1; k < nnp; ++k)
+        {
+            basism bas22 = bas2;
+            std::vector<Eigen::MatrixXd> ystrm22_dense = ystrm2_dense;
+            
+            ystrm22_dense.erase(ystrm22_dense.begin() + k);
+            bas22.r.erase(bas22.r.begin() + k);
+            
+            const Eigen::MatrixXd& pkp_dense = ystrm2_dense[k]; // Dense
+            
+            // 调用旧版 calt (稠密)
+            Eigen::Tensor<double, 3> t1 = calt(bas1, bas22, ystrm1_dense, ystrm22_dense);
+            Eigen::Tensor<double, 3> tmat = tchange(t1);
+            
+            // ------------------------------------------------
+            // 核心计算逻辑 (Tensor 收缩)
+            // ------------------------------------------------
+            // 原逻辑：term3[a][b] += 12 * (term from tensor)
+            // 这里我们优化一下：在计算过程中直接写入 resultmatsp
+            
+            // 将 Tensor 切片预转为 SparseMatrix 向量
+            std::vector<SpMat> tmat_sp(nucnum);
+            for(int p=0; p<nucnum; ++p) {
+                Eigen::Tensor<double, 2> chip = tmat.chip(p, 0);
+                Eigen::Map<Eigen::MatrixXd> map(chip.data(), nucnum, nucnum);
+                tmat_sp[p] = map.sparseView(1e-12, 1.0);
+            }
+            
+            #pragma omp parallel for collapse(2) schedule(dynamic)
+            for (int a = 0; a < nucnum; ++a) {
+                for (int b = 0; b < nucnum; ++b) {
+                    double spa = sp(a);
+                    double spb = sp(b);
+                    if (std::abs(spa) < 1e-14 && std::abs(spb) < 1e-14) continue;
+                    
+                    Eigen::RowVectorXd row_b = pkp_dense.row(b); // pkp_dense 访问更快
+                    Eigen::RowVectorXd row_a = pkp_dense.row(a);
+                    
+                    SpMat sum_mat(nucnum, nucnum);
+                    bool has_data = false;
+                    
+                    for (int ap = 0; ap < nucnum; ++ap) {
+                        double val = 0.0;
+                        if (std::abs(spa) > 1e-14) val += spa * row_b(ap);
+                        if (std::abs(spb) > 1e-14) val -= spb * row_a(ap);
+                        
+                        if (std::abs(val) > 1e-14) {
+                            if (!has_data) {
+                                sum_mat = (12.0 * val) * tmat_sp[ap];
+                                has_data = true;
+                            } else {
+                                sum_mat += (12.0 * val) * tmat_sp[ap];
+                            }
+                        }
+                    }
+                    
+                    if (has_data) {
+                        #pragma omp critical
+                        {
+                            resultmatsp(a, b) += sum_mat;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return resultmatsp;
+}
+
 Matrix4D_sp calg_sp(const basism& bas1,const basism& bas2,const std::vector<Eigen::MatrixXd>&ystrm1,const std::vector<Eigen::MatrixXd>&ystrm2)
 {
     // auto start = std::chrono::high_resolution_clock::now();
@@ -5191,6 +7043,39 @@ Matrix4D_sp calg_sp(const basism& bas1,const basism& bas2,const std::vector<Eige
     // auto end = std::chrono::high_resolution_clock::now();
     // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
     // std::cout << "gcal time: " << duration.count() << "μs\n";
+
+    // ============================================================
+    // 🛡️ 验证模块：调用新版 calg_sp 并对比
+    // ============================================================
+    if(0==1)
+    { // 加大括号限制变量作用域，不污染外部
+        std::cout << "\n[DEBUG] Running verification inside old calg..." << std::endl;
+
+        // 1. 转换输入为稀疏格式
+        std::vector<SpMat> ystrm1_sp = convertToSparseVector(ystrm1);
+        std::vector<SpMat> ystrm2_sp = convertToSparseVector(ystrm2);
+
+        // 2. 调用新版函数 (注意：你需要确保 calg_sp 已经声明或定义在前面)
+        SparseMatrix4Dcc result_sp_new = calg_sp(bas1, bas2, ystrm1_sp, ystrm2_sp);
+
+        // 3. 对比结果 (Old Dense Result vs New Sparse Result)
+        bool is_correct = checkOldSparseVsNewSparse(resultmatsp, result_sp_new);
+
+        // 4. 如果不对，暂停程序
+        if (!is_correct) {
+            std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            std::cerr << "   [CRITICAL ERROR] 新版 calg_sp 结果与旧版不一致！" << std::endl;
+            std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            
+            // 打印不一致的具体位置（可选 debug4D）
+            // debug4D(result_sp_new, 0, 0); 
+
+            std::cout << "按回车键继续运行 (或 Ctrl+C 终止)..." << std::endl;
+            if (std::cin.peek() != EOF) std::cin.ignore(10000, '\n');
+            std::cin.get();
+        }
+    }
+    // ============================================================
 
     return resultmatsp;
 
@@ -5352,6 +7237,120 @@ Matrix4D_sp calg_sp(const basism& bas1,const basism& bas2,const std::vector<Eige
 //
 // }
 
+
+Eigen::MatrixXd calf_sparse_input(const basism& bas1, const basism& bas2, 
+                                  const std::vector<SpMat>& ystrm1, 
+                                  const std::vector<SpMat>& ystrm2)
+{
+    int nucnum = nucleusm.size(); // 假设全局变量
+    int sizer = ystrm1.size();
+    
+    // 结果仍然保留为稠密矩阵（通常最终的哈密顿量矩阵元需要是稠密的以便对角化，或者是为了累加方便）
+    // 如果你想返回稀疏矩阵，可以将类型改为 SpMat
+    Eigen::MatrixXd term1 = Eigen::MatrixXd::Zero(nucnum, nucnum);
+    
+    // ==========================================================
+    // Part 1: Term1 计算 (全稀疏链路)
+    // ==========================================================
+    
+    #pragma omp parallel
+    {
+        // 线程私有累加器，避免锁竞争
+        Eigen::MatrixXd term1_private = Eigen::MatrixXd::Zero(nucnum, nucnum);
+
+        #pragma omp for schedule(dynamic)
+        for (int k = 1; k < sizer; ++k)
+        {
+            // 1. 构建子向量 (避免深拷贝，只拷贝结构)
+            basism bas22 = bas2;
+            std::vector<SpMat> ystrm22;
+            ystrm22.reserve(sizer - 1);
+            
+            for(int i = 0; i < sizer; ++i) {
+                if(i == k) continue;
+                ystrm22.push_back(ystrm2[i]);
+            }
+            bas22.r.erase(bas22.r.begin() + k);
+
+            // 2. 获取稀疏矩阵 pkp
+            const SpMat& pkp = ystrm2[k];
+
+            // 3. 调用 calb_sparse (返回 SpMat)
+            // 关键：这里调用稀疏版本的 calb
+            SpMat bcal = calb_sparse(bas1, bas22, ystrm1, ystrm22);
+
+            // 4. 稀疏矩阵乘法: pkp * bcal^T
+            // 结果可能是稠密的，所以这里直接赋值给 MatrixXd
+            // 优化：分步计算转置，或者让 Eigen 自动处理
+            // Eigen 能够处理 Sparse * Sparse -> Dense
+            term1_private += pkp * bcal.transpose();
+        }
+
+        #pragma omp critical
+        {
+            term1 += term1_private;
+        }
+    }
+
+    term1 *= 4.0;
+
+    // ==========================================================
+    // Part 2: Term2 计算 (混合模式)
+    // ==========================================================
+    if (bas1.r[0] != 0)
+    {
+        // 这里的 calt 和 tchange 可能还没有稀疏版本。
+        // 为了让代码能跑通，我们需要临时把稀疏输入转回稠密传给 calt。
+        // [TODO]: 未来请实现 calt_sparse 以彻底消除这里的性能瓶颈。
+        
+        // 1. 临时转换数据
+        std::vector<Eigen::MatrixXd> ystrm1_dense = convertToDenseVector(ystrm1);
+        std::vector<Eigen::MatrixXd> ystrm2_dense = convertToDenseVector(ystrm2);
+        
+        basism bas22 = bas2;
+        std::vector<Eigen::MatrixXd> ystrm22 = ystrm2_dense;
+        Eigen::MatrixXd pnp = ystrm22.back();
+        
+        ystrm22.pop_back();
+        bas22.r.pop_back();
+
+        // 2. 调用稠密版 Tensor 计算
+        Eigen::Tensor<double, 3> t1 = calt(bas1, bas22, ystrm1_dense, ystrm22);
+        Eigen::Tensor<double, 3> tchangecal = tchange(t1);
+        
+        const SpMat& sp_sparse = ystrm2[0]; // 稀疏向量
+
+        // 3. 计算 Term2 (降维优化)
+        // term2(a, b) = 6 * sp(a) * sum_{c,d}(Tensor(b,c,d) * pnp(c,d))
+        
+        Eigen::VectorXd intermediate(nucnum);
+
+        #pragma omp parallel for schedule(static)
+        for (int b = 0; b < nucnum; ++b)
+        {
+            // 获取 Tensor 切片 (Dense)
+            Eigen::Tensor<double, 2> tensor_slice = tchangecal.chip(b, 0); 
+            Eigen::Map<Eigen::MatrixXd> slice_mat(tensor_slice.data(), nucnum, nucnum);
+
+            // 计算点积: sum( Slice * Pnp )
+            // Pnp 是稠密的，Slice 是稠密的，直接 cwiseProduct
+            double slice_sum = slice_mat.cwiseProduct(pnp).sum();
+            intermediate(b) = slice_sum;
+        }
+
+        // 4. 计算外积: 6 * sp * intermediate^T
+        // sp 是稀疏向量，intermediate 是稠密向量
+        // 结果是稠密矩阵
+        Eigen::VectorXd sp_dense = Eigen::VectorXd(sp_sparse); // 转为 Dense Vector
+        Eigen::MatrixXd term2 = 6.0 * sp_dense * intermediate.transpose();
+
+        term1 += term2;
+    }
+
+    return term1;
+}
+
+
 Eigen::MatrixXd calf(const basism& bas1,const basism& bas2,const std::vector<Eigen::MatrixXd>&ystrm1,const std::vector<Eigen::MatrixXd>&ystrm2)
 {
     int nucnum=nucleusm.size();
@@ -5429,9 +7428,30 @@ Eigen::MatrixXd calf(const basism& bas1,const basism& bas2,const std::vector<Eig
         // writeMatrixToFile(term2);
         term1=term1+term2;
     }
+
+    std::vector<SpMat> ystrm1_sparse=convertToSparseVector(ystrm1);
+    std::vector<SpMat> ystrm2_sparse=convertToSparseVector(ystrm2);
+    Eigen::MatrixXd calb_cc=calf_sparse_input(bas1,bas2,ystrm1_sparse,ystrm2_sparse);
+
+
+    bool check11 = checkDenseEqualDense(calb_cc, term1);
+    // --- 新增暂停逻辑 ---
+    if (!check11) {
+        std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        std::cerr << "   [ERROR] check11 检查失败！稀疏矩阵计算结果不一致。" << std::endl;
+        std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+        
+        std::cout << "按回车键继续..." << std::endl;
+        // 清理输入缓冲区防止直接跳过
+        if (std::cin.peek() != EOF) {
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        std::cin.get(); // 暂停程序，等待按下回车
+    }
     return term1;
 
 }
+
 
 // std::vector<std::vector<Matrix4D>> calgall(const std::vector<basism>& allbasisc,const std::vector<std::vector<Eigen::MatrixXd>>& ystrm)
 // {
@@ -5822,10 +7842,11 @@ Eigen::MatrixXd ham1(const std::vector<basism>& bas,const std::vector<std::vecto
     #pragma omp parallel for collapse(2)
     for (int l=0;l<sizebas;++l)
     {
-        basism bas1=bas[l];
-        std::vector<Eigen::MatrixXd> ystrm1=ystrm[l];
+        
         for (int m=0;m<sizebas;++m)
         {
+            basism bas1=bas[l];
+            std::vector<Eigen::MatrixXd> ystrm1=ystrm[l];
             basism bas2=bas[m];
             std::vector<Eigen::MatrixXd> ystrm2=ystrm[m];
             if (bas1.parity != bas2.parity) {
@@ -5907,6 +7928,135 @@ Eigen::MatrixXd ham1(const std::vector<basism>& bas,const std::vector<std::vecto
     return result;
 }
 
+double contract_sparse_dense(const SparseMatrix4Dcc& sparse_tensor, const Matrix4D& dense_tensor) {
+    double total_sum = 0.0;
+    int nucnum = sparse_tensor.size();
+
+    // 1. 遍历稀疏张量的外层块 [a][b]
+    for (int a = 0; a < nucnum; ++a) {
+        for (int b = 0; b < nucnum; ++b) { // 注意：原代码似乎是全空间遍历，如果是对称的可优化 a<=b
+            const auto& sp_mat = sparse_tensor(a, b);
+            
+            // 如果稀疏块为空，直接跳过 (省去大量时间)
+            if (sp_mat.nonZeros() == 0) continue;
+
+            const auto& den_mat = dense_tensor[a][b];
+
+            // 2. 遍历稀疏矩阵内部非零元 (c, d)
+            for (int k = 0; k < sp_mat.outerSize(); ++k) {
+                for (Eigen::SparseMatrix<double>::InnerIterator it(sp_mat, k); it; ++it) {
+                    int c = it.row();
+                    int d = it.col();
+
+                    // 原代码逻辑里有 c<=d 和 a<=b 的限制吗？
+                    // 你原来的循环是: b from 0~N, a from 0~b, d from 0~N, c from 0~d
+                    // 所以这里我们加判断：
+                    if (a <= b && c <= d) {
+                        total_sum += it.value() * den_mat(c, d);
+                    }
+                }
+            }
+        }
+    }
+    return total_sum;
+}
+
+Eigen::MatrixXd ham1(const std::vector<basism>& bas,
+                     const SparseMatrix4Dcc& ystrm, // [输入已改为稀疏结构]
+                     std::vector<std::map<int, Matrix4D>> buildVValue1,
+                     std::vector<double> strength)
+{
+    auto start = std::chrono::high_resolution_clock::now();
+
+    int nucnum = nucleusm.size();
+    int sizebas = bas.size();
+    const int t_size = buildVValue1.size();
+    
+    Eigen::MatrixXd result = Eigen::MatrixXd::Zero(sizebas, sizebas);
+    
+    // 1. 预计算 Interaction Terms (ocal)
+    // 这一步生成的是稠密矩阵，保留原样
+    std::vector<Matrix4D> ocal_cache(t_size);
+    #pragma omp parallel for schedule(dynamic)
+    for (int t = 0; t < t_size; ++t) {
+        ocal_cache[t] = calo(buildVValue1[t]);
+    }
+
+    auto end_prep = std::chrono::high_resolution_clock::now();
+    // std::cout << "Ocal prep done.\n";
+
+    // 2. 主循环
+    size_t total_pairs = sizebas * sizebas;
+    std::atomic<size_t> completed_pairs(0);
+    const size_t update_interval = std::max<size_t>(10, total_pairs / 100);
+    auto start_time = std::chrono::steady_clock::now();
+
+    #pragma omp parallel for collapse(2) schedule(dynamic)
+    // #pragma omp parallel for schedule(dynamic)
+    for (int l = 0; l < sizebas; ++l)
+    {
+        for (int m = 0; m < sizebas; ++m)
+        {
+            const basism& bas1 = bas[l];
+            const basism& bas2 = bas[m];
+
+            // 宇称检查
+            if (bas1.parity != bas2.parity) continue;
+
+            // [关键步骤] 适配数据结构
+            // 从 SparseMatrix4Dcc 提取 vector<SpMat> 传给 calg_sp
+            const SpMat* ptr_l = ystrm[l];
+            std::vector<SpMat> ystrm_l(ptr_l, ptr_l + ystrm.cols);
+
+            const SpMat* ptr_m = ystrm[m];
+            std::vector<SpMat> ystrm_m(ptr_m, ptr_m + ystrm.cols);
+
+            // [计算 GS] 得到稀疏的 geometric matrix
+            SparseMatrix4Dcc gs_sp = calg_sp(bas1, bas2, ystrm_l, ystrm_m);
+
+            // [计算 Hsum] 遍历所有相互作用项
+            for (int t = 0; t < t_size; ++t)
+            {
+                // [核心优化] 替代 multip4dm_sp
+                // 直接收缩，不产生中间矩阵
+                double hsum = contract_sparse_dense(gs_sp, ocal_cache[t]);
+                
+                if (std::abs(hsum) > 1e-15) {
+                    // 无锁累加 (不同线程写不同 l,m，安全)
+                    result(l, m) += hsum * strength[t];
+                }
+            }
+            // result(m, l) = result(l, m);
+
+            // --- 进度打印 (主线程处理，减少锁竞争) ---
+            size_t current = ++completed_pairs;
+            if (omp_get_thread_num() == 0) {
+                if (current % update_interval == 0 || current == total_pairs) {
+                    auto now = std::chrono::steady_clock::now();
+                    auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - start_time).count();
+                    std::cout << "\rProcessed: " << current << "/" << total_pairs
+                              << " (" << std::fixed << std::setprecision(1) << 100.0 * current / total_pairs << "%)"
+                              << " | Time: " << elapsed << "s" << std::flush;
+                }
+            }
+        }
+    }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    
+    std::cout << "\nTotal ham1 time: " << duration.count() << "μs\n";
+    if (!outfile.is_open())
+    {
+        // 如果文件未打开，则尝试打开文件
+        outfile.open("basis_output.txt",std::ios::app);
+    }
+    outfile << "\nTotal ham1 time: " << duration.count() << "μs\n";
+    
+    return result;
+}
+
+
 Eigen::MatrixXd hamsige(const std::vector<basism>& bas,const std::vector<std::vector<Eigen::MatrixXd>>&ystrm,std::vector<double> sigenvec)
 {
     int nucnum=nucleusm.size();
@@ -5934,6 +8084,64 @@ Eigen::MatrixXd hamsige(const std::vector<basism>& bas,const std::vector<std::ve
     }
     return result;
 
+}
+
+Eigen::MatrixXd hamsige(const std::vector<basism>& bas,
+                        const SparseMatrix4Dcc& ystrm, // [修改] 输入改为稀疏结构
+                        const std::vector<double>& sigenvec)
+{
+    int nucnum = nucleusm.size(); // 假设全局变量
+    int sizebas = bas.size();
+    
+    Eigen::MatrixXd result = Eigen::MatrixXd::Zero(sizebas, sizebas);
+
+    // 并行化外层循环
+    // schedule(dynamic) 更好，因为不同 l,m 的计算量可能略有不同
+    #pragma omp parallel for schedule(dynamic)
+    for (int l = 0; l < sizebas; ++l)
+    {
+        const basism& bas1 = bas[l];
+        
+        // [关键] 从 SparseMatrix4Dcc 构造左矢向量
+        const SpMat* ptr_l = ystrm[l];
+        std::vector<SpMat> ystrm1(ptr_l, ptr_l + ystrm.cols);
+
+        for (int m = 0; m < sizebas; ++m)
+        {
+            const basism& bas2 = bas[m];
+
+            // [优化] 宇称检查：如果奇偶性不同，结果必为 0，直接跳过
+            if (bas1.parity != bas2.parity) continue;
+
+            // [关键] 从 SparseMatrix4Dcc 构造右矢向量
+            const SpMat* ptr_m = ystrm[m];
+            std::vector<SpMat> ystrm2(ptr_m, ptr_m + ystrm.cols);
+
+            // 1. 计算单体算符矩阵 qcal (假设返回 MatrixXd)
+            Eigen::MatrixXd qcal = calqsige(bas1, bas2, sigenvec);
+
+            // 2. 计算几何结构因子 gs (使用稀疏优化版)
+            // 注意：calf_sparse_input 返回 MatrixXd
+            Eigen::MatrixXd gs = calf_sparse_input(bas1, bas2, ystrm1, ystrm2);
+
+            // 3. 计算迹 (Trace of Element-wise Product)
+            // 原逻辑: result += (gs .* qcal).trace()
+            // 优化逻辑: 只需计算对角线的点积
+            // sum(gs(i,i) * qcal(i,i))
+            
+            double trace_val = 0.0;
+            
+            // 使用 Eigen 的 diagonal() 向量化操作加速
+            // 这比手动写 for 循环快，且比完整矩阵点积快 N 倍
+            trace_val = gs.diagonal().dot(qcal.diagonal());
+
+            if (std::abs(trace_val) > 1e-15) {
+                result(l, m) = trace_val;
+            }
+        }
+    }
+    
+    return result;
 }
 
 Eigen::MatrixXd hamchange(const std::vector<basism>& basm,const std::vector<basis>&bas,
@@ -6028,6 +8236,49 @@ double caloverlapm(basism bas1,basism bas2,std::vector<Eigen::MatrixXd> ystrm1,s
     return result;
 }
 
+double caloverlapm(const basism& bas1, const basism& bas2, 
+                   const std::vector<SpMat>& ystrm1, 
+                   const std::vector<SpMat>& ystrm2)
+{
+    // if (ystrm2.empty()) return 0.0; // 安全检查
+
+    // 获取最后一个矩阵（引用，不拷贝）
+    const SpMat& pnp = ystrm2.back();
+
+    // 构造 ystrm22 (去除最后一个元素)
+    // [优化2] 避免深拷贝整个 vector 的矩阵数据
+    // 我们只需要一个新的 vector 容器，里面装着指向原矩阵的"副本"
+    // 但因为 ystrm1/2 里的矩阵很大，深拷贝是 Eigen 的默认行为。
+    // 如果 calb_sparse 的参数是 const vector&，我们必须构造一个新的。
+    
+    // 方法 A: 如果必须拷贝 (因为 calb_sparse 内部可能会修改或者接口限制)
+    // 尽量使用 reserve 减少 vector 扩容开销
+    std::vector<SpMat> ystrm22;
+    ystrm22.reserve(ystrm2.size() - 1);
+    for(size_t i=0; i<ystrm2.size()-1; ++i) {
+        ystrm22.push_back(ystrm2[i]); // 这里依然会发生矩阵深拷贝
+    }
+    
+    // basism 的拷贝通常比较轻量 (如果是 int vector)
+    basism bas22 = bas2;
+    if (!bas22.r.empty()) bas22.r.pop_back();
+
+    // 调用计算
+    SpMat bmat = calb_sparse(bas1, bas22, ystrm1, ystrm22);
+
+    // [优化3] 保持稀疏性！不要转为 MatrixXd
+    // 稀疏 * 稀疏 = 稀疏
+    // .pruned() 用于去除计算过程中产生的极小值(0)，保持稀疏性
+    SpMat pbmat = (pnp * bmat).pruned(1e-12);
+
+    // [优化4] 稀疏矩阵求 Trace
+    // Trace 就是对角线元素之和
+    double result = -2.0 * pbmat.diagonal().sum();
+
+    return result;
+}
+
+
 
 
 Eigen::MatrixXd caloverlapmmat(const std::vector<basism>& bas1,const std::vector<basism>& bas2,
@@ -6058,7 +8309,7 @@ Eigen::MatrixXd caloverlapmmat(const std::vector<basism>& bas1,const std::vector
     std::vector<bool> zero_row(nucnum, false);
 
     // 第一阶段：并行计算对角线
-    #pragma omp parallel for
+    // #pragma omp parallel for
     for (int a = 0; a < nucnum; ++a) {
         basism bas11 = bas1[a];
         std::vector<Eigen::MatrixXd> ystrm11 = ystrm1[a];
@@ -6072,7 +8323,7 @@ Eigen::MatrixXd caloverlapmmat(const std::vector<basism>& bas1,const std::vector
     }
 
     // 第二阶段：并行计算非零行的非对角元素
-    #pragma omp parallel for schedule(dynamic)  // dynamic适用于负载不均衡的情况
+    // #pragma omp parallel for schedule(dynamic)  // dynamic适用于负载不均衡的情况
     for (int a = 0; a < nucnum; ++a) {
         if (zero_row[a]) {
             // 整行置零（对角线已在第一阶段设置）
@@ -6110,13 +8361,158 @@ Eigen::MatrixXd caloverlapmmat(const std::vector<basism>& bas1,const std::vector
     return result;
 }
 
+Eigen::MatrixXd caloverlapmmat(const std::vector<basism>& bas1, const std::vector<basism>& bas2,
+                               const SparseMatrix4Dcc& ystrm1, const SparseMatrix4Dcc& ystrm2)
+{
+    int nucnum = bas1.size();
+    if (nucnum == 0) return Eigen::MatrixXd();
+
+    std::cout << "Calculating Overlap Matrix (Size: " << nucnum << ")..." << std::endl;
+
+    Eigen::MatrixXd result = Eigen::MatrixXd::Zero(nucnum, nucnum);
+    std::vector<bool> zero_row(nucnum, false);
+
+    std::atomic<int> completed_rows(0);
+    int total_rows = nucnum;
+
+    // --- 阶段 1：并行计算对角元 ---
+    #pragma omp parallel for schedule(dynamic)
+    for (int a = 0; a < nucnum; ++a) {
+        const basism& bas11 = bas1[a];
+
+        // [核心修复] 从 SparseMatrix4Dcc 的行指针构造 vector
+        // ystrm1[a] 返回 SpMat* 指针
+        // ystrm1.cols 是列数 (即 vector 的长度)
+        const SpMat* row_ptr = ystrm1[a]; 
+        std::vector<SpMat> ystrm11(row_ptr, row_ptr + ystrm1.cols);
+
+        // 调用计算函数
+        double diag_val = caloverlapm(bas11, bas11, ystrm11, ystrm11);
+
+        result(a, a) = diag_val;
+
+        if (std::abs(diag_val) < 1e-12) {
+            zero_row[a] = true;
+        }
+    }
+
+    // --- 阶段 2：并行计算非对角元 ---
+    #pragma omp parallel for schedule(dynamic, 1)
+    for (int a = 0; a < nucnum; ++a) {
+        if (zero_row[a]) continue;
+
+        const basism& bas11 = bas1[a];
+        
+        // [核心修复] 构造 vector A
+        const SpMat* row_ptr_a = ystrm1[a];
+        std::vector<SpMat> ystrm11(row_ptr_a, row_ptr_a + ystrm1.cols);
+
+        for (int b = a + 1; b < nucnum; ++b) {
+            if (zero_row[b]) continue;
+
+            const basism& bas22 = bas2[b];
+
+            if (bas11.parity != bas22.parity) {
+                continue; 
+            }
+
+            // [核心修复] 构造 vector B
+            const SpMat* row_ptr_b = ystrm2[b];
+            std::vector<SpMat> ystrm22(row_ptr_b, row_ptr_b + ystrm2.cols);
+
+            double val = caloverlapm(bas11, bas22, ystrm11, ystrm22);
+
+            if (std::abs(val) > 1e-14) {
+                result(a, b) = val;
+                result(b, a) = val;
+            }
+        }
+
+        // 进度更新
+        int current = ++completed_rows;
+        if (current % (nucnum / 20 + 1) == 0 || current == nucnum) {
+            #pragma omp critical
+            {
+                float percent = 100.f * current / total_rows;
+                std::cout << "\rProgress: " << std::fixed << std::setprecision(1) << percent << "%" << std::flush;
+            }
+        }
+    }
+    std::cout << "\nDone." << std::endl;
+
+    return result;
+}
+
+Eigen::MatrixXd caloverlapmmatdif(const std::vector<basism>& bas1,
+                                  const std::vector<basism>& bas2,
+                                  const SparseMatrix4Dcc& ystrm1, // [修改] 输入改为稀疏结构
+                                  const SparseMatrix4Dcc& ystrm2) // [修改] 输入改为稀疏结构
+{
+    int nucnum1 = bas1.size(); // 行数
+    int nucnum2 = bas2.size(); // 列数
+
+    // [修复1] 结果矩阵必须是矩形的 (Rows x Cols)
+    Eigen::MatrixXd result = Eigen::MatrixXd::Zero(nucnum1, nucnum2);
+
+    std::cout << "Calculating Overlap Diff Matrix (" << nucnum1 << "x" << nucnum2 << ")..." << std::endl;
+
+    // 进度条相关
+    size_t total_rows = nucnum1;
+    std::atomic<size_t> completed_rows(0);
+
+    // [优化] 并行化外层循环
+    #pragma omp parallel for schedule(dynamic)
+    for (int a = 0; a < nucnum1; ++a)
+    {
+        const basism& bas11 = bas1[a];
+        
+        // [关键] 从 SparseMatrix4Dcc 提取行向量 (指针构造，避免深拷贝)
+        const SpMat* ptr1 = ystrm1[a];
+        std::vector<SpMat> vec1(ptr1, ptr1 + ystrm1.cols);
+
+        for (int b = 0; b < nucnum2; ++b)
+        {
+            const basism& bas22 = bas2[b];
+
+            // 宇称检查：不同宇称重叠为 0
+            if (bas11.parity != bas22.parity) {
+                continue; // result 初始化为 0，直接跳过
+            }
+
+            // [关键] 从 SparseMatrix4Dcc 提取列向量
+            const SpMat* ptr2 = ystrm2[b];
+            std::vector<SpMat> vec2(ptr2, ptr2 + ystrm2.cols);
+
+            // 计算重叠积分
+            double val = caloverlapm(bas11, bas22, vec1, vec2);
+
+            // 写入结果 (无锁，不同线程写不同行)
+            if (std::abs(val) > 1e-15) {
+                result(a, b) = val;
+            }
+        }
+
+        // 简易进度条 (仅主线程打印)
+        size_t current = ++completed_rows;
+        if (omp_get_thread_num() == 0) {
+            if (current % (total_rows / 10 + 1) == 0) { // 每 10% 打印一次
+                std::cout << "\rProgress: " << std::fixed << std::setprecision(1) 
+                          << 100.0 * current / total_rows << "%" << std::flush;
+            }
+        }
+    }
+    
+    std::cout << "\nDone." << std::endl;
+    return result;
+}
+
 Eigen::MatrixXd caloverlapmmatdif(const std::vector<basism>& bas1,const std::vector<basism>& bas2,
     const std::vector<std::vector<Eigen::MatrixXd>>& ystrm1,const std::vector<std::vector<Eigen::MatrixXd>>& ystrm2)
 {
     int nucnum=bas1.size();
     int nucnum2=bas2.size();
 
-    Eigen::MatrixXd result=Eigen::MatrixXd::Zero(nucnum, nucnum);
+    Eigen::MatrixXd result=Eigen::MatrixXd::Zero(nucnum, nucnum2);
 
 
 
@@ -6355,22 +8751,7 @@ Positions findNonZeroPositions(const std::vector<Eigen::MatrixXd>& V_it) {
     return positions;
 }
 
-std::vector<Eigen::MatrixXd> hamqcal(const std::vector<int>& qnpt,const std::vector<Eigen::MatrixXd>& q_nz_m)
-{
-    std::vector<Eigen::MatrixXd> hamqcalre={};
 
-    for (int i=0;i<qnpt.size();++i)
-    {
-        int qn=qnpt[i];
-        Eigen::MatrixXd hamqcalre1=Eigen::MatrixXd::Zero(qn, qn);
-        for (int j=0;j<q_nz_m.size();++j)
-        {
-            Eigen::MatrixXd q_nz_m1=q_nz_m[j];
-            hamqcalre1+=q_nz_m1;
-        }
-        hamqcalre.push_back(hamqcalre1);
-    }
-}
 std::vector<Eigen::MatrixXd> hamqcal(const std::vector<int>& qnpt,const std::vector<Eigen::MatrixXd>& q_nz_m,
     const std::vector<basism>& bas,const std::vector<std::vector<Eigen::MatrixXd>>&ystrm)
 {
@@ -6872,6 +9253,131 @@ Eigen::MatrixXd doublesfmatchange(const std::vector<basism>& basm1,const std::ve
 }
 
 
+Eigen::MatrixXd doublesfmatele(const basism& bas1, const basism& bas2,
+                               const std::vector<SpMat>& ystrm1, 
+                               const std::vector<SpMat>& ystrm2)
+{
+    int sizen = ystrm2.size();
+    int nunum = nucleusm.size(); // 假设全局变量
+    
+    Eigen::MatrixXd result = Eigen::MatrixXd::Zero(nunum, nunum);
+    Eigen::MatrixXd term1 = Eigen::MatrixXd::Zero(nunum, nunum);
+    Eigen::MatrixXd term2 = Eigen::MatrixXd::Zero(nunum, nunum);
+
+    // --- Term 1: Loop k ---
+    #pragma omp parallel
+    {
+        Eigen::MatrixXd term1_private = Eigen::MatrixXd::Zero(nunum, nunum);
+        #pragma omp for schedule(dynamic)
+        for (int k = 1; k < sizen; ++k) {
+            const SpMat& pkp12 = ystrm2[k];
+
+            // 构造 ystrm22
+            std::vector<SpMat> ystrm22; 
+            ystrm22.reserve(sizen - 1);
+            for(int j=0; j<sizen; ++j) if(j!=k) ystrm22.push_back(ystrm2[j]);
+
+            basism bas22 = bas2;
+            bas22.r.erase(bas22.r.begin() + k);
+
+            const SpMat& pnp = ystrm22.back();
+            std::vector<SpMat> ystrm222 = ystrm22;
+            ystrm222.pop_back();
+            basism bas222 = bas22;
+            bas222.r.pop_back();
+
+            // 稀疏计算
+            SpMat bmat = calb_sparse(bas1, bas222, ystrm1, ystrm222);
+
+            // 优化: Trace(A^T * B) = sum(A .* B)
+            double trace_val = pnp.cwiseProduct(bmat).sum();
+            if (std::abs(trace_val) > 1e-15) {
+                term1_private += pkp12 * trace_val;
+            }
+        }
+        #pragma omp critical
+        {
+            term1 += term1_private;
+        }
+    }
+
+    // --- Term 2: Double Loop k, i ---
+    #pragma omp parallel
+    {
+        Eigen::MatrixXd term2_private = Eigen::MatrixXd::Zero(nunum, nunum);
+        #pragma omp for  schedule(dynamic)
+        for (int k = 2; k < sizen; ++k) {
+            for (int i = 1; i < k; ++i) {
+                const SpMat& pkp = ystrm2[k];
+                const SpMat& pip = ystrm2[i];
+
+                std::vector<SpMat> ystrm22;
+                ystrm22.reserve(sizen - 2);
+                for(int j=0; j<sizen; ++j) if(j!=k && j!=i) ystrm22.push_back(ystrm2[j]);
+
+                basism bas22 = bas2;
+                bas22.r.erase(bas22.r.begin() + k);
+                bas22.r.erase(bas22.r.begin() + i);
+
+                SpMat bmat = calb_sparse(bas1, bas22, ystrm1, ystrm22);
+                term2_private += pkp * bmat * pip;
+                term2_private += pip * bmat * pkp;
+            }
+        }
+        #pragma omp critical
+        {
+            term2 += term2_private;
+        }
+    }
+
+    result = 4 * term1 + 8 * term2;
+
+    // --- Term 3: r[0] != 0 (兼容旧版 calsvec) ---
+    if (bas1.r[0] != 0)
+    {
+        Eigen::MatrixXd term3 = Eigen::MatrixXd::Zero(nunum, nunum);
+        Eigen::VectorXd s0 = Eigen::VectorXd(ystrm2[0].col(0)); 
+
+        // [兼容] 将 ystrm1 转为稠密 (只转这一次，避免循环内重复)
+        std::vector<Eigen::MatrixXd> ystrm1_dense = temp_sparse_to_dense(ystrm1);
+
+        #pragma omp parallel
+        {
+            Eigen::MatrixXd term3_private = Eigen::MatrixXd::Zero(nunum, nunum);
+            #pragma omp for schedule(dynamic)
+            for (int k = 1; k < sizen; ++k) {
+                const SpMat& pkp = ystrm2[k];
+                
+                // 构造稀疏 ystrm22
+                std::vector<SpMat> ystrm22_sp = ystrm2;
+                SpMat id(nunum, nunum); id.setIdentity();
+                ystrm22_sp[0] = id;
+                ystrm22_sp.erase(ystrm22_sp.begin() + k);
+                
+                basism bas22 = bas2;
+                bas22.r.erase(bas22.r.begin() + k);
+                bas22.r[0] = 0;
+
+                // [兼容] 局部转换为稠密向量，调用旧版 calsvec
+                std::vector<Eigen::MatrixXd> ystrm22_dense = temp_sparse_to_dense(ystrm22_sp);
+                Eigen::VectorXd ss = calsvec(bas1, bas22, ystrm1_dense, ystrm22_dense);
+
+                // 结合律优化: O(N^2)
+                Eigen::VectorXd v = pkp * ss;
+                term3_private += s0 * v.transpose();
+                term3_private -= v * s0.transpose();
+            }
+            #pragma omp critical
+            {
+                term3 += term3_private;
+            }
+        }
+        result += term3 * 2;
+    }
+    
+    return result;
+}
+
 Eigen::MatrixXd doublesfmatele(const basism& bas1,const basism& bas2,
     std::vector<Eigen::MatrixXd> ystrm1,std::vector<Eigen::MatrixXd> ystrm2)
 {
@@ -6994,6 +9500,72 @@ double computeElementwiseProductSum1(const Eigen::MatrixXd& mat1,
     return sum;
 }
 
+std::vector<Eigen::MatrixXd> doublesfmat(
+    const std::vector<basism>& basm1,
+    const SparseMatrix4Dcc& ystr1,   // 稀疏输入
+    const std::vector<basism>& basm2,
+    const SparseMatrix4Dcc& ystr2,   // 稀疏输入
+    const std::vector<Eigen::MatrixXd>& operators, // transtrmatm
+    const std::vector<int>& tranvec)
+{
+    int size1 = basm1.size();
+    int size2 = basm2.size();
+    int n_ops = operators.size();
+    // ==========================================
+    // 🛑 [CRASH FIX] 安全检查
+    // ==========================================
+    if (size1 > 0 && (ystr1.rows != size1 || ystr1.data.size() == 0)) {
+        std::cerr << "[CRASH DETECTED] ystr1 Dimension Mismatch!" << std::endl;
+        std::cerr << "  Expected Rows: " << size1 << std::endl;
+        std::cerr << "  Actual Rows:   " << ystr1.rows << std::endl;
+        std::cerr << "  Actual Data:   " << ystr1.data.size() << std::endl;
+        // exit(1); // 强制退出，防止 Segfault
+    }
+    
+    if (size2 > 0 && (ystr2.rows != size2 || ystr2.data.size() == 0)) {
+        std::cerr << "[CRASH DETECTED] ystr2 Dimension Mismatch!" << std::endl;
+        std::cerr << "  Expected Rows: " << size2 << std::endl;
+        std::cerr << "  Actual Rows:   " << ystr2.rows << std::endl;
+        std::cerr << "  Actual Data:   " << ystr2.data.size() << std::endl;
+        // exit(1);
+    }
+    // ==========================================
+
+    // 初始化结果: vector of Matrix(size1, size2)
+    std::vector<Eigen::MatrixXd> result_vec(n_ops, Eigen::MatrixXd::Zero(size1, size2));
+
+    #pragma omp parallel for schedule(dynamic)
+    for (int i = 0; i < size1; ++i) {
+        // 解包 ystr1 的第 i 行
+        const SpMat* ptr1 = ystr1[i];
+        int ixx=ystr1.cols;
+        
+        std::vector<SpMat> vec1(ptr1, ptr1 + ystr1.cols);
+        std::cout<< ixx<< std::endl;
+
+        for (int j = 0; j < size2; ++j) {
+            // 解包 ystr2 的第 j 行
+            const SpMat* ptr2 = ystr2[j];
+            std::vector<SpMat> vec2(ptr2, ptr2 + ystr2.cols);
+
+            // 计算 Fab
+            Eigen::MatrixXd fab = doublesfmatele(basm1[i], basm2[j], vec1, vec2);
+
+            // 投影到每个算符
+            for (int k = 0; k < n_ops; ++k) {
+                // 使用 SIMD 点积优化
+                double val = fab.cwiseProduct(operators[k]).sum();
+                if (std::abs(val) > 1e-15) {
+                    result_vec[k](i, j) = val;
+                }
+            }
+        }
+    }
+    return result_vec;
+}
+
+
+
 std::vector<Eigen::MatrixXd> doublesfmat(const std::vector<basism>& bas1,
     const std::vector<std::vector<Eigen::MatrixXd>>& ystrm1,
     const std::vector<basism>& bas2,
@@ -7083,12 +9655,12 @@ void transtrnocouple(
                 Eigen::MatrixXd ystrmtemp1=doubleftransqjtoqm(ystrtemp,rget[i],-2);
                 qstrm0.push_back(ystrmtemp0);
                 qstrm1.push_back(ystrmtemp1);
-                std::cout<<"i,j,k"<<std::endl;
-                std::cout<<i<<","<<j<<","<<k<<std::endl;
-                std::cout<<"qstrm0"<<std::endl;
-                std::cout<<ystrmtemp0<<std::endl;
-                std::cout<<"qstrm1"<<std::endl;
-                std::cout<<ystrmtemp1<<std::endl;
+                // std::cout<<"i,j,k"<<std::endl;
+                // std::cout<<i<<","<<j<<","<<k<<std::endl;
+                // std::cout<<"qstrm0"<<std::endl;
+                // std::cout<<ystrmtemp0<<std::endl;
+                // std::cout<<"qstrm1"<<std::endl;
+                // std::cout<<ystrmtemp1<<std::endl;
                 std::vector<std::vector<double>>ystrr= eigenToNestedVector(ystrtemp);
                 transtrvec.push_back(ystrr);
 
@@ -7097,6 +9669,94 @@ void transtrnocouple(
         }
     }
     return;
+}
+
+std::vector<Eigen::MatrixXd> caldoublemat_sparse(
+    const std::vector<basis>& bas1,
+    const std::vector<basism>& basm01,
+    const std::vector<basism>& basm11,
+    const SparseMatrix4Dcc& ystr1,   // [修改] 稀疏
+    const SparseMatrix4Dcc& ystr11,  // [修改] 稀疏
+    const Eigen::MatrixXd& changmat1,
+    const Eigen::MatrixXd& changmat11,
+    const Eigen::MatrixXd& schammit1,
+    const std::vector<basis>& bas2,
+    const std::vector<basism>& basm02,
+    const std::vector<basism>& basm12,
+    const SparseMatrix4Dcc& ystr2,   // [修改] 稀疏
+    const SparseMatrix4Dcc& ystr21,  // [修改] 稀疏
+    const Eigen::MatrixXd& changmat2,
+    const Eigen::MatrixXd& changmat21,
+    const Eigen::MatrixXd& schammit2,
+    const std::vector<int>& tranvec,
+    const std::vector<std::vector<std::vector<double>>>& transtr)
+{
+    int sizedft = tranvec.size();
+
+    // 1. 预处理算符 (并行化)
+    std::vector<Eigen::MatrixXd> transtrmatm0(sizedft);
+    std::vector<Eigen::MatrixXd> transtrmatm1(sizedft);
+
+    #pragma omp parallel for
+    for (int l = 0; l < sizedft; ++l) {
+        Eigen::MatrixXd raw = convertToEigenMatrix(transtr[l]);
+        transtrmatm0[l] = doubleftransqjtoqm(raw, tranvec[l], 0);
+        transtrmatm1[l] = doubleftransqjtoqm(raw, tranvec[l], -2);
+    }
+
+    // 2. 计算 mat0 和 matj0
+    // 调用上面写的 doublesfmat (自动处理稀疏输入)
+    std::vector<Eigen::MatrixXd> mat0 = doublesfmat(basm01, ystr1, basm02, ystr2, transtrmatm0, tranvec);
+    
+    std::vector<Eigen::MatrixXd> matj0(sizedft);
+    #pragma omp parallel for
+    for (int l = 0; l < sizedft; ++l) {
+        matj0[l] = doublesfmatchange(basm01, bas1, basm02, bas2, changmat1, changmat2, mat0[l], tranvec[l]);
+    }
+
+    // 3. 计算 mat1 和 matj1
+    std::vector<Eigen::MatrixXd> mat1 = doublesfmat(basm11, ystr11, basm02, ystr2, transtrmatm1, tranvec);
+    
+    std::vector<Eigen::MatrixXd> matj1(sizedft);
+    #pragma omp parallel for
+    for (int l = 0; l < sizedft; ++l) {
+        matj1[l] = doublesfmatchange(basm11, bas1, basm02, bas2, changmat11, changmat2, mat1[l], tranvec[l]);
+    }
+
+    // 4. 最终合并与变换 (并行化 + 无中间变量优化)
+    std::vector<Eigen::MatrixXd> matj0sch(sizedft);
+
+    #pragma omp parallel for
+    for (int tnum = 0; tnum < sizedft; ++tnum)
+    {
+        int t = tranvec[tnum];
+        if (t != 0)
+        {
+            int rows = bas1.size();
+            int cols = bas2.size();
+            
+            // 直接遍历矩阵进行赋值，避免 bas1/bas2 查找开销
+            for (int i = 0; i < rows; ++i) {
+                int j1 = bas1[i].sj.back();
+                for (int j = 0; j < cols; ++j) {
+                    int j2 = bas2[j].sj.back();
+                    int num = (j1 + j2 + t) / 2;
+                    
+                    if ((num & 1) != 0) {
+                        matj0[tnum](i, j) = matj1[tnum](i, j);
+                    }
+                }
+            }
+        }
+
+        // 使用 noalias 避免临时矩阵分配
+        matj0sch[tnum].noalias() = schammit1 * matj0[tnum] * schammit2.transpose();
+        
+        #pragma omp critical
+        std::cout << "Processed tnum: " << tnum << std::endl;
+    }
+
+    return matj0sch;
 }
 
 std::vector<Eigen::MatrixXd> caldoublemat(
@@ -7187,8 +9847,87 @@ std::vector<Eigen::MatrixXd> caldoublemat(
 
         matj0sch.push_back(schammit1*matj0[tnum]* schammit2.transpose());
         std::cout<<"tnum"<<" "<<tnum<<std::endl;
-        std::cout<<matj0[tnum]<<std::endl;
+        // std::cout<<matj0[tnum]<<std::endl;
     }
+
+    // ============================================================
+    // 🛡️ 验证模块：调用新版 caldoublemat_sparse 并对比
+    // ============================================================
+    if (1==1) // 开启验证
+    {
+        std::cout << "\n[DEBUG] 正在验证 caldoublemat (Dense) vs caldoublemat_sparse (Sparse)..." << std::endl;
+
+        // 1. 定义一个临时 Lambda 函数：将 vector<vector<MatrixXd>> 转为 SparseMatrix4Dcc
+        //    (因为输入参数是稠密的，为了调新函数必须先转稀疏)
+        auto toSparse4D = [](const std::vector<std::vector<Eigen::MatrixXd>>& dense) {
+            int r = dense.size();
+            int c = (r > 0) ? dense[0].size() : 0;
+            SparseMatrix4Dcc sparse(r, c);
+            // 必须 resize 内部防止 segfault
+            for(int i=0; i<r; ++i) {
+                for(int j=0; j<c; ++j) {
+                    sparse(i,j) = dense[i][j].sparseView();
+                }
+            }
+            return sparse;
+        };
+
+        // 2. 转换所有相关的输入矩阵
+        std::cout << "  -> Converting inputs to sparse format..." << std::endl;
+        SparseMatrix4Dcc ystr1_sp = toSparse4D(ystr1);
+        SparseMatrix4Dcc ystr11_sp = toSparse4D(ystr11);
+        SparseMatrix4Dcc ystr2_sp = toSparse4D(ystr2);
+        SparseMatrix4Dcc ystr21_sp = toSparse4D(ystr21);
+
+        // 3. 调用新版函数 (请确保 caldoublemat_sparse 已经声明或定义)
+        std::cout << "  -> Running new sparse function..." << std::endl;
+        std::vector<Eigen::MatrixXd> result_new = caldoublemat_sparse(
+            bas1, basm01, basm11, 
+            ystr1_sp, ystr11_sp, // 传入转换后的稀疏矩阵
+            changmat1, changmat11, schammit1,
+            bas2, basm02, basm12, 
+            ystr2_sp, ystr21_sp, // 传入转换后的稀疏矩阵
+            changmat2, changmat21, schammit2,
+            tranvec, transtr
+        );
+
+        // 4. 对比结果 (matj0sch vs result_new)
+        bool passed = true;
+        double max_diff = 0.0;
+
+        if (matj0sch.size() != result_new.size()) {
+            std::cerr << "[Size Mismatch] Old: " << matj0sch.size() << " New: " << result_new.size() << std::endl;
+            passed = false;
+        } else {
+            for (size_t i = 0; i < matj0sch.size(); ++i) {
+                double diff = (matj0sch[i] - result_new[i]).norm();
+                if (diff > max_diff) max_diff = diff;
+                
+                if (diff > 1e-6) { // 容忍度
+                    std::cerr << "[Mismatch] Index " << i << " Diff: " << diff << std::endl;
+                    passed = false;
+                    // 可选：打印出错的矩阵块
+                    // std::cout << "Old:\n" << matj0sch[i].block(0,0,5,5) << "\nNew:\n" << result_new[i].block(0,0,5,5) << std::endl;
+                    break; 
+                }
+            }
+        }
+
+        if (passed) {
+            std::cout << "✅ [Verification] caldoublemat Passed! Max Error: " << max_diff << std::endl;
+        } else {
+            std::cerr << "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            std::cerr << "   [CRITICAL ERROR] caldoublemat 结果不一致！" << std::endl;
+            std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            std::cout << "按回车键继续..." << std::endl;
+            if (std::cin.peek() != EOF) std::cin.ignore(10000, '\n');
+            std::cin.get();
+        }
+    }
+    // ============================================================
+
+
+
     return matj0sch;
 }
 
@@ -7331,6 +10070,193 @@ std::vector<Eigen::MatrixXd> getdoublematresult(
             offset1 += sizeeigen1;
         }
     }
+    return resultmat;
+}
+
+std::vector<Eigen::MatrixXd> getdoublematresult(
+    const std::map<int, std::vector<CoupledBasis>>& couplebasis1,
+    const std::map<int, std::vector<CoupledBasis>>& couplebasis2,
+    const std::map<int, std::vector<std::vector<double>>>& eigenre1,
+    const std::map<int, std::vector<std::vector<double>>>& eigenre2,
+    const std::vector<int>& jvecp1,
+    const std::vector<int>& jvecp2,
+    const std::vector<int>& jvecn1,
+    const std::vector<int>& jvecn2,
+    const std::vector<int>& tvec,
+    const std::vector<Eigen::MatrixXd>& transmat,
+    int norp,
+    // 以下参数用于 caloverlapmmatdif 等，假设只在开头用到
+    const std::vector<basis>& pbas1,
+    const std::vector<basism>& pbasm01,
+    const std::vector<basism>& pbasm11,
+    const SparseMatrix4Dcc& pystr1, // [修改] 适配稀疏
+    const SparseMatrix4Dcc& pystr11, // [修改] 适配稀疏
+    const Eigen::MatrixXd& pchangmat1,
+    const Eigen::MatrixXd& pchangmat11,
+    const Eigen::MatrixXd& pschammit1,
+    const std::vector<basis>& pbas2,
+    const std::vector<basism>& pbasm02,
+    const std::vector<basism>& pbasm12,
+    const SparseMatrix4Dcc& pystr2, // [修改] 适配稀疏
+    const SparseMatrix4Dcc& pystr21, // [修改] 适配稀疏
+    const Eigen::MatrixXd& pchangmat2,
+    const Eigen::MatrixXd& pchangmat21,
+    const Eigen::MatrixXd& pschammit2
+)
+{
+    // 1. 预计算 Overlap Matrix (耗时操作，只做一次)
+    Eigen::MatrixXd overlapp = caloverlapmmatdif(pbasm01, pbasm02, pystr1, pystr2);
+    
+    // 假设 overlapdifchange 内部已经优化，如果也是矩阵乘法最好
+    Eigen::MatrixXd overlappch = overlapdifchange(pbasm01, pbas1, pbasm02, pbas2,
+                                                  pchangmat1, pchangmat2, overlapp, 0);
+    
+    // 使用 noalias 避免临时变量
+    overlappch = (pschammit1 * overlappch * pschammit2.transpose()).eval();
+
+    int sizedft = transmat.size();
+
+    // 2. 计算总维数并初始化结果矩阵
+    int totalStates1 = 0;
+    for (const auto& kv : eigenre1) totalStates1 += kv.second.size();
+    
+    int totalStates2 = 0;
+    for (const auto& kv : eigenre2) totalStates2 += kv.second.size();
+
+    std::vector<Eigen::MatrixXd> resultmat(sizedft);
+    for (int t = 0; t < sizedft; ++t) {
+        resultmat[t] = Eigen::MatrixXd::Zero(totalStates1, totalStates2);
+    }
+
+    if (norp != 2) return resultmat; // 快速返回
+
+    // 3. 预计算每个 key 的 offset，方便并行写入
+    std::map<int, int> offset1_map;
+    int current_offset1 = 0;
+    std::vector<int> keys1; // 存储 keys 以便并行遍历
+    for (const auto& kv : eigenre1) {
+        offset1_map[kv.first] = current_offset1;
+        current_offset1 += kv.second.size();
+        keys1.push_back(kv.first);
+    }
+
+    // 4. 并行遍历 key1 (J1)
+    // 这是一个非常好的并行点，因为不同 J 的块是独立的
+    #pragma omp parallel for schedule(dynamic)
+    for (size_t k1_idx = 0; k1_idx < keys1.size(); ++k1_idx)
+    {
+        int key1 = keys1[k1_idx];
+        const auto& basis_vec1 = couplebasis1.at(key1);
+        const auto& eigen_vecs1 = eigenre1.at(key1); // vector<vector<double>>
+        
+        int siz1 = basis_vec1.size();
+        int sizeeigen1 = eigen_vecs1.size();
+        if (siz1 == 0 || sizeeigen1 == 0) continue;
+
+        int jisum = std::abs(key1);
+        int my_offset1 = offset1_map[key1];
+
+        // 将本征态系数转为 Eigen 矩阵 (Rows = siz1, Cols = sizeeigen1)
+        // 这样后面可以用矩阵乘法一次算完
+        Eigen::MatrixXd Coeff1(siz1, sizeeigen1);
+        for (int i = 0; i < sizeeigen1; ++i) {
+            for (int r = 0; r < siz1; ++r) {
+                Coeff1(r, i) = eigen_vecs1[i][r]; // 注意转置关系，通常 eigenre[u][i]
+            }
+        }
+
+        // 遍历 key2 (J2)
+        int current_offset2 = 0;
+        for (const auto& kv2 : eigenre2)
+        {
+            int key2 = kv2.first;
+            const auto& basis_vec2 = couplebasis2.at(key2);
+            const auto& eigen_vecs2 = kv2.second;
+            
+            int siz2 = basis_vec2.size();
+            int sizeeigen2 = eigen_vecs2.size();
+            
+            if (siz2 == 0 || sizeeigen2 == 0) {
+                current_offset2 += sizeeigen2;
+                continue;
+            }
+
+            int jfsum = std::abs(key2);
+
+            // 将本征态系数转为 Eigen 矩阵 (Rows = siz2, Cols = sizeeigen2)
+            Eigen::MatrixXd Coeff2(siz2, sizeeigen2);
+            for (int i = 0; i < sizeeigen2; ++i) {
+                for (int r = 0; r < siz2; ++r) {
+                    Coeff2(r, i) = eigen_vecs2[i][r];
+                }
+            }
+
+            // 对每个算符 t 进行计算
+            for (int tmatnum = 0; tmatnum < sizedft; ++tmatnum)
+            {
+                int t = tvec[tmatnum];
+                const Eigen::MatrixXd& transmat_t = transmat[tmatnum];
+
+                // 构建基组间的跃迁矩阵 M (siz1 x siz2)
+                Eigen::MatrixXd M(siz1, siz2);
+
+                // 这个循环可能比较耗时，但它是构建 M 的必经之路
+                for (int i = 0; i < siz1; ++i) {
+                    int n1 = basis_vec1[i].ni;
+                    int p1 = basis_vec1[i].pi;
+                    int jn = jvecn1[n1];
+                    int jp = jvecp1[p1];
+
+                    for (int j = 0; j < siz2; ++j) {
+                        int n2 = basis_vec2[j].ni;
+                        int p2 = basis_vec2[j].pi;
+                        int jnp = jvecn2[n2];
+                        int jpp = jvecp2[p2];
+
+                        int deltann = deltatwo(jn, jnp); // 可能是 Kronecker delta
+                        int deltapp = deltatwo(jp, jpp);
+
+                        // 核心物理公式
+                        double val = deltapp 
+                                   * overlappch(p1, p2) 
+                                   * std::pow(-1, (jn - jnp + jfsum - jisum) / 2)
+                                   * ufrom6_j(jpp, jn, jfsum, t, jisum, jnp) 
+                                   * transmat_t(n1, n2); // 假设 transmat 是 dense
+
+                        M(i, j) = val;
+                    }
+                }
+
+                // 核心优化：利用矩阵乘法一次算出该块所有本征态的跃迁元
+                // Result_Block = Coeff1^T * M * Coeff2
+                // Coeff1: (siz1, n_states1)
+                // M:      (siz1, siz2)
+                // Coeff2: (siz2, n_states2)
+                // Result: (n_states1, n_states2)
+                
+                // 1. Temp = Coeff1^T * M  (Dim: n_states1 x siz2)
+                Eigen::MatrixXd Temp = Coeff1.transpose() * M;
+                
+                // 2. Block = Temp * Coeff2 (Dim: n_states1 x n_states2)
+                Eigen::MatrixXd Block = Temp * Coeff2;
+
+                // 3. 将 Block 写入全局结果矩阵的对应位置
+                // 注意：多线程同时写 resultmat[t]，但不同 key1 对应不同的行块 (rows)
+                // 所以这一步是线程安全的（只要 key1 不重复）！
+                
+                // 写入位置：
+                // Start Row: my_offset1
+                // Start Col: current_offset2
+                // Rows: sizeeigen1
+                // Cols: sizeeigen2
+                
+                resultmat[tmatnum].block(my_offset1, current_offset2, sizeeigen1, sizeeigen2) = Block;
+            }
+            
+            current_offset2 += sizeeigen2;
+        }
+    }
+
     return resultmat;
 }
 

@@ -16,6 +16,40 @@
 #include <set>
 #include <tuple> // 用于 std::tie 比较
 #include <map>
+#include <Eigen/Sparse>
+using SpMat = Eigen::SparseMatrix<double>;
+using Triplet = Eigen::Triplet<double>;
+using DenseMat = Eigen::MatrixXd;
+// 4. 定义结构体 (SparseMatrix4Dcc)
+struct SparseMatrix4Dcc {
+    std::vector<SpMat> data;
+    int rows;
+    int cols;
+
+    // 默认构造函数
+    SparseMatrix4Dcc() : rows(0), cols(0) {}
+    
+    // 构造函数
+    SparseMatrix4Dcc(int r, int c) : rows(r), cols(c), data(r * c) {}
+    SparseMatrix4Dcc(int n) : rows(n), cols(n), data(n * n) {}
+
+    // 重载 [] 返回行指针
+    SpMat* operator[](int i) { return &data[i * cols]; }
+    const SpMat* operator[](int i) const { return &data[i * cols]; }
+    
+    // 访问元素 (推荐)
+    SpMat& operator()(int i, int j) { return data[i * cols + j]; }
+    const SpMat& operator()(int i, int j) const { return data[i * cols + j]; }
+
+    size_t size() const { return rows; }
+    size_t innerSize() const { return cols; }
+
+    void resize(int r, int c) {
+        rows = r;
+        cols = c;
+        data.resize(r * c);
+    }
+};
 
 struct CoupledBasis {
     int ni; // neutronBasis 在 basisvector 中的索引

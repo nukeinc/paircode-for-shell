@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "手动调试 main2nuc",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/main2nuc_new",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Load Eigen Printers",
+                    "text": "python import sys; sys.path.insert(0, '/home/skyplane/gitdir/eigengdb'); import eigengdb; eigengdb.register_eigen_printers(None)",
+                    "ignoreFailures": false
+                }
+            ]
+        }
+    ]
+}

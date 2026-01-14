@@ -31,18 +31,18 @@
 #include "inputmod.h"
 int main()
 {
-    std::string inputFile = "../inputfile_6_6";
+    std::string inputFile = "../inputfile_6_2";
     Data data = readMultipleArraysFromFile(inputFile);
-    HamResult result1 = computeHamiltonians(data,outfile);
+    HamResult result1 = computeHamiltonians1(data,outfile);
     int userInput = 0;
     std::cout << "请输入 1 以继续计算，其他键退出: ";
     userInput = 1;
     // std::cin >> userInput;
     if (userInput == 1)
     {
-        std::string inputFile2 = "../inputfile_6_8";
+        std::string inputFile2 = "../inputfile_6_4";
         Data data2 = readMultipleArraysFromFile(inputFile2);
-        HamResult result2 = computeHamiltonians(data2,outfile);
+        HamResult result2 = computeHamiltonians1(data2,outfile);
         int transinput=0;
         std::cout<<"计算转移反应输入1质子，2中子，输入其他退出：";
         transinput = 2;

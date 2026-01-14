@@ -1,0 +1,2034 @@
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.707107 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=0, state=0) : -0.391962
+(key1=0, state=0) -> (key2=0, state=1) : -0.037741
+(key1=0, state=0) -> (key2=0, state=2) : 0.044016
+(key1=0, state=0) -> (key2=0, state=3) : -0.008805
+(key1=0, state=1) -> (key2=0, state=0) : -0.019422
+(key1=0, state=1) -> (key2=0, state=1) : -0.006476
+(key1=0, state=1) -> (key2=0, state=2) : 0.274795
+(key1=0, state=1) -> (key2=0, state=3) : -0.207792
+(key1=0, state=2) -> (key2=0, state=0) : 0.022925
+(key1=0, state=2) -> (key2=0, state=1) : -0.178949
+(key1=0, state=2) -> (key2=0, state=2) : 0.208049
+(key1=0, state=2) -> (key2=0, state=3) : 0.122974
+(key1=0, state=3) -> (key2=0, state=0) : -0.004141
+(key1=0, state=3) -> (key2=0, state=1) : -0.053774
+(key1=0, state=3) -> (key2=0, state=2) : -0.065550
+(key1=0, state=3) -> (key2=0, state=3) : 0.090073
+(key1=2, state=0) -> (key2=2, state=0) : 0.323922
+(key1=2, state=0) -> (key2=2, state=1) : -0.018958
+(key1=2, state=0) -> (key2=2, state=2) : 0.020188
+(key1=2, state=0) -> (key2=2, state=3) : 0.009965
+(key1=2, state=1) -> (key2=2, state=0) : -0.016820
+(key1=2, state=1) -> (key2=2, state=1) : 0.260340
+(key1=2, state=1) -> (key2=2, state=2) : -0.046719
+(key1=2, state=1) -> (key2=2, state=3) : -0.010705
+(key1=2, state=2) -> (key2=2, state=0) : -0.025577
+(key1=2, state=2) -> (key2=2, state=1) : 0.086079
+(key1=2, state=2) -> (key2=2, state=2) : 0.262543
+(key1=2, state=2) -> (key2=2, state=3) : -0.021972
+(key1=2, state=3) -> (key2=2, state=0) : 0.014488
+(key1=2, state=3) -> (key2=2, state=1) : 0.032998
+(key1=2, state=3) -> (key2=2, state=2) : 0.001549
+(key1=2, state=3) -> (key2=2, state=3) : 0.078584
+(key1=4, state=0) -> (key2=4, state=0) : -0.359915
+(key1=4, state=0) -> (key2=4, state=1) : 0.024272
+(key1=4, state=0) -> (key2=4, state=2) : 0.048476
+(key1=4, state=0) -> (key2=4, state=3) : 0.000080
+(key1=4, state=1) -> (key2=4, state=0) : 0.052869
+(key1=4, state=1) -> (key2=4, state=1) : 0.322530
+(key1=4, state=1) -> (key2=4, state=2) : -0.114702
+(key1=4, state=1) -> (key2=4, state=3) : -0.025236
+(key1=4, state=2) -> (key2=4, state=0) : 0.018376
+(key1=4, state=2) -> (key2=4, state=1) : 0.046876
+(key1=4, state=2) -> (key2=4, state=2) : 0.311739
+(key1=4, state=2) -> (key2=4, state=3) : -0.012539
+(key1=4, state=3) -> (key2=4, state=0) : 0.006137
+(key1=4, state=3) -> (key2=4, state=1) : 0.017119
+(key1=4, state=3) -> (key2=4, state=2) : -0.024883
+(key1=4, state=3) -> (key2=4, state=3) : 0.163659
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 1.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 1.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 1.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 1.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+1.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.707107 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=0, state=0) : -0.453378
+(key1=0, state=0) -> (key2=0, state=1) : -0.030551
+(key1=0, state=0) -> (key2=0, state=2) : 0.056001
+(key1=0, state=0) -> (key2=0, state=3) : -0.019142
+(key1=0, state=1) -> (key2=0, state=0) : -0.025123
+(key1=0, state=1) -> (key2=0, state=1) : -0.008011
+(key1=0, state=1) -> (key2=0, state=2) : 0.320271
+(key1=0, state=1) -> (key2=0, state=3) : -0.237112
+(key1=0, state=2) -> (key2=0, state=0) : 0.027802
+(key1=0, state=2) -> (key2=0, state=1) : -0.209439
+(key1=0, state=2) -> (key2=0, state=2) : 0.244336
+(key1=0, state=2) -> (key2=0, state=3) : 0.144635
+(key1=0, state=3) -> (key2=0, state=0) : -0.000755
+(key1=0, state=3) -> (key2=0, state=1) : -0.060764
+(key1=0, state=3) -> (key2=0, state=2) : -0.076769
+(key1=0, state=3) -> (key2=0, state=3) : 0.099840
+(key1=2, state=0) -> (key2=2, state=0) : 0.377512
+(key1=2, state=0) -> (key2=2, state=1) : -0.007363
+(key1=2, state=0) -> (key2=2, state=2) : 0.012518
+(key1=2, state=0) -> (key2=2, state=3) : 0.014163
+(key1=2, state=1) -> (key2=2, state=0) : -0.016099
+(key1=2, state=1) -> (key2=2, state=1) : 0.289692
+(key1=2, state=1) -> (key2=2, state=2) : -0.052216
+(key1=2, state=1) -> (key2=2, state=3) : -0.017087
+(key1=2, state=2) -> (key2=2, state=0) : -0.029726
+(key1=2, state=2) -> (key2=2, state=1) : 0.094418
+(key1=2, state=2) -> (key2=2, state=2) : 0.292433
+(key1=2, state=2) -> (key2=2, state=3) : -0.032948
+(key1=2, state=3) -> (key2=2, state=0) : 0.016957
+(key1=2, state=3) -> (key2=2, state=1) : 0.037258
+(key1=2, state=3) -> (key2=2, state=2) : 0.001190
+(key1=2, state=3) -> (key2=2, state=3) : 0.088804
+(key1=4, state=0) -> (key2=4, state=0) : -0.415033
+(key1=4, state=0) -> (key2=4, state=1) : 0.016929
+(key1=4, state=0) -> (key2=4, state=2) : 0.048047
+(key1=4, state=0) -> (key2=4, state=3) : -0.008870
+(key1=4, state=1) -> (key2=4, state=0) : 0.066238
+(key1=4, state=1) -> (key2=4, state=1) : 0.363717
+(key1=4, state=1) -> (key2=4, state=2) : -0.134937
+(key1=4, state=1) -> (key2=4, state=3) : -0.032339
+(key1=4, state=2) -> (key2=4, state=0) : 0.023696
+(key1=4, state=2) -> (key2=4, state=1) : 0.053568
+(key1=4, state=2) -> (key2=4, state=2) : 0.364216
+(key1=4, state=2) -> (key2=4, state=3) : -0.012808
+(key1=4, state=3) -> (key2=4, state=0) : 0.007370
+(key1=4, state=3) -> (key2=4, state=1) : 0.017058
+(key1=4, state=3) -> (key2=4, state=2) : -0.028704
+(key1=4, state=3) -> (key2=4, state=3) : 0.188237
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 1.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 1.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 1.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+1.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 1.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.707107 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=0, state=0) : -0.660084
+(key1=0, state=0) -> (key2=0, state=1) : -0.107433
+(key1=0, state=0) -> (key2=0, state=2) : 0.075695
+(key1=0, state=0) -> (key2=0, state=3) : -0.106871
+(key1=0, state=1) -> (key2=0, state=0) : -0.015095
+(key1=0, state=1) -> (key2=0, state=1) : -0.096921
+(key1=0, state=1) -> (key2=0, state=2) : 0.441111
+(key1=0, state=1) -> (key2=0, state=3) : -0.396428
+(key1=0, state=2) -> (key2=0, state=0) : -0.036557
+(key1=0, state=2) -> (key2=0, state=1) : -0.230820
+(key1=0, state=2) -> (key2=0, state=2) : 0.308479
+(key1=0, state=2) -> (key2=0, state=3) : 0.134276
+(key1=0, state=3) -> (key2=0, state=0) : -0.069835
+(key1=0, state=3) -> (key2=0, state=1) : 0.057251
+(key1=0, state=3) -> (key2=0, state=2) : -0.063540
+(key1=0, state=3) -> (key2=0, state=3) : 0.172511
+(key1=2, state=0) -> (key2=2, state=0) : 0.473411
+(key1=2, state=0) -> (key2=2, state=1) : -0.031960
+(key1=2, state=0) -> (key2=2, state=2) : 0.031448
+(key1=2, state=0) -> (key2=2, state=3) : 0.023631
+(key1=2, state=1) -> (key2=2, state=0) : -0.137186
+(key1=2, state=1) -> (key2=2, state=1) : 0.348456
+(key1=2, state=1) -> (key2=2, state=2) : -0.034468
+(key1=2, state=1) -> (key2=2, state=3) : -0.048259
+(key1=2, state=2) -> (key2=2, state=0) : 0.015114
+(key1=2, state=2) -> (key2=2, state=1) : 0.160701
+(key1=2, state=2) -> (key2=2, state=2) : 0.397505
+(key1=2, state=2) -> (key2=2, state=3) : -0.054374
+(key1=2, state=3) -> (key2=2, state=0) : -0.011153
+(key1=2, state=3) -> (key2=2, state=1) : 0.040511
+(key1=2, state=3) -> (key2=2, state=2) : 0.013136
+(key1=2, state=3) -> (key2=2, state=3) : 0.123216
+(key1=4, state=0) -> (key2=4, state=0) : -0.580737
+(key1=4, state=0) -> (key2=4, state=1) : 0.024792
+(key1=4, state=0) -> (key2=4, state=2) : 0.093188
+(key1=4, state=0) -> (key2=4, state=3) : -0.010474
+(key1=4, state=1) -> (key2=4, state=0) : 0.077247
+(key1=4, state=1) -> (key2=4, state=1) : 0.507175
+(key1=4, state=1) -> (key2=4, state=2) : -0.231020
+(key1=4, state=1) -> (key2=4, state=3) : -0.079296
+(key1=4, state=2) -> (key2=4, state=0) : -0.051622
+(key1=4, state=2) -> (key2=4, state=1) : 0.046715
+(key1=4, state=2) -> (key2=4, state=2) : 0.434975
+(key1=4, state=2) -> (key2=4, state=3) : -0.035369
+(key1=4, state=3) -> (key2=4, state=0) : 0.010031
+(key1=4, state=3) -> (key2=4, state=1) : 0.024878
+(key1=4, state=3) -> (key2=4, state=2) : -0.053816
+(key1=4, state=3) -> (key2=4, state=3) : 0.280945
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 1.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 1.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+1.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 1.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 1.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.707107 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=0, state=0) : -0.406921
+(key1=0, state=0) -> (key2=0, state=1) : -0.081951
+(key1=0, state=0) -> (key2=0, state=2) : 0.046709
+(key1=0, state=0) -> (key2=0, state=3) : -0.110895
+(key1=0, state=1) -> (key2=0, state=0) : -0.016187
+(key1=0, state=1) -> (key2=0, state=1) : -0.100367
+(key1=0, state=1) -> (key2=0, state=2) : 0.264208
+(key1=0, state=1) -> (key2=0, state=3) : -0.267393
+(key1=0, state=2) -> (key2=0, state=0) : -0.032214
+(key1=0, state=2) -> (key2=0, state=1) : -0.127288
+(key1=0, state=2) -> (key2=0, state=2) : 0.184810
+(key1=0, state=2) -> (key2=0, state=3) : 0.064314
+(key1=0, state=3) -> (key2=0, state=0) : -0.034109
+(key1=0, state=3) -> (key2=0, state=1) : 0.105868
+(key1=0, state=3) -> (key2=0, state=2) : -0.022549
+(key1=0, state=3) -> (key2=0, state=3) : 0.123421
+(key1=2, state=0) -> (key2=2, state=0) : 0.277377
+(key1=2, state=0) -> (key2=2, state=1) : -0.002968
+(key1=2, state=0) -> (key2=2, state=2) : 0.006622
+(key1=2, state=0) -> (key2=2, state=3) : 0.018513
+(key1=2, state=1) -> (key2=2, state=0) : -0.099790
+(key1=2, state=1) -> (key2=2, state=1) : 0.173151
+(key1=2, state=1) -> (key2=2, state=2) : -0.005775
+(key1=2, state=1) -> (key2=2, state=3) : -0.042509
+(key1=2, state=2) -> (key2=2, state=0) : 0.020200
+(key1=2, state=2) -> (key2=2, state=1) : 0.095629
+(key1=2, state=2) -> (key2=2, state=2) : 0.214195
+(key1=2, state=2) -> (key2=2, state=3) : -0.046803
+(key1=2, state=3) -> (key2=2, state=0) : -0.012937
+(key1=2, state=3) -> (key2=2, state=1) : 0.017985
+(key1=2, state=3) -> (key2=2, state=2) : 0.010091
+(key1=2, state=3) -> (key2=2, state=3) : 0.069305
+(key1=4, state=0) -> (key2=4, state=0) : -0.348797
+(key1=4, state=0) -> (key2=4, state=1) : -0.002867
+(key1=4, state=0) -> (key2=4, state=2) : 0.054006
+(key1=4, state=0) -> (key2=4, state=3) : -0.014639
+(key1=4, state=1) -> (key2=4, state=0) : 0.054800
+(key1=4, state=1) -> (key2=4, state=1) : 0.287456
+(key1=4, state=1) -> (key2=4, state=2) : -0.156881
+(key1=4, state=1) -> (key2=4, state=3) : -0.066739
+(key1=4, state=2) -> (key2=4, state=0) : -0.043570
+(key1=4, state=2) -> (key2=4, state=1) : 0.017856
+(key1=4, state=2) -> (key2=4, state=2) : 0.251039
+(key1=4, state=2) -> (key2=4, state=3) : -0.022542
+(key1=4, state=3) -> (key2=4, state=0) : 0.005517
+(key1=4, state=3) -> (key2=4, state=1) : 0.007842
+(key1=4, state=3) -> (key2=4, state=2) : -0.032379
+(key1=4, state=3) -> (key2=4, state=3) : 0.174307
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 1.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+1.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 1.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 1.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 1.000000 0.000000 
+
+
+==== Transition matrix for t = 0 ====
+Transition strengths (transtr) for t = 0:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.707107 
+
+(key1=0, state=0) -> (key2=0, state=0) : 0.824319
+(key1=0, state=0) -> (key2=0, state=1) : 0.100275
+(key1=0, state=0) -> (key2=0, state=2) : -0.099833
+(key1=0, state=0) -> (key2=0, state=3) : -0.003558
+(key1=0, state=1) -> (key2=0, state=0) : 0.057140
+(key1=0, state=1) -> (key2=0, state=1) : -0.003782
+(key1=0, state=1) -> (key2=0, state=2) : -0.589683
+(key1=0, state=1) -> (key2=0, state=3) : 0.427709
+(key1=0, state=2) -> (key2=0, state=0) : -0.054386
+(key1=0, state=2) -> (key2=0, state=1) : 0.366611
+(key1=0, state=2) -> (key2=0, state=2) : -0.425000
+(key1=0, state=2) -> (key2=0, state=3) : -0.235608
+(key1=0, state=3) -> (key2=0, state=0) : -0.035145
+(key1=0, state=3) -> (key2=0, state=1) : 0.154011
+(key1=0, state=3) -> (key2=0, state=2) : 0.154463
+(key1=0, state=3) -> (key2=0, state=3) : -0.163717
+(key1=2, state=0) -> (key2=2, state=0) : -0.654456
+(key1=2, state=0) -> (key2=2, state=1) : 0.077937
+(key1=2, state=0) -> (key2=2, state=2) : -0.073399
+(key1=2, state=0) -> (key2=2, state=3) : -0.011748
+(key1=2, state=1) -> (key2=2, state=0) : 0.013233
+(key1=2, state=1) -> (key2=2, state=1) : -0.548275
+(key1=2, state=1) -> (key2=2, state=2) : 0.094864
+(key1=2, state=1) -> (key2=2, state=3) : 0.006822
+(key1=2, state=2) -> (key2=2, state=0) : 0.064863
+(key1=2, state=2) -> (key2=2, state=1) : -0.185007
+(key1=2, state=2) -> (key2=2, state=2) : -0.550755
+(key1=2, state=2) -> (key2=2, state=3) : 0.022380
+(key1=2, state=3) -> (key2=2, state=0) : -0.035939
+(key1=2, state=3) -> (key2=2, state=1) : -0.066706
+(key1=2, state=3) -> (key2=2, state=2) : -0.004756
+(key1=2, state=3) -> (key2=2, state=3) : -0.161545
+(key1=4, state=0) -> (key2=4, state=0) : 0.747163
+(key1=4, state=0) -> (key2=4, state=1) : -0.065815
+(key1=4, state=0) -> (key2=4, state=2) : -0.132529
+(key1=4, state=0) -> (key2=4, state=3) : -0.019723
+(key1=4, state=1) -> (key2=4, state=0) : -0.117334
+(key1=4, state=1) -> (key2=4, state=1) : -0.682219
+(key1=4, state=1) -> (key2=4, state=2) : 0.232960
+(key1=4, state=1) -> (key2=4, state=3) : 0.047262
+(key1=4, state=2) -> (key2=4, state=0) : -0.039731
+(key1=4, state=2) -> (key2=4, state=1) : -0.085680
+(key1=4, state=2) -> (key2=4, state=2) : -0.637949
+(key1=4, state=2) -> (key2=4, state=3) : 0.036980
+(key1=4, state=3) -> (key2=4, state=0) : -0.008676
+(key1=4, state=3) -> (key2=4, state=1) : -0.030641
+(key1=4, state=3) -> (key2=4, state=2) : 0.045759
+(key1=4, state=3) -> (key2=4, state=3) : -0.344188
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.707107 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.308125
+(key1=0, state=0) -> (key2=4, state=1) : 0.137227
+(key1=0, state=0) -> (key2=4, state=2) : -0.175970
+(key1=0, state=0) -> (key2=4, state=3) : 0.066785
+(key1=0, state=1) -> (key2=4, state=0) : -0.028328
+(key1=0, state=1) -> (key2=4, state=1) : 0.000772
+(key1=0, state=1) -> (key2=4, state=2) : -0.113943
+(key1=0, state=1) -> (key2=4, state=3) : 0.021865
+(key1=0, state=2) -> (key2=4, state=0) : 0.006264
+(key1=0, state=2) -> (key2=4, state=1) : 0.046196
+(key1=0, state=2) -> (key2=4, state=2) : -0.008518
+(key1=0, state=2) -> (key2=4, state=3) : 0.042010
+(key1=0, state=3) -> (key2=4, state=0) : 0.016814
+(key1=0, state=3) -> (key2=4, state=1) : 0.025764
+(key1=0, state=3) -> (key2=4, state=2) : 0.051567
+(key1=0, state=3) -> (key2=4, state=3) : 0.025052
+(key1=2, state=0) -> (key2=2, state=0) : 0.057975
+(key1=2, state=0) -> (key2=2, state=1) : 0.095440
+(key1=2, state=0) -> (key2=2, state=2) : -0.076377
+(key1=2, state=0) -> (key2=2, state=3) : 0.017362
+(key1=2, state=0) -> (key2=4, state=0) : -0.005091
+(key1=2, state=0) -> (key2=4, state=1) : -0.021340
+(key1=2, state=0) -> (key2=4, state=2) : 0.025163
+(key1=2, state=0) -> (key2=4, state=3) : -0.037969
+(key1=2, state=1) -> (key2=2, state=0) : -0.005063
+(key1=2, state=1) -> (key2=2, state=1) : -0.030464
+(key1=2, state=1) -> (key2=2, state=2) : -0.005899
+(key1=2, state=1) -> (key2=2, state=3) : -0.043045
+(key1=2, state=1) -> (key2=4, state=0) : -0.002765
+(key1=2, state=1) -> (key2=4, state=1) : 0.007663
+(key1=2, state=1) -> (key2=4, state=2) : -0.000125
+(key1=2, state=1) -> (key2=4, state=3) : 0.006994
+(key1=2, state=2) -> (key2=2, state=0) : 0.006834
+(key1=2, state=2) -> (key2=2, state=1) : -0.021751
+(key1=2, state=2) -> (key2=2, state=2) : -0.027556
+(key1=2, state=2) -> (key2=2, state=3) : -0.056855
+(key1=2, state=2) -> (key2=4, state=0) : -0.002549
+(key1=2, state=2) -> (key2=4, state=1) : 0.007853
+(key1=2, state=2) -> (key2=4, state=2) : -0.000584
+(key1=2, state=2) -> (key2=4, state=3) : 0.018191
+(key1=2, state=3) -> (key2=2, state=0) : -0.001519
+(key1=2, state=3) -> (key2=2, state=1) : 0.000855
+(key1=2, state=3) -> (key2=2, state=2) : -0.005901
+(key1=2, state=3) -> (key2=2, state=3) : -0.006650
+(key1=2, state=3) -> (key2=4, state=0) : -0.001327
+(key1=2, state=3) -> (key2=4, state=1) : 0.000971
+(key1=2, state=3) -> (key2=4, state=2) : 0.002383
+(key1=2, state=3) -> (key2=4, state=3) : -0.002621
+(key1=4, state=0) -> (key2=0, state=0) : -0.055422
+(key1=4, state=0) -> (key2=0, state=1) : 0.026639
+(key1=4, state=0) -> (key2=0, state=2) : -0.015237
+(key1=4, state=0) -> (key2=0, state=3) : 0.023629
+(key1=4, state=0) -> (key2=2, state=0) : -0.086595
+(key1=4, state=0) -> (key2=2, state=1) : 0.024211
+(key1=4, state=0) -> (key2=2, state=2) : 0.004998
+(key1=4, state=0) -> (key2=2, state=3) : -0.004973
+(key1=4, state=0) -> (key2=4, state=0) : 0.047800
+(key1=4, state=0) -> (key2=4, state=1) : 0.156677
+(key1=4, state=0) -> (key2=4, state=2) : 0.120687
+(key1=4, state=0) -> (key2=4, state=3) : 0.060217
+(key1=4, state=1) -> (key2=0, state=0) : 0.015695
+(key1=4, state=1) -> (key2=0, state=1) : -0.074716
+(key1=4, state=1) -> (key2=0, state=2) : 0.027414
+(key1=4, state=1) -> (key2=0, state=3) : 0.046383
+(key1=4, state=1) -> (key2=2, state=0) : 0.094622
+(key1=4, state=1) -> (key2=2, state=1) : 0.042299
+(key1=4, state=1) -> (key2=2, state=2) : 0.006183
+(key1=4, state=1) -> (key2=2, state=3) : 0.002984
+(key1=4, state=1) -> (key2=4, state=0) : -0.031146
+(key1=4, state=1) -> (key2=4, state=1) : -0.001194
+(key1=4, state=1) -> (key2=4, state=2) : 0.071338
+(key1=4, state=1) -> (key2=4, state=3) : 0.034962
+(key1=4, state=2) -> (key2=0, state=0) : -0.004136
+(key1=4, state=2) -> (key2=0, state=1) : -0.091946
+(key1=4, state=2) -> (key2=0, state=2) : -0.062647
+(key1=4, state=2) -> (key2=0, state=3) : -0.035504
+(key1=4, state=2) -> (key2=2, state=0) : -0.049927
+(key1=4, state=2) -> (key2=2, state=1) : 0.042649
+(key1=4, state=2) -> (key2=2, state=2) : -0.013837
+(key1=4, state=2) -> (key2=2, state=3) : 0.011534
+(key1=4, state=2) -> (key2=4, state=0) : -0.014677
+(key1=4, state=2) -> (key2=4, state=1) : 0.014163
+(key1=4, state=2) -> (key2=4, state=2) : -0.049421
+(key1=4, state=2) -> (key2=4, state=3) : -0.056136
+(key1=4, state=3) -> (key2=0, state=0) : 0.006781
+(key1=4, state=3) -> (key2=0, state=1) : -0.010189
+(key1=4, state=3) -> (key2=0, state=2) : 0.011912
+(key1=4, state=3) -> (key2=0, state=3) : -0.011518
+(key1=4, state=3) -> (key2=2, state=0) : -0.002460
+(key1=4, state=3) -> (key2=2, state=1) : -0.015809
+(key1=4, state=3) -> (key2=2, state=2) : -0.056376
+(key1=4, state=3) -> (key2=2, state=3) : 0.014066
+(key1=4, state=3) -> (key2=4, state=0) : 0.009165
+(key1=4, state=3) -> (key2=4, state=1) : -0.000165
+(key1=4, state=3) -> (key2=4, state=2) : 0.007694
+(key1=4, state=3) -> (key2=4, state=3) : 0.048932
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 1.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : 0.142829
+(key1=0, state=0) -> (key2=4, state=1) : -0.045965
+(key1=0, state=0) -> (key2=4, state=2) : 0.099134
+(key1=0, state=0) -> (key2=4, state=3) : -0.018401
+(key1=0, state=1) -> (key2=4, state=0) : 0.014641
+(key1=0, state=1) -> (key2=4, state=1) : 0.000556
+(key1=0, state=1) -> (key2=4, state=2) : 0.057788
+(key1=0, state=1) -> (key2=4, state=3) : -0.004204
+(key1=0, state=2) -> (key2=4, state=0) : -0.002304
+(key1=0, state=2) -> (key2=4, state=1) : -0.019122
+(key1=0, state=2) -> (key2=4, state=2) : 0.003016
+(key1=0, state=2) -> (key2=4, state=3) : -0.019752
+(key1=0, state=3) -> (key2=4, state=0) : -0.008311
+(key1=0, state=3) -> (key2=4, state=1) : -0.014550
+(key1=0, state=3) -> (key2=4, state=2) : -0.029920
+(key1=0, state=3) -> (key2=4, state=3) : -0.017455
+(key1=2, state=0) -> (key2=2, state=0) : -0.028923
+(key1=2, state=0) -> (key2=2, state=1) : -0.041397
+(key1=2, state=0) -> (key2=2, state=2) : 0.033150
+(key1=2, state=0) -> (key2=2, state=3) : -0.008007
+(key1=2, state=0) -> (key2=4, state=0) : 0.000045
+(key1=2, state=0) -> (key2=4, state=1) : 0.010460
+(key1=2, state=0) -> (key2=4, state=2) : -0.010354
+(key1=2, state=0) -> (key2=4, state=3) : 0.018583
+(key1=2, state=1) -> (key2=2, state=0) : 0.004345
+(key1=2, state=1) -> (key2=2, state=1) : 0.009620
+(key1=2, state=1) -> (key2=2, state=2) : 0.003562
+(key1=2, state=1) -> (key2=2, state=3) : 0.019290
+(key1=2, state=1) -> (key2=4, state=0) : 0.000581
+(key1=2, state=1) -> (key2=4, state=1) : -0.006572
+(key1=2, state=1) -> (key2=4, state=2) : 0.000075
+(key1=2, state=1) -> (key2=4, state=3) : -0.002033
+(key1=2, state=2) -> (key2=2, state=0) : -0.003515
+(key1=2, state=2) -> (key2=2, state=1) : 0.008551
+(key1=2, state=2) -> (key2=2, state=2) : 0.008578
+(key1=2, state=2) -> (key2=2, state=3) : 0.026554
+(key1=2, state=2) -> (key2=4, state=0) : 0.002604
+(key1=2, state=2) -> (key2=4, state=1) : -0.003691
+(key1=2, state=2) -> (key2=4, state=2) : -0.000641
+(key1=2, state=2) -> (key2=4, state=3) : -0.006294
+(key1=2, state=3) -> (key2=2, state=0) : 0.001021
+(key1=2, state=3) -> (key2=2, state=1) : -0.000924
+(key1=2, state=3) -> (key2=2, state=2) : 0.003107
+(key1=2, state=3) -> (key2=2, state=3) : 0.003264
+(key1=2, state=3) -> (key2=4, state=0) : 0.000092
+(key1=2, state=3) -> (key2=4, state=1) : -0.001143
+(key1=2, state=3) -> (key2=4, state=2) : -0.000593
+(key1=2, state=3) -> (key2=4, state=3) : 0.001146
+(key1=4, state=0) -> (key2=0, state=0) : 0.023794
+(key1=4, state=0) -> (key2=0, state=1) : -0.019496
+(key1=4, state=0) -> (key2=0, state=2) : 0.006401
+(key1=4, state=0) -> (key2=0, state=3) : -0.009506
+(key1=4, state=0) -> (key2=2, state=0) : 0.042074
+(key1=4, state=0) -> (key2=2, state=1) : -0.005411
+(key1=4, state=0) -> (key2=2, state=2) : -0.005308
+(key1=4, state=0) -> (key2=2, state=3) : 0.004148
+(key1=4, state=0) -> (key2=4, state=0) : -0.027101
+(key1=4, state=0) -> (key2=4, state=1) : -0.067102
+(key1=4, state=0) -> (key2=4, state=2) : -0.057491
+(key1=4, state=0) -> (key2=4, state=3) : -0.025942
+(key1=4, state=1) -> (key2=0, state=0) : -0.009046
+(key1=4, state=1) -> (key2=0, state=1) : 0.033242
+(key1=4, state=1) -> (key2=0, state=2) : -0.014927
+(key1=4, state=1) -> (key2=0, state=3) : -0.023023
+(key1=4, state=1) -> (key2=2, state=0) : -0.047074
+(key1=4, state=1) -> (key2=2, state=1) : -0.022362
+(key1=4, state=1) -> (key2=2, state=2) : 0.001052
+(key1=4, state=1) -> (key2=2, state=3) : -0.000663
+(key1=4, state=1) -> (key2=4, state=0) : 0.012129
+(key1=4, state=1) -> (key2=4, state=1) : 0.002282
+(key1=4, state=1) -> (key2=4, state=2) : -0.030389
+(key1=4, state=1) -> (key2=4, state=3) : -0.011907
+(key1=4, state=2) -> (key2=0, state=0) : 0.003995
+(key1=4, state=2) -> (key2=0, state=1) : 0.044327
+(key1=4, state=2) -> (key2=0, state=2) : 0.028880
+(key1=4, state=2) -> (key2=0, state=3) : 0.018570
+(key1=4, state=2) -> (key2=2, state=0) : 0.024044
+(key1=4, state=2) -> (key2=2, state=1) : -0.015534
+(key1=4, state=2) -> (key2=2, state=2) : 0.004381
+(key1=4, state=2) -> (key2=2, state=3) : -0.004090
+(key1=4, state=2) -> (key2=4, state=0) : 0.004752
+(key1=4, state=2) -> (key2=4, state=1) : -0.004693
+(key1=4, state=2) -> (key2=4, state=2) : 0.024527
+(key1=4, state=2) -> (key2=4, state=3) : 0.026604
+(key1=4, state=3) -> (key2=0, state=0) : -0.002993
+(key1=4, state=3) -> (key2=0, state=1) : 0.004091
+(key1=4, state=3) -> (key2=0, state=2) : -0.005165
+(key1=4, state=3) -> (key2=0, state=3) : 0.003557
+(key1=4, state=3) -> (key2=2, state=0) : 0.001481
+(key1=4, state=3) -> (key2=2, state=1) : 0.007203
+(key1=4, state=3) -> (key2=2, state=2) : 0.022913
+(key1=4, state=3) -> (key2=2, state=3) : -0.008525
+(key1=4, state=3) -> (key2=4, state=0) : -0.004920
+(key1=4, state=3) -> (key2=4, state=1) : 0.000196
+(key1=4, state=3) -> (key2=4, state=2) : -0.003177
+(key1=4, state=3) -> (key2=4, state=3) : -0.021454
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 1.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.435914
+(key1=0, state=0) -> (key2=4, state=1) : 0.202159
+(key1=0, state=0) -> (key2=4, state=2) : -0.251757
+(key1=0, state=0) -> (key2=4, state=3) : 0.137988
+(key1=0, state=1) -> (key2=4, state=0) : -0.022651
+(key1=0, state=1) -> (key2=4, state=1) : 0.008640
+(key1=0, state=1) -> (key2=4, state=2) : -0.126746
+(key1=0, state=1) -> (key2=4, state=3) : 0.020484
+(key1=0, state=2) -> (key2=4, state=0) : -0.004375
+(key1=0, state=2) -> (key2=4, state=1) : 0.069835
+(key1=0, state=2) -> (key2=4, state=2) : -0.011632
+(key1=0, state=2) -> (key2=4, state=3) : 0.049572
+(key1=0, state=3) -> (key2=4, state=0) : -0.013959
+(key1=0, state=3) -> (key2=4, state=1) : 0.015234
+(key1=0, state=3) -> (key2=4, state=2) : -0.004071
+(key1=0, state=3) -> (key2=4, state=3) : 0.052981
+(key1=2, state=0) -> (key2=2, state=0) : 0.099435
+(key1=2, state=0) -> (key2=2, state=1) : 0.102752
+(key1=2, state=0) -> (key2=2, state=2) : -0.079024
+(key1=2, state=0) -> (key2=2, state=3) : 0.024131
+(key1=2, state=0) -> (key2=4, state=0) : 0.037450
+(key1=2, state=0) -> (key2=4, state=1) : -0.041806
+(key1=2, state=0) -> (key2=4, state=2) : 0.028834
+(key1=2, state=0) -> (key2=4, state=3) : -0.050438
+(key1=2, state=1) -> (key2=2, state=0) : -0.046763
+(key1=2, state=1) -> (key2=2, state=1) : -0.056862
+(key1=2, state=1) -> (key2=2, state=2) : 0.021473
+(key1=2, state=1) -> (key2=2, state=3) : -0.073234
+(key1=2, state=1) -> (key2=4, state=0) : -0.016690
+(key1=2, state=1) -> (key2=4, state=1) : 0.033570
+(key1=2, state=1) -> (key2=4, state=2) : 0.036300
+(key1=2, state=1) -> (key2=4, state=3) : 0.006525
+(key1=2, state=2) -> (key2=2, state=0) : 0.025074
+(key1=2, state=2) -> (key2=2, state=1) : -0.000040
+(key1=2, state=2) -> (key2=2, state=2) : -0.027904
+(key1=2, state=2) -> (key2=2, state=3) : -0.091290
+(key1=2, state=2) -> (key2=4, state=0) : -0.020569
+(key1=2, state=2) -> (key2=4, state=1) : 0.034719
+(key1=2, state=2) -> (key2=4, state=2) : -0.004162
+(key1=2, state=2) -> (key2=4, state=3) : -0.017815
+(key1=2, state=3) -> (key2=2, state=0) : -0.011595
+(key1=2, state=3) -> (key2=2, state=1) : -0.009051
+(key1=2, state=3) -> (key2=2, state=2) : -0.005708
+(key1=2, state=3) -> (key2=2, state=3) : -0.018003
+(key1=2, state=3) -> (key2=4, state=0) : 0.000675
+(key1=2, state=3) -> (key2=4, state=1) : 0.005196
+(key1=2, state=3) -> (key2=4, state=2) : 0.006710
+(key1=2, state=3) -> (key2=4, state=3) : 0.000594
+(key1=4, state=0) -> (key2=0, state=0) : -0.046114
+(key1=4, state=0) -> (key2=0, state=1) : 0.009367
+(key1=4, state=0) -> (key2=0, state=2) : -0.045666
+(key1=4, state=0) -> (key2=0, state=3) : 0.021917
+(key1=4, state=0) -> (key2=2, state=0) : -0.124051
+(key1=4, state=0) -> (key2=2, state=1) : 0.050911
+(key1=4, state=0) -> (key2=2, state=2) : -0.003933
+(key1=4, state=0) -> (key2=2, state=3) : -0.001109
+(key1=4, state=0) -> (key2=4, state=0) : 0.100107
+(key1=4, state=0) -> (key2=4, state=1) : 0.192584
+(key1=4, state=0) -> (key2=4, state=2) : 0.179349
+(key1=4, state=0) -> (key2=4, state=3) : 0.067785
+(key1=4, state=1) -> (key2=0, state=0) : 0.055546
+(key1=4, state=1) -> (key2=0, state=1) : -0.106637
+(key1=4, state=1) -> (key2=0, state=2) : 0.037870
+(key1=4, state=1) -> (key2=0, state=3) : 0.057957
+(key1=4, state=1) -> (key2=2, state=0) : 0.145601
+(key1=4, state=1) -> (key2=2, state=1) : 0.051380
+(key1=4, state=1) -> (key2=2, state=2) : 0.018100
+(key1=4, state=1) -> (key2=2, state=3) : 0.002198
+(key1=4, state=1) -> (key2=4, state=0) : 0.002121
+(key1=4, state=1) -> (key2=4, state=1) : 0.011965
+(key1=4, state=1) -> (key2=4, state=2) : 0.115683
+(key1=4, state=1) -> (key2=4, state=3) : 0.061839
+(key1=4, state=2) -> (key2=0, state=0) : -0.011871
+(key1=4, state=2) -> (key2=0, state=1) : -0.084990
+(key1=4, state=2) -> (key2=0, state=2) : -0.059460
+(key1=4, state=2) -> (key2=0, state=3) : -0.040217
+(key1=4, state=2) -> (key2=2, state=0) : -0.071787
+(key1=4, state=2) -> (key2=2, state=1) : 0.056247
+(key1=4, state=2) -> (key2=2, state=2) : -0.020165
+(key1=4, state=2) -> (key2=2, state=3) : 0.015966
+(key1=4, state=2) -> (key2=4, state=0) : -0.013330
+(key1=4, state=2) -> (key2=4, state=1) : 0.073622
+(key1=4, state=2) -> (key2=4, state=2) : -0.037552
+(key1=4, state=2) -> (key2=4, state=3) : -0.031320
+(key1=4, state=3) -> (key2=0, state=0) : 0.019867
+(key1=4, state=3) -> (key2=0, state=1) : -0.017266
+(key1=4, state=3) -> (key2=0, state=2) : 0.007367
+(key1=4, state=3) -> (key2=0, state=3) : -0.012967
+(key1=4, state=3) -> (key2=2, state=0) : 0.006929
+(key1=4, state=3) -> (key2=2, state=1) : -0.022441
+(key1=4, state=3) -> (key2=2, state=2) : -0.079894
+(key1=4, state=3) -> (key2=2, state=3) : 0.019179
+(key1=4, state=3) -> (key2=4, state=0) : 0.026674
+(key1=4, state=3) -> (key2=4, state=1) : 0.010141
+(key1=4, state=3) -> (key2=4, state=2) : 0.014838
+(key1=4, state=3) -> (key2=4, state=3) : 0.066633
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 1.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 1.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+1.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.142829
+(key1=0, state=0) -> (key2=4, state=1) : 0.045965
+(key1=0, state=0) -> (key2=4, state=2) : -0.099134
+(key1=0, state=0) -> (key2=4, state=3) : 0.018401
+(key1=0, state=1) -> (key2=4, state=0) : -0.014641
+(key1=0, state=1) -> (key2=4, state=1) : -0.000556
+(key1=0, state=1) -> (key2=4, state=2) : -0.057788
+(key1=0, state=1) -> (key2=4, state=3) : 0.004204
+(key1=0, state=2) -> (key2=4, state=0) : 0.002304
+(key1=0, state=2) -> (key2=4, state=1) : 0.019122
+(key1=0, state=2) -> (key2=4, state=2) : -0.003016
+(key1=0, state=2) -> (key2=4, state=3) : 0.019752
+(key1=0, state=3) -> (key2=4, state=0) : 0.008311
+(key1=0, state=3) -> (key2=4, state=1) : 0.014550
+(key1=0, state=3) -> (key2=4, state=2) : 0.029920
+(key1=0, state=3) -> (key2=4, state=3) : 0.017455
+(key1=2, state=0) -> (key2=2, state=0) : 0.028923
+(key1=2, state=0) -> (key2=2, state=1) : 0.041397
+(key1=2, state=0) -> (key2=2, state=2) : -0.033150
+(key1=2, state=0) -> (key2=2, state=3) : 0.008007
+(key1=2, state=0) -> (key2=4, state=0) : -0.000045
+(key1=2, state=0) -> (key2=4, state=1) : -0.010460
+(key1=2, state=0) -> (key2=4, state=2) : 0.010354
+(key1=2, state=0) -> (key2=4, state=3) : -0.018583
+(key1=2, state=1) -> (key2=2, state=0) : -0.004345
+(key1=2, state=1) -> (key2=2, state=1) : -0.009620
+(key1=2, state=1) -> (key2=2, state=2) : -0.003562
+(key1=2, state=1) -> (key2=2, state=3) : -0.019290
+(key1=2, state=1) -> (key2=4, state=0) : -0.000581
+(key1=2, state=1) -> (key2=4, state=1) : 0.006572
+(key1=2, state=1) -> (key2=4, state=2) : -0.000075
+(key1=2, state=1) -> (key2=4, state=3) : 0.002033
+(key1=2, state=2) -> (key2=2, state=0) : 0.003515
+(key1=2, state=2) -> (key2=2, state=1) : -0.008551
+(key1=2, state=2) -> (key2=2, state=2) : -0.008578
+(key1=2, state=2) -> (key2=2, state=3) : -0.026554
+(key1=2, state=2) -> (key2=4, state=0) : -0.002604
+(key1=2, state=2) -> (key2=4, state=1) : 0.003691
+(key1=2, state=2) -> (key2=4, state=2) : 0.000641
+(key1=2, state=2) -> (key2=4, state=3) : 0.006294
+(key1=2, state=3) -> (key2=2, state=0) : -0.001021
+(key1=2, state=3) -> (key2=2, state=1) : 0.000924
+(key1=2, state=3) -> (key2=2, state=2) : -0.003107
+(key1=2, state=3) -> (key2=2, state=3) : -0.003264
+(key1=2, state=3) -> (key2=4, state=0) : -0.000092
+(key1=2, state=3) -> (key2=4, state=1) : 0.001143
+(key1=2, state=3) -> (key2=4, state=2) : 0.000593
+(key1=2, state=3) -> (key2=4, state=3) : -0.001146
+(key1=4, state=0) -> (key2=0, state=0) : -0.023794
+(key1=4, state=0) -> (key2=0, state=1) : 0.019496
+(key1=4, state=0) -> (key2=0, state=2) : -0.006401
+(key1=4, state=0) -> (key2=0, state=3) : 0.009506
+(key1=4, state=0) -> (key2=2, state=0) : -0.042074
+(key1=4, state=0) -> (key2=2, state=1) : 0.005411
+(key1=4, state=0) -> (key2=2, state=2) : 0.005308
+(key1=4, state=0) -> (key2=2, state=3) : -0.004148
+(key1=4, state=0) -> (key2=4, state=0) : 0.027101
+(key1=4, state=0) -> (key2=4, state=1) : 0.067102
+(key1=4, state=0) -> (key2=4, state=2) : 0.057491
+(key1=4, state=0) -> (key2=4, state=3) : 0.025942
+(key1=4, state=1) -> (key2=0, state=0) : 0.009046
+(key1=4, state=1) -> (key2=0, state=1) : -0.033242
+(key1=4, state=1) -> (key2=0, state=2) : 0.014927
+(key1=4, state=1) -> (key2=0, state=3) : 0.023023
+(key1=4, state=1) -> (key2=2, state=0) : 0.047074
+(key1=4, state=1) -> (key2=2, state=1) : 0.022362
+(key1=4, state=1) -> (key2=2, state=2) : -0.001052
+(key1=4, state=1) -> (key2=2, state=3) : 0.000663
+(key1=4, state=1) -> (key2=4, state=0) : -0.012129
+(key1=4, state=1) -> (key2=4, state=1) : -0.002282
+(key1=4, state=1) -> (key2=4, state=2) : 0.030389
+(key1=4, state=1) -> (key2=4, state=3) : 0.011907
+(key1=4, state=2) -> (key2=0, state=0) : -0.003995
+(key1=4, state=2) -> (key2=0, state=1) : -0.044327
+(key1=4, state=2) -> (key2=0, state=2) : -0.028880
+(key1=4, state=2) -> (key2=0, state=3) : -0.018570
+(key1=4, state=2) -> (key2=2, state=0) : -0.024044
+(key1=4, state=2) -> (key2=2, state=1) : 0.015534
+(key1=4, state=2) -> (key2=2, state=2) : -0.004381
+(key1=4, state=2) -> (key2=2, state=3) : 0.004090
+(key1=4, state=2) -> (key2=4, state=0) : -0.004752
+(key1=4, state=2) -> (key2=4, state=1) : 0.004693
+(key1=4, state=2) -> (key2=4, state=2) : -0.024527
+(key1=4, state=2) -> (key2=4, state=3) : -0.026604
+(key1=4, state=3) -> (key2=0, state=0) : 0.002993
+(key1=4, state=3) -> (key2=0, state=1) : -0.004091
+(key1=4, state=3) -> (key2=0, state=2) : 0.005165
+(key1=4, state=3) -> (key2=0, state=3) : -0.003557
+(key1=4, state=3) -> (key2=2, state=0) : -0.001481
+(key1=4, state=3) -> (key2=2, state=1) : -0.007203
+(key1=4, state=3) -> (key2=2, state=2) : -0.022913
+(key1=4, state=3) -> (key2=2, state=3) : 0.008525
+(key1=4, state=3) -> (key2=4, state=0) : 0.004920
+(key1=4, state=3) -> (key2=4, state=1) : -0.000196
+(key1=4, state=3) -> (key2=4, state=2) : 0.003177
+(key1=4, state=3) -> (key2=4, state=3) : 0.021454
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.707107 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.357890
+(key1=0, state=0) -> (key2=4, state=1) : 0.158076
+(key1=0, state=0) -> (key2=4, state=2) : -0.209016
+(key1=0, state=0) -> (key2=4, state=3) : 0.081156
+(key1=0, state=1) -> (key2=4, state=0) : -0.035612
+(key1=0, state=1) -> (key2=4, state=1) : 0.003946
+(key1=0, state=1) -> (key2=4, state=2) : -0.133307
+(key1=0, state=1) -> (key2=4, state=3) : 0.022527
+(key1=0, state=2) -> (key2=4, state=0) : 0.007781
+(key1=0, state=2) -> (key2=4, state=1) : 0.050793
+(key1=0, state=2) -> (key2=4, state=2) : -0.001211
+(key1=0, state=2) -> (key2=4, state=3) : 0.057190
+(key1=0, state=3) -> (key2=4, state=0) : 0.025141
+(key1=0, state=3) -> (key2=4, state=1) : 0.022809
+(key1=0, state=3) -> (key2=4, state=2) : 0.062116
+(key1=0, state=3) -> (key2=4, state=3) : 0.034428
+(key1=2, state=0) -> (key2=2, state=0) : 0.075666
+(key1=2, state=0) -> (key2=2, state=1) : 0.114984
+(key1=2, state=0) -> (key2=2, state=2) : -0.092722
+(key1=2, state=0) -> (key2=2, state=3) : 0.020851
+(key1=2, state=0) -> (key2=4, state=0) : -0.002648
+(key1=2, state=0) -> (key2=4, state=1) : -0.024435
+(key1=2, state=0) -> (key2=4, state=2) : 0.021184
+(key1=2, state=0) -> (key2=4, state=3) : -0.046884
+(key1=2, state=1) -> (key2=2, state=0) : -0.010962
+(key1=2, state=1) -> (key2=2, state=1) : -0.028418
+(key1=2, state=1) -> (key2=2, state=2) : -0.008745
+(key1=2, state=1) -> (key2=2, state=3) : -0.050621
+(key1=2, state=1) -> (key2=4, state=0) : -0.002466
+(key1=2, state=1) -> (key2=4, state=1) : 0.012226
+(key1=2, state=1) -> (key2=4, state=2) : -0.000247
+(key1=2, state=1) -> (key2=4, state=3) : -0.001027
+(key1=2, state=2) -> (key2=2, state=0) : 0.009745
+(key1=2, state=2) -> (key2=2, state=1) : -0.023527
+(key1=2, state=2) -> (key2=2, state=2) : -0.025258
+(key1=2, state=2) -> (key2=2, state=3) : -0.069625
+(key1=2, state=2) -> (key2=4, state=0) : -0.004707
+(key1=2, state=2) -> (key2=4, state=1) : 0.010598
+(key1=2, state=2) -> (key2=4, state=2) : 0.002573
+(key1=2, state=2) -> (key2=4, state=3) : 0.015921
+(key1=2, state=3) -> (key2=2, state=0) : -0.002635
+(key1=2, state=3) -> (key2=2, state=1) : 0.002742
+(key1=2, state=3) -> (key2=2, state=2) : -0.007425
+(key1=2, state=3) -> (key2=2, state=3) : -0.008663
+(key1=2, state=3) -> (key2=4, state=0) : -0.000783
+(key1=2, state=3) -> (key2=4, state=1) : 0.001793
+(key1=2, state=3) -> (key2=4, state=2) : 0.001574
+(key1=2, state=3) -> (key2=4, state=3) : -0.004886
+(key1=4, state=0) -> (key2=0, state=0) : -0.058153
+(key1=4, state=0) -> (key2=0, state=1) : 0.034746
+(key1=4, state=0) -> (key2=0, state=2) : -0.019508
+(key1=4, state=0) -> (key2=0, state=3) : 0.025962
+(key1=4, state=0) -> (key2=2, state=0) : -0.101485
+(key1=4, state=0) -> (key2=2, state=1) : 0.027717
+(key1=4, state=0) -> (key2=2, state=2) : 0.005550
+(key1=4, state=0) -> (key2=2, state=3) : -0.005313
+(key1=4, state=0) -> (key2=4, state=0) : 0.062710
+(key1=4, state=0) -> (key2=4, state=1) : 0.181697
+(key1=4, state=0) -> (key2=4, state=2) : 0.149077
+(key1=4, state=0) -> (key2=4, state=3) : 0.072048
+(key1=4, state=1) -> (key2=0, state=0) : 0.023667
+(key1=4, state=1) -> (key2=0, state=1) : -0.092736
+(key1=4, state=1) -> (key2=0, state=2) : 0.031117
+(key1=4, state=1) -> (key2=0, state=3) : 0.053427
+(key1=4, state=1) -> (key2=2, state=0) : 0.113889
+(key1=4, state=1) -> (key2=2, state=1) : 0.049151
+(key1=4, state=1) -> (key2=2, state=2) : 0.007584
+(key1=4, state=1) -> (key2=2, state=3) : 0.004045
+(key1=4, state=1) -> (key2=4, state=0) : -0.025772
+(key1=4, state=1) -> (key2=4, state=1) : -0.003554
+(key1=4, state=1) -> (key2=4, state=2) : 0.083729
+(key1=4, state=1) -> (key2=4, state=3) : 0.038201
+(key1=4, state=2) -> (key2=0, state=0) : -0.009051
+(key1=4, state=2) -> (key2=0, state=1) : -0.122666
+(key1=4, state=2) -> (key2=0, state=2) : -0.074474
+(key1=4, state=2) -> (key2=0, state=3) : -0.045095
+(key1=4, state=2) -> (key2=2, state=0) : -0.056513
+(key1=4, state=2) -> (key2=2, state=1) : 0.050443
+(key1=4, state=2) -> (key2=2, state=2) : -0.017057
+(key1=4, state=2) -> (key2=2, state=3) : 0.014836
+(key1=4, state=2) -> (key2=4, state=0) : -0.014423
+(key1=4, state=2) -> (key2=4, state=1) : 0.010264
+(key1=4, state=2) -> (key2=4, state=2) : -0.067363
+(key1=4, state=2) -> (key2=4, state=3) : -0.070592
+(key1=4, state=3) -> (key2=0, state=0) : 0.009125
+(key1=4, state=3) -> (key2=0, state=1) : -0.014298
+(key1=4, state=3) -> (key2=0, state=2) : 0.011915
+(key1=4, state=3) -> (key2=0, state=3) : -0.011466
+(key1=4, state=3) -> (key2=2, state=0) : -0.001360
+(key1=4, state=3) -> (key2=2, state=1) : -0.018270
+(key1=4, state=3) -> (key2=2, state=2) : -0.065224
+(key1=4, state=3) -> (key2=2, state=3) : 0.015875
+(key1=4, state=3) -> (key2=4, state=0) : 0.014576
+(key1=4, state=3) -> (key2=4, state=1) : 0.000167
+(key1=4, state=3) -> (key2=4, state=2) : 0.009138
+(key1=4, state=3) -> (key2=4, state=3) : 0.055017
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 1.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.248502
+(key1=0, state=0) -> (key2=4, state=1) : 0.167219
+(key1=0, state=0) -> (key2=4, state=2) : -0.105549
+(key1=0, state=0) -> (key2=4, state=3) : 0.118161
+(key1=0, state=1) -> (key2=4, state=0) : -0.012148
+(key1=0, state=1) -> (key2=4, state=1) : -0.000854
+(key1=0, state=1) -> (key2=4, state=2) : -0.068403
+(key1=0, state=1) -> (key2=4, state=3) : 0.015754
+(key1=0, state=2) -> (key2=4, state=0) : -0.006531
+(key1=0, state=2) -> (key2=4, state=1) : 0.045840
+(key1=0, state=2) -> (key2=4, state=2) : 0.006342
+(key1=0, state=2) -> (key2=4, state=3) : 0.043602
+(key1=0, state=3) -> (key2=4, state=0) : -0.002657
+(key1=0, state=3) -> (key2=4, state=1) : 0.024343
+(key1=0, state=3) -> (key2=4, state=2) : 0.000702
+(key1=0, state=3) -> (key2=4, state=3) : 0.041100
+(key1=2, state=0) -> (key2=2, state=0) : 0.058205
+(key1=2, state=0) -> (key2=2, state=1) : 0.077457
+(key1=2, state=0) -> (key2=2, state=2) : -0.060828
+(key1=2, state=0) -> (key2=2, state=3) : 0.015347
+(key1=2, state=0) -> (key2=4, state=0) : 0.023391
+(key1=2, state=0) -> (key2=4, state=1) : -0.014597
+(key1=2, state=0) -> (key2=4, state=2) : 0.007296
+(key1=2, state=0) -> (key2=4, state=3) : -0.026262
+(key1=2, state=1) -> (key2=2, state=0) : -0.022342
+(key1=2, state=1) -> (key2=2, state=1) : -0.042439
+(key1=2, state=1) -> (key2=2, state=2) : 0.011878
+(key1=2, state=1) -> (key2=2, state=3) : -0.045537
+(key1=2, state=1) -> (key2=4, state=0) : -0.017391
+(key1=2, state=1) -> (key2=4, state=1) : 0.011759
+(key1=2, state=1) -> (key2=4, state=2) : 0.021302
+(key1=2, state=1) -> (key2=4, state=3) : -0.004562
+(key1=2, state=2) -> (key2=2, state=0) : 0.014100
+(key1=2, state=2) -> (key2=2, state=1) : -0.006055
+(key1=2, state=2) -> (key2=2, state=2) : -0.026044
+(key1=2, state=2) -> (key2=2, state=3) : -0.055685
+(key1=2, state=2) -> (key2=4, state=0) : -0.008052
+(key1=2, state=2) -> (key2=4, state=1) : 0.023681
+(key1=2, state=2) -> (key2=4, state=2) : -0.002384
+(key1=2, state=2) -> (key2=4, state=3) : -0.015265
+(key1=2, state=3) -> (key2=2, state=0) : -0.006064
+(key1=2, state=3) -> (key2=2, state=1) : -0.004790
+(key1=2, state=3) -> (key2=2, state=2) : -0.002929
+(key1=2, state=3) -> (key2=2, state=3) : -0.010230
+(key1=2, state=3) -> (key2=4, state=0) : -0.001837
+(key1=2, state=3) -> (key2=4, state=1) : 0.001570
+(key1=2, state=3) -> (key2=4, state=2) : 0.003553
+(key1=2, state=3) -> (key2=4, state=3) : -0.001025
+(key1=4, state=0) -> (key2=0, state=0) : -0.018812
+(key1=4, state=0) -> (key2=0, state=1) : -0.018514
+(key1=4, state=0) -> (key2=0, state=2) : -0.036389
+(key1=4, state=0) -> (key2=0, state=3) : 0.012518
+(key1=4, state=0) -> (key2=2, state=0) : -0.068706
+(key1=4, state=0) -> (key2=2, state=1) : 0.043222
+(key1=4, state=0) -> (key2=2, state=2) : -0.008402
+(key1=4, state=0) -> (key2=2, state=3) : 0.003815
+(key1=4, state=0) -> (key2=4, state=0) : 0.046146
+(key1=4, state=0) -> (key2=4, state=1) : 0.131885
+(key1=4, state=0) -> (key2=4, state=2) : 0.110129
+(key1=4, state=0) -> (key2=4, state=3) : 0.053067
+(key1=4, state=1) -> (key2=0, state=0) : 0.035714
+(key1=4, state=1) -> (key2=0, state=1) : -0.080258
+(key1=4, state=1) -> (key2=0, state=2) : 0.009042
+(key1=4, state=1) -> (key2=0, state=3) : 0.030628
+(key1=4, state=1) -> (key2=2, state=0) : 0.077429
+(key1=4, state=1) -> (key2=2, state=1) : 0.025631
+(key1=4, state=1) -> (key2=2, state=2) : 0.019602
+(key1=4, state=1) -> (key2=2, state=3) : 0.004252
+(key1=4, state=1) -> (key2=4, state=0) : 0.004813
+(key1=4, state=1) -> (key2=4, state=1) : 0.016506
+(key1=4, state=1) -> (key2=4, state=2) : 0.071954
+(key1=4, state=1) -> (key2=4, state=3) : 0.051335
+(key1=4, state=2) -> (key2=0, state=0) : -0.008824
+(key1=4, state=2) -> (key2=0, state=1) : -0.061574
+(key1=4, state=2) -> (key2=0, state=2) : -0.034591
+(key1=4, state=2) -> (key2=0, state=3) : -0.015632
+(key1=4, state=2) -> (key2=2, state=0) : -0.037531
+(key1=4, state=2) -> (key2=2, state=1) : 0.047236
+(key1=4, state=2) -> (key2=2, state=2) : -0.018369
+(key1=4, state=2) -> (key2=2, state=3) : 0.014946
+(key1=4, state=2) -> (key2=4, state=0) : -0.009100
+(key1=4, state=2) -> (key2=4, state=1) : 0.039534
+(key1=4, state=2) -> (key2=4, state=2) : -0.030934
+(key1=4, state=2) -> (key2=4, state=3) : -0.022135
+(key1=4, state=3) -> (key2=0, state=0) : 0.013654
+(key1=4, state=3) -> (key2=0, state=1) : -0.015701
+(key1=4, state=3) -> (key2=0, state=2) : -0.001844
+(key1=4, state=3) -> (key2=0, state=3) : -0.010766
+(key1=4, state=3) -> (key2=2, state=0) : 0.005327
+(key1=4, state=3) -> (key2=2, state=1) : -0.014180
+(key1=4, state=3) -> (key2=2, state=2) : -0.054130
+(key1=4, state=3) -> (key2=2, state=3) : 0.005232
+(key1=4, state=3) -> (key2=4, state=0) : 0.019007
+(key1=4, state=3) -> (key2=4, state=1) : 0.008094
+(key1=4, state=3) -> (key2=4, state=2) : 0.008610
+(key1=4, state=3) -> (key2=4, state=3) : 0.041185
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 1.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.523679
+(key1=0, state=0) -> (key2=4, state=1) : 0.237333
+(key1=0, state=0) -> (key2=4, state=2) : -0.310700
+(key1=0, state=0) -> (key2=4, state=3) : 0.158274
+(key1=0, state=1) -> (key2=4, state=0) : -0.043485
+(key1=0, state=1) -> (key2=4, state=1) : 0.018566
+(key1=0, state=1) -> (key2=4, state=2) : -0.166671
+(key1=0, state=1) -> (key2=4, state=3) : 0.030417
+(key1=0, state=2) -> (key2=4, state=0) : -0.022683
+(key1=0, state=2) -> (key2=4, state=1) : 0.082456
+(key1=0, state=2) -> (key2=4, state=2) : -0.028057
+(key1=0, state=2) -> (key2=4, state=3) : 0.060568
+(key1=0, state=3) -> (key2=4, state=0) : 0.016831
+(key1=0, state=3) -> (key2=4, state=1) : 0.003232
+(key1=0, state=3) -> (key2=4, state=2) : 0.017302
+(key1=0, state=3) -> (key2=4, state=3) : 0.049977
+(key1=2, state=0) -> (key2=2, state=0) : 0.113493
+(key1=2, state=0) -> (key2=2, state=1) : 0.117911
+(key1=2, state=0) -> (key2=2, state=2) : -0.089453
+(key1=2, state=0) -> (key2=2, state=3) : 0.028877
+(key1=2, state=0) -> (key2=4, state=0) : 0.033460
+(key1=2, state=0) -> (key2=4, state=1) : -0.042001
+(key1=2, state=0) -> (key2=4, state=2) : 0.026640
+(key1=2, state=0) -> (key2=4, state=3) : -0.050988
+(key1=2, state=1) -> (key2=2, state=0) : -0.057384
+(key1=2, state=1) -> (key2=2, state=1) : -0.076447
+(key1=2, state=1) -> (key2=2, state=2) : 0.033012
+(key1=2, state=1) -> (key2=2, state=3) : -0.085529
+(key1=2, state=1) -> (key2=4, state=0) : -0.010742
+(key1=2, state=1) -> (key2=4, state=1) : 0.028117
+(key1=2, state=1) -> (key2=4, state=2) : 0.034952
+(key1=2, state=1) -> (key2=4, state=3) : -0.002266
+(key1=2, state=2) -> (key2=2, state=0) : 0.031194
+(key1=2, state=2) -> (key2=2, state=1) : 0.003030
+(key1=2, state=2) -> (key2=2, state=2) : -0.037682
+(key1=2, state=2) -> (key2=2, state=3) : -0.107958
+(key1=2, state=2) -> (key2=4, state=0) : -0.020155
+(key1=2, state=2) -> (key2=4, state=1) : 0.034988
+(key1=2, state=2) -> (key2=4, state=2) : -0.001757
+(key1=2, state=2) -> (key2=4, state=3) : -0.020569
+(key1=2, state=3) -> (key2=2, state=0) : -0.014167
+(key1=2, state=3) -> (key2=2, state=1) : -0.012644
+(key1=2, state=3) -> (key2=2, state=2) : -0.001991
+(key1=2, state=3) -> (key2=2, state=3) : -0.021397
+(key1=2, state=3) -> (key2=4, state=0) : 0.001670
+(key1=2, state=3) -> (key2=4, state=1) : 0.003957
+(key1=2, state=3) -> (key2=4, state=2) : 0.006740
+(key1=2, state=3) -> (key2=4, state=3) : -0.002395
+(key1=4, state=0) -> (key2=0, state=0) : -0.056198
+(key1=4, state=0) -> (key2=0, state=1) : 0.004945
+(key1=4, state=0) -> (key2=0, state=2) : -0.057481
+(key1=4, state=0) -> (key2=0, state=3) : 0.021263
+(key1=4, state=0) -> (key2=2, state=0) : -0.151091
+(key1=4, state=0) -> (key2=2, state=1) : 0.057624
+(key1=4, state=0) -> (key2=2, state=2) : -0.002262
+(key1=4, state=0) -> (key2=2, state=3) : -0.002865
+(key1=4, state=0) -> (key2=4, state=0) : 0.117436
+(key1=4, state=0) -> (key2=4, state=1) : 0.230784
+(key1=4, state=0) -> (key2=4, state=2) : 0.210433
+(key1=4, state=0) -> (key2=4, state=3) : 0.078655
+(key1=4, state=1) -> (key2=0, state=0) : 0.065163
+(key1=4, state=1) -> (key2=0, state=1) : -0.132301
+(key1=4, state=1) -> (key2=0, state=2) : 0.043914
+(key1=4, state=1) -> (key2=0, state=3) : 0.069436
+(key1=4, state=1) -> (key2=2, state=0) : 0.176190
+(key1=4, state=1) -> (key2=2, state=1) : 0.063050
+(key1=4, state=1) -> (key2=2, state=2) : 0.021081
+(key1=4, state=1) -> (key2=2, state=3) : 0.002744
+(key1=4, state=1) -> (key2=4, state=0) : 0.002332
+(key1=4, state=1) -> (key2=4, state=1) : 0.011263
+(key1=4, state=1) -> (key2=4, state=2) : 0.139733
+(key1=4, state=1) -> (key2=4, state=3) : 0.072958
+(key1=4, state=2) -> (key2=0, state=0) : -0.017927
+(key1=4, state=2) -> (key2=0, state=1) : -0.096340
+(key1=4, state=2) -> (key2=0, state=2) : -0.067984
+(key1=4, state=2) -> (key2=0, state=3) : -0.044178
+(key1=4, state=2) -> (key2=2, state=0) : -0.086593
+(key1=4, state=2) -> (key2=2, state=1) : 0.063614
+(key1=4, state=2) -> (key2=2, state=2) : -0.022175
+(key1=4, state=2) -> (key2=2, state=3) : 0.016945
+(key1=4, state=2) -> (key2=4, state=0) : -0.009963
+(key1=4, state=2) -> (key2=4, state=1) : 0.092029
+(key1=4, state=2) -> (key2=4, state=2) : -0.035554
+(key1=4, state=2) -> (key2=4, state=3) : -0.031927
+(key1=4, state=3) -> (key2=0, state=0) : 0.022405
+(key1=4, state=3) -> (key2=0, state=1) : -0.021205
+(key1=4, state=3) -> (key2=0, state=2) : 0.007230
+(key1=4, state=3) -> (key2=0, state=3) : -0.017728
+(key1=4, state=3) -> (key2=2, state=0) : 0.005775
+(key1=4, state=3) -> (key2=2, state=1) : -0.028240
+(key1=4, state=3) -> (key2=2, state=2) : -0.095407
+(key1=4, state=3) -> (key2=2, state=3) : 0.023155
+(key1=4, state=3) -> (key2=4, state=0) : 0.033794
+(key1=4, state=3) -> (key2=4, state=1) : 0.013241
+(key1=4, state=3) -> (key2=4, state=2) : 0.018352
+(key1=4, state=3) -> (key2=4, state=3) : 0.081347
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 1.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+1.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.435914
+(key1=0, state=0) -> (key2=4, state=1) : 0.202159
+(key1=0, state=0) -> (key2=4, state=2) : -0.251757
+(key1=0, state=0) -> (key2=4, state=3) : 0.137988
+(key1=0, state=1) -> (key2=4, state=0) : -0.022651
+(key1=0, state=1) -> (key2=4, state=1) : 0.008640
+(key1=0, state=1) -> (key2=4, state=2) : -0.126746
+(key1=0, state=1) -> (key2=4, state=3) : 0.020484
+(key1=0, state=2) -> (key2=4, state=0) : -0.004375
+(key1=0, state=2) -> (key2=4, state=1) : 0.069835
+(key1=0, state=2) -> (key2=4, state=2) : -0.011632
+(key1=0, state=2) -> (key2=4, state=3) : 0.049572
+(key1=0, state=3) -> (key2=4, state=0) : -0.013959
+(key1=0, state=3) -> (key2=4, state=1) : 0.015234
+(key1=0, state=3) -> (key2=4, state=2) : -0.004071
+(key1=0, state=3) -> (key2=4, state=3) : 0.052981
+(key1=2, state=0) -> (key2=2, state=0) : 0.099435
+(key1=2, state=0) -> (key2=2, state=1) : 0.102752
+(key1=2, state=0) -> (key2=2, state=2) : -0.079024
+(key1=2, state=0) -> (key2=2, state=3) : 0.024131
+(key1=2, state=0) -> (key2=4, state=0) : 0.037450
+(key1=2, state=0) -> (key2=4, state=1) : -0.041806
+(key1=2, state=0) -> (key2=4, state=2) : 0.028834
+(key1=2, state=0) -> (key2=4, state=3) : -0.050438
+(key1=2, state=1) -> (key2=2, state=0) : -0.046763
+(key1=2, state=1) -> (key2=2, state=1) : -0.056862
+(key1=2, state=1) -> (key2=2, state=2) : 0.021473
+(key1=2, state=1) -> (key2=2, state=3) : -0.073234
+(key1=2, state=1) -> (key2=4, state=0) : -0.016690
+(key1=2, state=1) -> (key2=4, state=1) : 0.033570
+(key1=2, state=1) -> (key2=4, state=2) : 0.036300
+(key1=2, state=1) -> (key2=4, state=3) : 0.006525
+(key1=2, state=2) -> (key2=2, state=0) : 0.025074
+(key1=2, state=2) -> (key2=2, state=1) : -0.000040
+(key1=2, state=2) -> (key2=2, state=2) : -0.027904
+(key1=2, state=2) -> (key2=2, state=3) : -0.091290
+(key1=2, state=2) -> (key2=4, state=0) : -0.020569
+(key1=2, state=2) -> (key2=4, state=1) : 0.034719
+(key1=2, state=2) -> (key2=4, state=2) : -0.004162
+(key1=2, state=2) -> (key2=4, state=3) : -0.017815
+(key1=2, state=3) -> (key2=2, state=0) : -0.011595
+(key1=2, state=3) -> (key2=2, state=1) : -0.009051
+(key1=2, state=3) -> (key2=2, state=2) : -0.005708
+(key1=2, state=3) -> (key2=2, state=3) : -0.018003
+(key1=2, state=3) -> (key2=4, state=0) : 0.000675
+(key1=2, state=3) -> (key2=4, state=1) : 0.005196
+(key1=2, state=3) -> (key2=4, state=2) : 0.006710
+(key1=2, state=3) -> (key2=4, state=3) : 0.000594
+(key1=4, state=0) -> (key2=0, state=0) : -0.046114
+(key1=4, state=0) -> (key2=0, state=1) : 0.009367
+(key1=4, state=0) -> (key2=0, state=2) : -0.045666
+(key1=4, state=0) -> (key2=0, state=3) : 0.021917
+(key1=4, state=0) -> (key2=2, state=0) : -0.124051
+(key1=4, state=0) -> (key2=2, state=1) : 0.050911
+(key1=4, state=0) -> (key2=2, state=2) : -0.003933
+(key1=4, state=0) -> (key2=2, state=3) : -0.001109
+(key1=4, state=0) -> (key2=4, state=0) : 0.100107
+(key1=4, state=0) -> (key2=4, state=1) : 0.192584
+(key1=4, state=0) -> (key2=4, state=2) : 0.179349
+(key1=4, state=0) -> (key2=4, state=3) : 0.067785
+(key1=4, state=1) -> (key2=0, state=0) : 0.055546
+(key1=4, state=1) -> (key2=0, state=1) : -0.106637
+(key1=4, state=1) -> (key2=0, state=2) : 0.037870
+(key1=4, state=1) -> (key2=0, state=3) : 0.057957
+(key1=4, state=1) -> (key2=2, state=0) : 0.145601
+(key1=4, state=1) -> (key2=2, state=1) : 0.051380
+(key1=4, state=1) -> (key2=2, state=2) : 0.018100
+(key1=4, state=1) -> (key2=2, state=3) : 0.002198
+(key1=4, state=1) -> (key2=4, state=0) : 0.002121
+(key1=4, state=1) -> (key2=4, state=1) : 0.011965
+(key1=4, state=1) -> (key2=4, state=2) : 0.115683
+(key1=4, state=1) -> (key2=4, state=3) : 0.061839
+(key1=4, state=2) -> (key2=0, state=0) : -0.011871
+(key1=4, state=2) -> (key2=0, state=1) : -0.084990
+(key1=4, state=2) -> (key2=0, state=2) : -0.059460
+(key1=4, state=2) -> (key2=0, state=3) : -0.040217
+(key1=4, state=2) -> (key2=2, state=0) : -0.071787
+(key1=4, state=2) -> (key2=2, state=1) : 0.056247
+(key1=4, state=2) -> (key2=2, state=2) : -0.020165
+(key1=4, state=2) -> (key2=2, state=3) : 0.015966
+(key1=4, state=2) -> (key2=4, state=0) : -0.013330
+(key1=4, state=2) -> (key2=4, state=1) : 0.073622
+(key1=4, state=2) -> (key2=4, state=2) : -0.037552
+(key1=4, state=2) -> (key2=4, state=3) : -0.031320
+(key1=4, state=3) -> (key2=0, state=0) : 0.019867
+(key1=4, state=3) -> (key2=0, state=1) : -0.017266
+(key1=4, state=3) -> (key2=0, state=2) : 0.007367
+(key1=4, state=3) -> (key2=0, state=3) : -0.012967
+(key1=4, state=3) -> (key2=2, state=0) : 0.006929
+(key1=4, state=3) -> (key2=2, state=1) : -0.022441
+(key1=4, state=3) -> (key2=2, state=2) : -0.079894
+(key1=4, state=3) -> (key2=2, state=3) : 0.019179
+(key1=4, state=3) -> (key2=4, state=0) : 0.026674
+(key1=4, state=3) -> (key2=4, state=1) : 0.010141
+(key1=4, state=3) -> (key2=4, state=2) : 0.014838
+(key1=4, state=3) -> (key2=4, state=3) : 0.066633
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 1.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : 0.248502
+(key1=0, state=0) -> (key2=4, state=1) : -0.167219
+(key1=0, state=0) -> (key2=4, state=2) : 0.105549
+(key1=0, state=0) -> (key2=4, state=3) : -0.118161
+(key1=0, state=1) -> (key2=4, state=0) : 0.012148
+(key1=0, state=1) -> (key2=4, state=1) : 0.000854
+(key1=0, state=1) -> (key2=4, state=2) : 0.068403
+(key1=0, state=1) -> (key2=4, state=3) : -0.015754
+(key1=0, state=2) -> (key2=4, state=0) : 0.006531
+(key1=0, state=2) -> (key2=4, state=1) : -0.045840
+(key1=0, state=2) -> (key2=4, state=2) : -0.006342
+(key1=0, state=2) -> (key2=4, state=3) : -0.043602
+(key1=0, state=3) -> (key2=4, state=0) : 0.002657
+(key1=0, state=3) -> (key2=4, state=1) : -0.024343
+(key1=0, state=3) -> (key2=4, state=2) : -0.000702
+(key1=0, state=3) -> (key2=4, state=3) : -0.041100
+(key1=2, state=0) -> (key2=2, state=0) : -0.058205
+(key1=2, state=0) -> (key2=2, state=1) : -0.077457
+(key1=2, state=0) -> (key2=2, state=2) : 0.060828
+(key1=2, state=0) -> (key2=2, state=3) : -0.015347
+(key1=2, state=0) -> (key2=4, state=0) : -0.023391
+(key1=2, state=0) -> (key2=4, state=1) : 0.014597
+(key1=2, state=0) -> (key2=4, state=2) : -0.007296
+(key1=2, state=0) -> (key2=4, state=3) : 0.026262
+(key1=2, state=1) -> (key2=2, state=0) : 0.022342
+(key1=2, state=1) -> (key2=2, state=1) : 0.042439
+(key1=2, state=1) -> (key2=2, state=2) : -0.011878
+(key1=2, state=1) -> (key2=2, state=3) : 0.045537
+(key1=2, state=1) -> (key2=4, state=0) : 0.017391
+(key1=2, state=1) -> (key2=4, state=1) : -0.011759
+(key1=2, state=1) -> (key2=4, state=2) : -0.021302
+(key1=2, state=1) -> (key2=4, state=3) : 0.004562
+(key1=2, state=2) -> (key2=2, state=0) : -0.014100
+(key1=2, state=2) -> (key2=2, state=1) : 0.006055
+(key1=2, state=2) -> (key2=2, state=2) : 0.026044
+(key1=2, state=2) -> (key2=2, state=3) : 0.055685
+(key1=2, state=2) -> (key2=4, state=0) : 0.008052
+(key1=2, state=2) -> (key2=4, state=1) : -0.023681
+(key1=2, state=2) -> (key2=4, state=2) : 0.002384
+(key1=2, state=2) -> (key2=4, state=3) : 0.015265
+(key1=2, state=3) -> (key2=2, state=0) : 0.006064
+(key1=2, state=3) -> (key2=2, state=1) : 0.004790
+(key1=2, state=3) -> (key2=2, state=2) : 0.002929
+(key1=2, state=3) -> (key2=2, state=3) : 0.010230
+(key1=2, state=3) -> (key2=4, state=0) : 0.001837
+(key1=2, state=3) -> (key2=4, state=1) : -0.001570
+(key1=2, state=3) -> (key2=4, state=2) : -0.003553
+(key1=2, state=3) -> (key2=4, state=3) : 0.001025
+(key1=4, state=0) -> (key2=0, state=0) : 0.018812
+(key1=4, state=0) -> (key2=0, state=1) : 0.018514
+(key1=4, state=0) -> (key2=0, state=2) : 0.036389
+(key1=4, state=0) -> (key2=0, state=3) : -0.012518
+(key1=4, state=0) -> (key2=2, state=0) : 0.068706
+(key1=4, state=0) -> (key2=2, state=1) : -0.043222
+(key1=4, state=0) -> (key2=2, state=2) : 0.008402
+(key1=4, state=0) -> (key2=2, state=3) : -0.003815
+(key1=4, state=0) -> (key2=4, state=0) : -0.046146
+(key1=4, state=0) -> (key2=4, state=1) : -0.131885
+(key1=4, state=0) -> (key2=4, state=2) : -0.110129
+(key1=4, state=0) -> (key2=4, state=3) : -0.053067
+(key1=4, state=1) -> (key2=0, state=0) : -0.035714
+(key1=4, state=1) -> (key2=0, state=1) : 0.080258
+(key1=4, state=1) -> (key2=0, state=2) : -0.009042
+(key1=4, state=1) -> (key2=0, state=3) : -0.030628
+(key1=4, state=1) -> (key2=2, state=0) : -0.077429
+(key1=4, state=1) -> (key2=2, state=1) : -0.025631
+(key1=4, state=1) -> (key2=2, state=2) : -0.019602
+(key1=4, state=1) -> (key2=2, state=3) : -0.004252
+(key1=4, state=1) -> (key2=4, state=0) : -0.004813
+(key1=4, state=1) -> (key2=4, state=1) : -0.016506
+(key1=4, state=1) -> (key2=4, state=2) : -0.071954
+(key1=4, state=1) -> (key2=4, state=3) : -0.051335
+(key1=4, state=2) -> (key2=0, state=0) : 0.008824
+(key1=4, state=2) -> (key2=0, state=1) : 0.061574
+(key1=4, state=2) -> (key2=0, state=2) : 0.034591
+(key1=4, state=2) -> (key2=0, state=3) : 0.015632
+(key1=4, state=2) -> (key2=2, state=0) : 0.037531
+(key1=4, state=2) -> (key2=2, state=1) : -0.047236
+(key1=4, state=2) -> (key2=2, state=2) : 0.018369
+(key1=4, state=2) -> (key2=2, state=3) : -0.014946
+(key1=4, state=2) -> (key2=4, state=0) : 0.009100
+(key1=4, state=2) -> (key2=4, state=1) : -0.039534
+(key1=4, state=2) -> (key2=4, state=2) : 0.030934
+(key1=4, state=2) -> (key2=4, state=3) : 0.022135
+(key1=4, state=3) -> (key2=0, state=0) : -0.013654
+(key1=4, state=3) -> (key2=0, state=1) : 0.015701
+(key1=4, state=3) -> (key2=0, state=2) : 0.001844
+(key1=4, state=3) -> (key2=0, state=3) : 0.010766
+(key1=4, state=3) -> (key2=2, state=0) : -0.005327
+(key1=4, state=3) -> (key2=2, state=1) : 0.014180
+(key1=4, state=3) -> (key2=2, state=2) : 0.054130
+(key1=4, state=3) -> (key2=2, state=3) : -0.005232
+(key1=4, state=3) -> (key2=4, state=0) : -0.019007
+(key1=4, state=3) -> (key2=4, state=1) : -0.008094
+(key1=4, state=3) -> (key2=4, state=2) : -0.008610
+(key1=4, state=3) -> (key2=4, state=3) : -0.041185
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.707107 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.217940
+(key1=0, state=0) -> (key2=4, state=1) : 0.036056
+(key1=0, state=0) -> (key2=4, state=2) : -0.252989
+(key1=0, state=0) -> (key2=4, state=3) : 0.053792
+(key1=0, state=1) -> (key2=4, state=0) : -0.023518
+(key1=0, state=1) -> (key2=4, state=1) : 0.034552
+(key1=0, state=1) -> (key2=4, state=2) : -0.046158
+(key1=0, state=1) -> (key2=4, state=3) : -0.035932
+(key1=0, state=2) -> (key2=4, state=0) : -0.033274
+(key1=0, state=2) -> (key2=4, state=1) : -0.036082
+(key1=0, state=2) -> (key2=4, state=2) : 0.020256
+(key1=0, state=2) -> (key2=4, state=3) : 0.090151
+(key1=0, state=3) -> (key2=4, state=0) : 0.010632
+(key1=0, state=3) -> (key2=4, state=1) : -0.063754
+(key1=0, state=3) -> (key2=4, state=2) : -0.084180
+(key1=0, state=3) -> (key2=4, state=3) : 0.078417
+(key1=2, state=0) -> (key2=2, state=0) : 0.108890
+(key1=2, state=0) -> (key2=2, state=1) : 0.084941
+(key1=2, state=0) -> (key2=2, state=2) : -0.070502
+(key1=2, state=0) -> (key2=2, state=3) : 0.026580
+(key1=2, state=0) -> (key2=4, state=0) : 0.073779
+(key1=2, state=0) -> (key2=4, state=1) : -0.000481
+(key1=2, state=0) -> (key2=4, state=2) : -0.072655
+(key1=2, state=0) -> (key2=4, state=3) : -0.059367
+(key1=2, state=1) -> (key2=2, state=0) : -0.126372
+(key1=2, state=1) -> (key2=2, state=1) : -0.022050
+(key1=2, state=1) -> (key2=2, state=2) : 0.018627
+(key1=2, state=1) -> (key2=2, state=3) : -0.081727
+(key1=2, state=1) -> (key2=4, state=0) : -0.028761
+(key1=2, state=1) -> (key2=4, state=1) : 0.052528
+(key1=2, state=1) -> (key2=4, state=2) : 0.065680
+(key1=2, state=1) -> (key2=4, state=3) : -0.079584
+(key1=2, state=2) -> (key2=2, state=0) : 0.058063
+(key1=2, state=2) -> (key2=2, state=1) : 0.025060
+(key1=2, state=2) -> (key2=2, state=2) : 0.020411
+(key1=2, state=2) -> (key2=2, state=3) : -0.106083
+(key1=2, state=2) -> (key2=4, state=0) : -0.025061
+(key1=2, state=2) -> (key2=4, state=1) : 0.048242
+(key1=2, state=2) -> (key2=4, state=2) : 0.013849
+(key1=2, state=2) -> (key2=4, state=3) : -0.101779
+(key1=2, state=3) -> (key2=2, state=0) : -0.028663
+(key1=2, state=3) -> (key2=2, state=1) : -0.001565
+(key1=2, state=3) -> (key2=2, state=2) : -0.002284
+(key1=2, state=3) -> (key2=2, state=3) : -0.026813
+(key1=2, state=3) -> (key2=4, state=0) : 0.001449
+(key1=2, state=3) -> (key2=4, state=1) : 0.011509
+(key1=2, state=3) -> (key2=4, state=2) : 0.003061
+(key1=2, state=3) -> (key2=4, state=3) : -0.013471
+(key1=4, state=0) -> (key2=0, state=0) : 0.066896
+(key1=4, state=0) -> (key2=0, state=1) : 0.074714
+(key1=4, state=0) -> (key2=0, state=2) : -0.039076
+(key1=4, state=0) -> (key2=0, state=3) : 0.058028
+(key1=4, state=0) -> (key2=2, state=0) : -0.078635
+(key1=4, state=0) -> (key2=2, state=1) : 0.007998
+(key1=4, state=0) -> (key2=2, state=2) : 0.009252
+(key1=4, state=0) -> (key2=2, state=3) : -0.000897
+(key1=4, state=0) -> (key2=4, state=0) : 0.127527
+(key1=4, state=0) -> (key2=4, state=1) : 0.105478
+(key1=4, state=0) -> (key2=4, state=2) : 0.192759
+(key1=4, state=0) -> (key2=4, state=3) : 0.082131
+(key1=4, state=1) -> (key2=0, state=0) : 0.113859
+(key1=4, state=1) -> (key2=0, state=1) : -0.098962
+(key1=4, state=1) -> (key2=0, state=2) : 0.016379
+(key1=4, state=1) -> (key2=0, state=3) : 0.048789
+(key1=4, state=1) -> (key2=2, state=0) : 0.119170
+(key1=4, state=1) -> (key2=2, state=1) : 0.060733
+(key1=4, state=1) -> (key2=2, state=2) : -0.018095
+(key1=4, state=1) -> (key2=2, state=3) : 0.004758
+(key1=4, state=1) -> (key2=4, state=0) : 0.129406
+(key1=4, state=1) -> (key2=4, state=1) : 0.037256
+(key1=4, state=1) -> (key2=4, state=2) : 0.097239
+(key1=4, state=1) -> (key2=4, state=3) : 0.039496
+(key1=4, state=2) -> (key2=0, state=0) : -0.035335
+(key1=4, state=2) -> (key2=0, state=1) : -0.189353
+(key1=4, state=2) -> (key2=0, state=2) : -0.052435
+(key1=4, state=2) -> (key2=0, state=3) : -0.149567
+(key1=4, state=2) -> (key2=2, state=0) : -0.035288
+(key1=4, state=2) -> (key2=2, state=1) : 0.019137
+(key1=4, state=2) -> (key2=2, state=2) : -0.006635
+(key1=4, state=2) -> (key2=2, state=3) : 0.012092
+(key1=4, state=2) -> (key2=4, state=0) : 0.065170
+(key1=4, state=2) -> (key2=4, state=1) : 0.011331
+(key1=4, state=2) -> (key2=4, state=2) : -0.031743
+(key1=4, state=2) -> (key2=4, state=3) : -0.031708
+(key1=4, state=3) -> (key2=0, state=0) : 0.032047
+(key1=4, state=3) -> (key2=0, state=1) : -0.021919
+(key1=4, state=3) -> (key2=0, state=2) : -0.021214
+(key1=4, state=3) -> (key2=0, state=3) : 0.030708
+(key1=4, state=3) -> (key2=2, state=0) : 0.022520
+(key1=4, state=3) -> (key2=2, state=1) : 0.003617
+(key1=4, state=3) -> (key2=2, state=2) : -0.039943
+(key1=4, state=3) -> (key2=2, state=3) : 0.013851
+(key1=4, state=3) -> (key2=4, state=0) : 0.058785
+(key1=4, state=3) -> (key2=4, state=1) : 0.027087
+(key1=4, state=3) -> (key2=4, state=2) : 0.015970
+(key1=4, state=3) -> (key2=4, state=3) : 0.021579
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 1.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : 0.428726
+(key1=0, state=0) -> (key2=4, state=1) : 0.014900
+(key1=0, state=0) -> (key2=4, state=2) : 0.482224
+(key1=0, state=0) -> (key2=4, state=3) : -0.013608
+(key1=0, state=1) -> (key2=4, state=0) : 0.032786
+(key1=0, state=1) -> (key2=4, state=1) : -0.059661
+(key1=0, state=1) -> (key2=4, state=2) : 0.112199
+(key1=0, state=1) -> (key2=4, state=3) : 0.040253
+(key1=0, state=2) -> (key2=4, state=0) : 0.050957
+(key1=0, state=2) -> (key2=4, state=1) : 0.002115
+(key1=0, state=2) -> (key2=4, state=2) : 0.036290
+(key1=0, state=2) -> (key2=4, state=3) : -0.105148
+(key1=0, state=3) -> (key2=4, state=0) : 0.023619
+(key1=0, state=3) -> (key2=4, state=1) : 0.108018
+(key1=0, state=3) -> (key2=4, state=2) : 0.112659
+(key1=0, state=3) -> (key2=4, state=3) : -0.076760
+(key1=2, state=0) -> (key2=2, state=0) : -0.187245
+(key1=2, state=0) -> (key2=2, state=1) : -0.103597
+(key1=2, state=0) -> (key2=2, state=2) : 0.079065
+(key1=2, state=0) -> (key2=2, state=3) : -0.039787
+(key1=2, state=0) -> (key2=4, state=0) : -0.062497
+(key1=2, state=0) -> (key2=4, state=1) : 0.043888
+(key1=2, state=0) -> (key2=4, state=2) : 0.065762
+(key1=2, state=0) -> (key2=4, state=3) : 0.092873
+(key1=2, state=1) -> (key2=2, state=0) : 0.168212
+(key1=2, state=1) -> (key2=2, state=1) : 0.038744
+(key1=2, state=1) -> (key2=2, state=2) : -0.044063
+(key1=2, state=1) -> (key2=2, state=3) : 0.120619
+(key1=2, state=1) -> (key2=4, state=0) : 0.008703
+(key1=2, state=1) -> (key2=4, state=1) : -0.069878
+(key1=2, state=1) -> (key2=4, state=2) : -0.061532
+(key1=2, state=1) -> (key2=4, state=3) : 0.092629
+(key1=2, state=2) -> (key2=2, state=0) : -0.074742
+(key1=2, state=2) -> (key2=2, state=1) : -0.048663
+(key1=2, state=2) -> (key2=2, state=2) : -0.030549
+(key1=2, state=2) -> (key2=2, state=3) : 0.163754
+(key1=2, state=2) -> (key2=4, state=0) : 0.036689
+(key1=2, state=2) -> (key2=4, state=1) : -0.053236
+(key1=2, state=2) -> (key2=4, state=2) : -0.028582
+(key1=2, state=2) -> (key2=4, state=3) : 0.101709
+(key1=2, state=3) -> (key2=2, state=0) : 0.035367
+(key1=2, state=3) -> (key2=2, state=1) : 0.009426
+(key1=2, state=3) -> (key2=2, state=2) : -0.000136
+(key1=2, state=3) -> (key2=2, state=3) : 0.041226
+(key1=2, state=3) -> (key2=4, state=0) : -0.006686
+(key1=2, state=3) -> (key2=4, state=1) : -0.013221
+(key1=2, state=3) -> (key2=4, state=2) : -0.002045
+(key1=2, state=3) -> (key2=4, state=3) : 0.020897
+(key1=4, state=0) -> (key2=0, state=0) : -0.029903
+(key1=4, state=0) -> (key2=0, state=1) : -0.145615
+(key1=4, state=0) -> (key2=0, state=2) : 0.038690
+(key1=4, state=0) -> (key2=0, state=3) : -0.078707
+(key1=4, state=0) -> (key2=2, state=0) : 0.144439
+(key1=4, state=0) -> (key2=2, state=1) : 0.010086
+(key1=4, state=0) -> (key2=2, state=2) : -0.026482
+(key1=4, state=0) -> (key2=2, state=3) : 0.012172
+(key1=4, state=0) -> (key2=4, state=0) : -0.227615
+(key1=4, state=0) -> (key2=4, state=1) : -0.154268
+(key1=4, state=0) -> (key2=4, state=2) : -0.299782
+(key1=4, state=0) -> (key2=4, state=3) : -0.094709
+(key1=4, state=1) -> (key2=0, state=0) : -0.137871
+(key1=4, state=1) -> (key2=0, state=1) : 0.139546
+(key1=4, state=1) -> (key2=0, state=2) : -0.060786
+(key1=4, state=1) -> (key2=0, state=3) : -0.080393
+(key1=4, state=1) -> (key2=2, state=0) : -0.216295
+(key1=4, state=1) -> (key2=2, state=1) : -0.103520
+(key1=4, state=1) -> (key2=2, state=2) : 0.041133
+(key1=4, state=1) -> (key2=2, state=3) : -0.001352
+(key1=4, state=1) -> (key2=4, state=0) : -0.144180
+(key1=4, state=1) -> (key2=4, state=1) : -0.033099
+(key1=4, state=1) -> (key2=4, state=2) : -0.166355
+(key1=4, state=1) -> (key2=4, state=3) : -0.036967
+(key1=4, state=2) -> (key2=0, state=0) : 0.041290
+(key1=4, state=2) -> (key2=0, state=1) : 0.268610
+(key1=4, state=2) -> (key2=0, state=2) : 0.095401
+(key1=4, state=2) -> (key2=0, state=3) : 0.235876
+(key1=4, state=2) -> (key2=2, state=0) : 0.071454
+(key1=4, state=2) -> (key2=2, state=1) : -0.006509
+(key1=4, state=2) -> (key2=2, state=2) : -0.000960
+(key1=4, state=2) -> (key2=2, state=3) : -0.007820
+(key1=4, state=2) -> (key2=4, state=0) : -0.053690
+(key1=4, state=2) -> (key2=4, state=1) : -0.058580
+(key1=4, state=2) -> (key2=4, state=2) : 0.044788
+(key1=4, state=2) -> (key2=4, state=3) : 0.037820
+(key1=4, state=3) -> (key2=0, state=0) : -0.040334
+(key1=4, state=3) -> (key2=0, state=1) : 0.029542
+(key1=4, state=3) -> (key2=0, state=2) : 0.002195
+(key1=4, state=3) -> (key2=0, state=3) : -0.036109
+(key1=4, state=3) -> (key2=2, state=0) : -0.032199
+(key1=4, state=3) -> (key2=2, state=1) : -0.001309
+(key1=4, state=3) -> (key2=2, state=2) : 0.058399
+(key1=4, state=3) -> (key2=2, state=3) : -0.035525
+(key1=4, state=3) -> (key2=4, state=0) : -0.069458
+(key1=4, state=3) -> (key2=4, state=1) : -0.028221
+(key1=4, state=3) -> (key2=4, state=2) : -0.032294
+(key1=4, state=3) -> (key2=4, state=3) : -0.048280
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 1.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+1.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 1.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.523679
+(key1=0, state=0) -> (key2=4, state=1) : 0.237333
+(key1=0, state=0) -> (key2=4, state=2) : -0.310700
+(key1=0, state=0) -> (key2=4, state=3) : 0.158274
+(key1=0, state=1) -> (key2=4, state=0) : -0.043485
+(key1=0, state=1) -> (key2=4, state=1) : 0.018566
+(key1=0, state=1) -> (key2=4, state=2) : -0.166671
+(key1=0, state=1) -> (key2=4, state=3) : 0.030417
+(key1=0, state=2) -> (key2=4, state=0) : -0.022683
+(key1=0, state=2) -> (key2=4, state=1) : 0.082456
+(key1=0, state=2) -> (key2=4, state=2) : -0.028057
+(key1=0, state=2) -> (key2=4, state=3) : 0.060568
+(key1=0, state=3) -> (key2=4, state=0) : 0.016831
+(key1=0, state=3) -> (key2=4, state=1) : 0.003232
+(key1=0, state=3) -> (key2=4, state=2) : 0.017302
+(key1=0, state=3) -> (key2=4, state=3) : 0.049977
+(key1=2, state=0) -> (key2=2, state=0) : 0.113493
+(key1=2, state=0) -> (key2=2, state=1) : 0.117911
+(key1=2, state=0) -> (key2=2, state=2) : -0.089453
+(key1=2, state=0) -> (key2=2, state=3) : 0.028877
+(key1=2, state=0) -> (key2=4, state=0) : 0.033460
+(key1=2, state=0) -> (key2=4, state=1) : -0.042001
+(key1=2, state=0) -> (key2=4, state=2) : 0.026640
+(key1=2, state=0) -> (key2=4, state=3) : -0.050988
+(key1=2, state=1) -> (key2=2, state=0) : -0.057384
+(key1=2, state=1) -> (key2=2, state=1) : -0.076447
+(key1=2, state=1) -> (key2=2, state=2) : 0.033012
+(key1=2, state=1) -> (key2=2, state=3) : -0.085529
+(key1=2, state=1) -> (key2=4, state=0) : -0.010742
+(key1=2, state=1) -> (key2=4, state=1) : 0.028117
+(key1=2, state=1) -> (key2=4, state=2) : 0.034952
+(key1=2, state=1) -> (key2=4, state=3) : -0.002266
+(key1=2, state=2) -> (key2=2, state=0) : 0.031194
+(key1=2, state=2) -> (key2=2, state=1) : 0.003030
+(key1=2, state=2) -> (key2=2, state=2) : -0.037682
+(key1=2, state=2) -> (key2=2, state=3) : -0.107958
+(key1=2, state=2) -> (key2=4, state=0) : -0.020155
+(key1=2, state=2) -> (key2=4, state=1) : 0.034988
+(key1=2, state=2) -> (key2=4, state=2) : -0.001757
+(key1=2, state=2) -> (key2=4, state=3) : -0.020569
+(key1=2, state=3) -> (key2=2, state=0) : -0.014167
+(key1=2, state=3) -> (key2=2, state=1) : -0.012644
+(key1=2, state=3) -> (key2=2, state=2) : -0.001991
+(key1=2, state=3) -> (key2=2, state=3) : -0.021397
+(key1=2, state=3) -> (key2=4, state=0) : 0.001670
+(key1=2, state=3) -> (key2=4, state=1) : 0.003957
+(key1=2, state=3) -> (key2=4, state=2) : 0.006740
+(key1=2, state=3) -> (key2=4, state=3) : -0.002395
+(key1=4, state=0) -> (key2=0, state=0) : -0.056198
+(key1=4, state=0) -> (key2=0, state=1) : 0.004945
+(key1=4, state=0) -> (key2=0, state=2) : -0.057481
+(key1=4, state=0) -> (key2=0, state=3) : 0.021263
+(key1=4, state=0) -> (key2=2, state=0) : -0.151091
+(key1=4, state=0) -> (key2=2, state=1) : 0.057624
+(key1=4, state=0) -> (key2=2, state=2) : -0.002262
+(key1=4, state=0) -> (key2=2, state=3) : -0.002865
+(key1=4, state=0) -> (key2=4, state=0) : 0.117436
+(key1=4, state=0) -> (key2=4, state=1) : 0.230784
+(key1=4, state=0) -> (key2=4, state=2) : 0.210433
+(key1=4, state=0) -> (key2=4, state=3) : 0.078655
+(key1=4, state=1) -> (key2=0, state=0) : 0.065163
+(key1=4, state=1) -> (key2=0, state=1) : -0.132301
+(key1=4, state=1) -> (key2=0, state=2) : 0.043914
+(key1=4, state=1) -> (key2=0, state=3) : 0.069436
+(key1=4, state=1) -> (key2=2, state=0) : 0.176190
+(key1=4, state=1) -> (key2=2, state=1) : 0.063050
+(key1=4, state=1) -> (key2=2, state=2) : 0.021081
+(key1=4, state=1) -> (key2=2, state=3) : 0.002744
+(key1=4, state=1) -> (key2=4, state=0) : 0.002332
+(key1=4, state=1) -> (key2=4, state=1) : 0.011263
+(key1=4, state=1) -> (key2=4, state=2) : 0.139733
+(key1=4, state=1) -> (key2=4, state=3) : 0.072958
+(key1=4, state=2) -> (key2=0, state=0) : -0.017927
+(key1=4, state=2) -> (key2=0, state=1) : -0.096340
+(key1=4, state=2) -> (key2=0, state=2) : -0.067984
+(key1=4, state=2) -> (key2=0, state=3) : -0.044178
+(key1=4, state=2) -> (key2=2, state=0) : -0.086593
+(key1=4, state=2) -> (key2=2, state=1) : 0.063614
+(key1=4, state=2) -> (key2=2, state=2) : -0.022175
+(key1=4, state=2) -> (key2=2, state=3) : 0.016945
+(key1=4, state=2) -> (key2=4, state=0) : -0.009963
+(key1=4, state=2) -> (key2=4, state=1) : 0.092029
+(key1=4, state=2) -> (key2=4, state=2) : -0.035554
+(key1=4, state=2) -> (key2=4, state=3) : -0.031927
+(key1=4, state=3) -> (key2=0, state=0) : 0.022405
+(key1=4, state=3) -> (key2=0, state=1) : -0.021205
+(key1=4, state=3) -> (key2=0, state=2) : 0.007230
+(key1=4, state=3) -> (key2=0, state=3) : -0.017728
+(key1=4, state=3) -> (key2=2, state=0) : 0.005775
+(key1=4, state=3) -> (key2=2, state=1) : -0.028240
+(key1=4, state=3) -> (key2=2, state=2) : -0.095407
+(key1=4, state=3) -> (key2=2, state=3) : 0.023155
+(key1=4, state=3) -> (key2=4, state=0) : 0.033794
+(key1=4, state=3) -> (key2=4, state=1) : 0.013241
+(key1=4, state=3) -> (key2=4, state=2) : 0.018352
+(key1=4, state=3) -> (key2=4, state=3) : 0.081347
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 1.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+(key1=0, state=0) -> (key2=4, state=0) : -0.428726
+(key1=0, state=0) -> (key2=4, state=1) : -0.014900
+(key1=0, state=0) -> (key2=4, state=2) : -0.482224
+(key1=0, state=0) -> (key2=4, state=3) : 0.013608
+(key1=0, state=1) -> (key2=4, state=0) : -0.032786
+(key1=0, state=1) -> (key2=4, state=1) : 0.059661
+(key1=0, state=1) -> (key2=4, state=2) : -0.112199
+(key1=0, state=1) -> (key2=4, state=3) : -0.040253
+(key1=0, state=2) -> (key2=4, state=0) : -0.050957
+(key1=0, state=2) -> (key2=4, state=1) : -0.002115
+(key1=0, state=2) -> (key2=4, state=2) : -0.036290
+(key1=0, state=2) -> (key2=4, state=3) : 0.105148
+(key1=0, state=3) -> (key2=4, state=0) : -0.023619
+(key1=0, state=3) -> (key2=4, state=1) : -0.108018
+(key1=0, state=3) -> (key2=4, state=2) : -0.112659
+(key1=0, state=3) -> (key2=4, state=3) : 0.076760
+(key1=2, state=0) -> (key2=2, state=0) : 0.187245
+(key1=2, state=0) -> (key2=2, state=1) : 0.103597
+(key1=2, state=0) -> (key2=2, state=2) : -0.079065
+(key1=2, state=0) -> (key2=2, state=3) : 0.039787
+(key1=2, state=0) -> (key2=4, state=0) : 0.062497
+(key1=2, state=0) -> (key2=4, state=1) : -0.043888
+(key1=2, state=0) -> (key2=4, state=2) : -0.065762
+(key1=2, state=0) -> (key2=4, state=3) : -0.092873
+(key1=2, state=1) -> (key2=2, state=0) : -0.168212
+(key1=2, state=1) -> (key2=2, state=1) : -0.038744
+(key1=2, state=1) -> (key2=2, state=2) : 0.044063
+(key1=2, state=1) -> (key2=2, state=3) : -0.120619
+(key1=2, state=1) -> (key2=4, state=0) : -0.008703
+(key1=2, state=1) -> (key2=4, state=1) : 0.069878
+(key1=2, state=1) -> (key2=4, state=2) : 0.061532
+(key1=2, state=1) -> (key2=4, state=3) : -0.092629
+(key1=2, state=2) -> (key2=2, state=0) : 0.074742
+(key1=2, state=2) -> (key2=2, state=1) : 0.048663
+(key1=2, state=2) -> (key2=2, state=2) : 0.030549
+(key1=2, state=2) -> (key2=2, state=3) : -0.163754
+(key1=2, state=2) -> (key2=4, state=0) : -0.036689
+(key1=2, state=2) -> (key2=4, state=1) : 0.053236
+(key1=2, state=2) -> (key2=4, state=2) : 0.028582
+(key1=2, state=2) -> (key2=4, state=3) : -0.101709
+(key1=2, state=3) -> (key2=2, state=0) : -0.035367
+(key1=2, state=3) -> (key2=2, state=1) : -0.009426
+(key1=2, state=3) -> (key2=2, state=2) : 0.000136
+(key1=2, state=3) -> (key2=2, state=3) : -0.041226
+(key1=2, state=3) -> (key2=4, state=0) : 0.006686
+(key1=2, state=3) -> (key2=4, state=1) : 0.013221
+(key1=2, state=3) -> (key2=4, state=2) : 0.002045
+(key1=2, state=3) -> (key2=4, state=3) : -0.020897
+(key1=4, state=0) -> (key2=0, state=0) : 0.029903
+(key1=4, state=0) -> (key2=0, state=1) : 0.145615
+(key1=4, state=0) -> (key2=0, state=2) : -0.038690
+(key1=4, state=0) -> (key2=0, state=3) : 0.078707
+(key1=4, state=0) -> (key2=2, state=0) : -0.144439
+(key1=4, state=0) -> (key2=2, state=1) : -0.010086
+(key1=4, state=0) -> (key2=2, state=2) : 0.026482
+(key1=4, state=0) -> (key2=2, state=3) : -0.012172
+(key1=4, state=0) -> (key2=4, state=0) : 0.227615
+(key1=4, state=0) -> (key2=4, state=1) : 0.154268
+(key1=4, state=0) -> (key2=4, state=2) : 0.299782
+(key1=4, state=0) -> (key2=4, state=3) : 0.094709
+(key1=4, state=1) -> (key2=0, state=0) : 0.137871
+(key1=4, state=1) -> (key2=0, state=1) : -0.139546
+(key1=4, state=1) -> (key2=0, state=2) : 0.060786
+(key1=4, state=1) -> (key2=0, state=3) : 0.080393
+(key1=4, state=1) -> (key2=2, state=0) : 0.216295
+(key1=4, state=1) -> (key2=2, state=1) : 0.103520
+(key1=4, state=1) -> (key2=2, state=2) : -0.041133
+(key1=4, state=1) -> (key2=2, state=3) : 0.001352
+(key1=4, state=1) -> (key2=4, state=0) : 0.144180
+(key1=4, state=1) -> (key2=4, state=1) : 0.033099
+(key1=4, state=1) -> (key2=4, state=2) : 0.166355
+(key1=4, state=1) -> (key2=4, state=3) : 0.036967
+(key1=4, state=2) -> (key2=0, state=0) : -0.041290
+(key1=4, state=2) -> (key2=0, state=1) : -0.268610
+(key1=4, state=2) -> (key2=0, state=2) : -0.095401
+(key1=4, state=2) -> (key2=0, state=3) : -0.235876
+(key1=4, state=2) -> (key2=2, state=0) : -0.071454
+(key1=4, state=2) -> (key2=2, state=1) : 0.006509
+(key1=4, state=2) -> (key2=2, state=2) : 0.000960
+(key1=4, state=2) -> (key2=2, state=3) : 0.007820
+(key1=4, state=2) -> (key2=4, state=0) : 0.053690
+(key1=4, state=2) -> (key2=4, state=1) : 0.058580
+(key1=4, state=2) -> (key2=4, state=2) : -0.044788
+(key1=4, state=2) -> (key2=4, state=3) : -0.037820
+(key1=4, state=3) -> (key2=0, state=0) : 0.040334
+(key1=4, state=3) -> (key2=0, state=1) : -0.029542
+(key1=4, state=3) -> (key2=0, state=2) : -0.002195
+(key1=4, state=3) -> (key2=0, state=3) : 0.036109
+(key1=4, state=3) -> (key2=2, state=0) : 0.032199
+(key1=4, state=3) -> (key2=2, state=1) : 0.001309
+(key1=4, state=3) -> (key2=2, state=2) : -0.058399
+(key1=4, state=3) -> (key2=2, state=3) : 0.035525
+(key1=4, state=3) -> (key2=4, state=0) : 0.069458
+(key1=4, state=3) -> (key2=4, state=1) : 0.028221
+(key1=4, state=3) -> (key2=4, state=2) : 0.032294
+(key1=4, state=3) -> (key2=4, state=3) : 0.048280
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.707107 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 1.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+1.000000 0.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 1.000000 0.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 1.000000 0.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 1.000000 0.000000 
+
+
+==== Transition matrix for t = 4 ====
+Transition strengths (transtr) for t = 4:
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.000000 
+0.000000 0.000000 0.000000 0.000000 0.707107 
+
+(key1=0, state=0) -> (key2=4, state=0) : 0.854813
+(key1=0, state=0) -> (key2=4, state=1) : -0.680450
+(key1=0, state=0) -> (key2=4, state=2) : 0.249797
+(key1=0, state=0) -> (key2=4, state=3) : -0.399150
+(key1=0, state=1) -> (key2=4, state=0) : 0.077039
+(key1=0, state=1) -> (key2=4, state=1) : -0.005494
+(key1=0, state=1) -> (key2=4, state=2) : 0.268629
+(key1=0, state=1) -> (key2=4, state=3) : -0.135101
+(key1=0, state=2) -> (key2=4, state=0) : -0.025643
+(key1=0, state=2) -> (key2=4, state=1) : -0.129950
+(key1=0, state=2) -> (key2=4, state=2) : -0.051621
+(key1=0, state=2) -> (key2=4, state=3) : -0.142334
+(key1=0, state=3) -> (key2=4, state=0) : -0.084308
+(key1=0, state=3) -> (key2=4, state=1) : -0.069161
+(key1=0, state=3) -> (key2=4, state=2) : -0.112639
+(key1=0, state=3) -> (key2=4, state=3) : -0.026846
+(key1=2, state=0) -> (key2=2, state=0) : -0.116654
+(key1=2, state=0) -> (key2=2, state=1) : -0.318390
+(key1=2, state=0) -> (key2=2, state=2) : 0.261440
+(key1=2, state=0) -> (key2=2, state=3) : -0.045446
+(key1=2, state=0) -> (key2=4, state=0) : -0.018090
+(key1=2, state=0) -> (key2=4, state=1) : 0.025992
+(key1=2, state=0) -> (key2=4, state=2) : -0.063408
+(key1=2, state=0) -> (key2=4, state=3) : 0.107293
+(key1=2, state=1) -> (key2=2, state=0) : -0.029117
+(key1=2, state=1) -> (key2=2, state=1) : 0.108697
+(key1=2, state=1) -> (key2=2, state=2) : 0.035237
+(key1=2, state=1) -> (key2=2, state=3) : 0.109665
+(key1=2, state=1) -> (key2=4, state=0) : 0.034291
+(key1=2, state=1) -> (key2=4, state=1) : -0.010930
+(key1=2, state=1) -> (key2=4, state=2) : -0.007231
+(key1=2, state=1) -> (key2=4, state=3) : -0.034352
+(key1=2, state=2) -> (key2=2, state=0) : -0.006682
+(key1=2, state=2) -> (key2=2, state=1) : 0.097146
+(key1=2, state=2) -> (key2=2, state=2) : 0.117455
+(key1=2, state=2) -> (key2=2, state=3) : 0.131846
+(key1=2, state=2) -> (key2=4, state=0) : 0.003813
+(key1=2, state=2) -> (key2=4, state=1) : -0.032257
+(key1=2, state=2) -> (key2=4, state=2) : 0.015583
+(key1=2, state=2) -> (key2=4, state=3) : -0.057650
+(key1=2, state=3) -> (key2=2, state=0) : -0.000976
+(key1=2, state=3) -> (key2=2, state=1) : -0.007824
+(key1=2, state=3) -> (key2=2, state=2) : 0.021717
+(key1=2, state=3) -> (key2=2, state=3) : 0.007827
+(key1=2, state=3) -> (key2=4, state=0) : 0.007585
+(key1=2, state=3) -> (key2=4, state=1) : -0.001362
+(key1=2, state=3) -> (key2=4, state=2) : -0.006189
+(key1=2, state=3) -> (key2=4, state=3) : -0.001185
+(key1=4, state=0) -> (key2=0, state=0) : 0.138425
+(key1=4, state=0) -> (key2=0, state=1) : 0.005132
+(key1=4, state=0) -> (key2=0, state=2) : 0.060188
+(key1=4, state=0) -> (key2=0, state=3) : -0.085287
+(key1=4, state=0) -> (key2=2, state=0) : 0.225286
+(key1=4, state=0) -> (key2=2, state=1) : -0.164148
+(key1=4, state=0) -> (key2=2, state=2) : 0.033159
+(key1=4, state=0) -> (key2=2, state=3) : -0.011194
+(key1=4, state=0) -> (key2=4, state=0) : -0.038474
+(key1=4, state=0) -> (key2=4, state=1) : -0.512361
+(key1=4, state=0) -> (key2=4, state=2) : -0.298614
+(key1=4, state=0) -> (key2=4, state=3) : -0.197354
+(key1=4, state=1) -> (key2=0, state=0) : -0.033413
+(key1=4, state=1) -> (key2=0, state=1) : 0.204571
+(key1=4, state=1) -> (key2=0, state=2) : -0.042204
+(key1=4, state=1) -> (key2=0, state=3) : -0.112918
+(key1=4, state=1) -> (key2=2, state=0) : -0.209204
+(key1=4, state=1) -> (key2=2, state=1) : -0.072968
+(key1=4, state=1) -> (key2=2, state=2) : -0.090368
+(key1=4, state=1) -> (key2=2, state=3) : -0.018309
+(key1=4, state=1) -> (key2=4, state=0) : 0.113578
+(key1=4, state=1) -> (key2=4, state=1) : 0.001732
+(key1=4, state=1) -> (key2=4, state=2) : -0.179098
+(key1=4, state=1) -> (key2=4, state=3) : -0.140551
+(key1=4, state=2) -> (key2=0, state=0) : 0.024314
+(key1=4, state=2) -> (key2=0, state=1) : 0.240934
+(key1=4, state=2) -> (key2=0, state=2) : 0.155475
+(key1=4, state=2) -> (key2=0, state=3) : 0.055466
+(key1=4, state=2) -> (key2=2, state=0) : 0.128807
+(key1=4, state=2) -> (key2=2, state=1) : -0.196276
+(key1=4, state=2) -> (key2=2, state=2) : 0.075755
+(key1=4, state=2) -> (key2=2, state=3) : -0.055067
+(key1=4, state=2) -> (key2=4, state=0) : 0.046164
+(key1=4, state=2) -> (key2=4, state=1) : -0.028105
+(key1=4, state=2) -> (key2=4, state=2) : 0.158734
+(key1=4, state=2) -> (key2=4, state=3) : 0.177434
+(key1=4, state=3) -> (key2=0, state=0) : -0.018499
+(key1=4, state=3) -> (key2=0, state=1) : 0.025316
+(key1=4, state=3) -> (key2=0, state=2) : -0.018678
+(key1=4, state=3) -> (key2=0, state=3) : 0.048416
+(key1=4, state=3) -> (key2=2, state=0) : 0.010025
+(key1=4, state=3) -> (key2=2, state=1) : 0.056138
+(key1=4, state=3) -> (key2=2, state=2) : 0.202740
+(key1=4, state=3) -> (key2=2, state=3) : -0.011197
+(key1=4, state=3) -> (key2=4, state=0) : -0.025383
+(key1=4, state=3) -> (key2=4, state=1) : -0.002580
+(key1=4, state=3) -> (key2=4, state=2) : -0.004222
+(key1=4, state=3) -> (key2=4, state=3) : -0.140632
+

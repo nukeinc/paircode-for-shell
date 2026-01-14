@@ -1,0 +1,267 @@
+j=0 jn=0 r={0} rn={0} sj={0} rparity={}parity=1
+j=0 jn=0 r={0} rn={1} sj={0} rparity={}parity=1
+overlapm
+2 0
+0 2
+m1
+1 0
+0 1
+m1_1
+
+allbasism01
+allbasism11
+
+Total ham1 time: 3674μs
+ham1cal
+    -0.4 0.565685
+0.565685     -0.8
+hamsige1
+0 0
+0 4
+
+Total all ham time: 59916μs
+allbasisp1
+j=0 jn=0 r={0} rn={0} sj={0} rparity={}parity=1
+j=0 jn=0 r={0} rn={1} sj={0} rparity={}parity=1
+hampcc1
+-0.2 0.282843 
+0.282843 1.6 
+um: [0, 1]
+m_rvec: [0, 0, 0]
+bigmvec: [0, 0]
+
+
+j=0 jn=0 r={0} rn={0} sj={0} rparity={}parity=1
+j=0 jn=0 r={0} rn={1} sj={0} rparity={}parity=1
+overlapm
+2 0
+0 2
+m1
+1 0
+0 1
+m1_1
+
+allbasism01
+--- basism num =0-----
+--- basism entry ---
+r: [0, 0]
+rn: [0, 0]
+rparity: []
+parity: 1
+mvec: [
+  [0]
+  []
+]
+rvecnum: [1, 0]
+m_rvec: [0, 0, 0]
+bigmvec: [0, 0]
+
+
+--- basism num =1-----
+--- basism entry ---
+r: [0, 0]
+rn: [0, 1]
+rparity: []
+parity: 1
+mvec: [
+  []
+  [0]
+]
+rvecnum: [0, 1]
+m_rvec: [0, 0, 0]
+bigmvec: [0, 0]
+
+
+allbasism11
+
+Total ham1 time: 12340μs
+ham1cal
+    -0.4 0.565685
+0.565685     -0.8
+hamsige1
+0 0
+0 4
+
+Total all ham time: 15159μs
+allbasisp2
+j=0 jn=0 r={0} rn={0} sj={0} rparity={}parity=1
+j=0 jn=0 r={0} rn={1} sj={0} rparity={}parity=1
+hampcc2
+-0.2 0.282843 
+0.282843 1.6 
+------------------------------
+Basis: 
+{
+  0: [{ni=0, pi=0, J=0},
+, {ni=0, pi=1, J=0},
+, {ni=1, pi=0, J=0},
+, {ni=1, pi=1, J=0},
+],
+}
+J= 0
+Eigenvalues: 
+Eigenvalue 1: -0.486796
+Eigenvalue 2: 1.4
+Eigenvalue 3: 1.4
+Eigenvalue 4: 3.2868
+Eigenvectors: 
+Eigenvector 1: [ 0.976999 -0.149906 -0.149906 0.023001 ]
+Eigenvector 2: [ 0.212 0.674579 0.674578 -0.212 ]
+Eigenvector 3: [ -2.87368e-08 0.707107 -0.707107 2.87368e-08 ]
+Eigenvector 4: [ -0.023001 -0.149906 -0.149906 -0.976999 ]
+j=0 jn=0 r={0} rn={0} sj={0} rparity={}parity=1
+j=0 jn=0 r={0} rn={1} sj={0} rparity={}parity=1
+overlapm
+2 0
+0 2
+m1
+1 0
+0 1
+m1_1
+
+allbasism01
+--- basism num =0-----
+--- basism entry ---
+r: [0, 0]
+rn: [0, 0]
+rparity: []
+parity: 1
+mvec: [
+  [0]
+  []
+]
+rvecnum: [1, 0]
+m_rvec: [0, 0, 0]
+bigmvec: [0, 0]
+
+
+--- basism num =1-----
+--- basism entry ---
+r: [0, 0]
+rn: [0, 1]
+rparity: []
+parity: 1
+mvec: [
+  []
+  [0]
+]
+rvecnum: [0, 1]
+m_rvec: [0, 0, 0]
+bigmvec: [0, 0]
+
+
+allbasism11
+
+Total ham1 time: 15648μs
+ham1cal
+    -0.4 0.565685
+0.565685     -0.8
+hamsige1
+0 0
+0 4
+
+Total all ham time: 36406μs
+allbasisp1
+j=0 jn=0 r={0} rn={0} sj={0} rparity={}parity=1
+j=0 jn=0 r={0} rn={1} sj={0} rparity={}parity=1
+hampcc1
+-0.2 0.282843 
+0.282843 1.6 
+j=0 jn=0 r={0,0} rn={0,0} sj={0,0} rparity={}parity=1
+j=0 jn=0 r={0,0} rn={0,1} sj={0,0} rparity={}parity=1
+j=0 jn=0 r={0,0} rn={1,1} sj={0,0} rparity={}parity=1
+overlapm
+-0  0  0
+ 0  4  0
+ 0  0  4
+m1
+0 0
+1 0
+0 1
+m1_1
+
+allbasism01
+--- basism num =0-----
+--- basism entry ---
+r: [0, 0, 0]
+rn: [0, 0, 0]
+rparity: []
+parity: 1
+mvec: [
+  [0, 0]
+  []
+]
+rvecnum: [2, 0]
+m_rvec: [0, 0, 0]
+bigmvec: [0, 0, 0]
+
+
+--- basism num =1-----
+--- basism entry ---
+r: [0, 0, 0]
+rn: [0, 0, 1]
+rparity: []
+parity: 1
+mvec: [
+  [0]
+  [0]
+]
+rvecnum: [1, 1]
+m_rvec: [0, 0, 0]
+bigmvec: [0, 0, 0]
+
+
+--- basism num =2-----
+--- basism entry ---
+r: [0, 0, 0]
+rn: [0, 1, 1]
+rparity: []
+parity: 1
+mvec: [
+  []
+  [0, 0]
+]
+rvecnum: [0, 2]
+m_rvec: [0, 0, 0]
+bigmvec: [0, 0, 0]
+
+
+allbasism11
+
+Total ham1 time: 22627μs
+ham1cal
+       0        0        0
+       0     -2.4  1.13137
+       0  1.13137 -2.23662
+hamsige1
+ 0  0  0
+ 0  8  0
+ 0  0 16
+
+Total all ham time: 49834μs
+allbasisp2
+j=0 jn=0 r={0,0} rn={0,1} sj={0,0} rparity={}parity=1
+j=0 jn=0 r={0,0} rn={1,1} sj={0,0} rparity={}parity=1
+hampcc2
+1.4 0.282843 
+0.282843 3.44085 
+------------------------------
+Basis: 
+{
+  0: [{ni=0, pi=0, J=0},
+, {ni=0, pi=1, J=0},
+, {ni=1, pi=0, J=0},
+, {ni=1, pi=1, J=0},
+],
+}
+J= 0
+Eigenvalues: 
+Eigenvalue 1: 1.11813
+Eigenvalue 2: 3.00492
+Eigenvalue 3: 3.23592
+Eigenvalue 4: 5.12272
+Eigenvectors: 
+Eigenvector 1: [ 0.979413 -0.150277 -0.133226 0.0204416 ]
+Eigenvector 2: [ 0.150277 0.979413 -0.0204416 -0.133226 ]
+Eigenvector 3: [ 0.133226 -0.0204416 0.979413 -0.150277 ]
+Eigenvector 4: [ -0.0204416 -0.133226 -0.150277 -0.979413 ]

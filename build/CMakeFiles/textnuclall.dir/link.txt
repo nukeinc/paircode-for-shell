@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/textnuclall.dir/textnuclall.cpp.o -o /home/skyplane/gitdir/paircode-for-shell/bin/textnuclall  -ltbb -lm /usr/lib/gcc/x86_64-linux-gnu/11/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.a
